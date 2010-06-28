@@ -16,7 +16,12 @@ end
  
 desc "Build and release the gem"
 task :release => :build do
-  system "gem push faraday_middleware-#{FaradayMiddleware::VERSION}.gem"
+  system "gem push faraday-middleware-#{FaradayMiddleware::VERSION}.gem"
+end
+
+desc "Build and install the gem"
+task :install => :build do
+  system "sudo gem install faraday-middleware-#{FaradayMiddleware::VERSION}.gem"
 end
 
 task :default => :test
