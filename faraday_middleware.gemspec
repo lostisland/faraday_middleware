@@ -4,7 +4,7 @@ require 'lib/faraday_middleware'
 
 Gem::Specification.new do |s|
   s.name = %q{faraday_middleware}
-  s.version = Faraday::Middleware::VERSION
+  s.version = FaradayMiddleware::VERSION
   s.platform    = Gem::Platform::RUBY
   s.required_rubygems_version = ">= 1.3.6"
   s.authors = ["Wynn Netherland"]
