@@ -5,7 +5,11 @@ module Faraday
 
       def self.register_on_complete(env)
         env[:response].on_complete do |finished_env|
-          finished_env[:body] = MultiJson.decode(finished_env[:body])
+          begin
+            finished_env[:body] = MultiJson.decode(finished_env[:body])
+          rescue JSON::ParserError
+            finished_env[:body] = nil
+          end
         end
       end
     rescue LoadError, NameError => e
