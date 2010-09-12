@@ -1,0 +1,26 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    addressable (2.1.2)
+    faraday (0.4.5)
+      addressable (>= 2.1.1)
+      rack (>= 1.0.1)
+    hashie (0.2.0)
+    json_pure (1.4.6)
+    mcmire-matchy (0.5.2)
+    multi_json (0.0.4)
+    rack (1.2.1)
+    redgreen (1.2.2)
+    shoulda (2.10.3)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  faraday (~> 0.4.5)
+  hashie
+  json_pure
+  mcmire-matchy
+  multi_json
+  redgreen
+  shoulda (~> 2.10.0)
