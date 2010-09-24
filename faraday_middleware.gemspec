@@ -1,25 +1,25 @@
-require 'bundler'
-require 'bundler/version'
-require 'lib/faraday_middleware'
+require File.expand_path("../lib/faraday_middleware", __FILE__)
 
 Gem::Specification.new do |s|
-  s.name = %q{faraday-middleware}
-  s.version = FaradayMiddleware::VERSION
-  s.platform    = Gem::Platform::RUBY
-  s.required_rubygems_version = ">= 1.3.6"
+  s.add_development_dependency('hashie', ['~> 0.4.0'])
+  s.add_development_dependency('mcmire-matchy', ['~> 0.5.2'])
+  s.add_development_dependency('multi_json', ['~> 0.0.4'])
+  s.add_development_dependency('redgreen', ['~> 1.2.2'])
+  s.add_development_dependency('shoulda', ['~> 2.11.3'])
+  s.add_runtime_dependency('faraday', ['~> 0.4.5'])
   s.authors = ["Wynn Netherland"]
-  s.date = %q{2010-06-27}
   s.description = %q{Various middleware for Faraday}
-  s.email = %q{wynn.netherland@gmail.com}
-  s.files = Dir.glob("{lib}/**/*")
-  s.homepage = %q{http://wynnnetherland.com/projects/faraday-middleware/}
+  s.email = ['wynn.netherland@gmail.com']
+  s.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
+  s.extra_rdoc_files = ["README.md"]
+  s.files = `git ls-files`.split("\n")
+  s.homepage = 'http://wynnnetherland.com/projects/faraday-middleware/'
+  s.name = 'faraday-middleware'
+  s.platform = Gem::Platform::RUBY
+  s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.6}
+  s.required_rubygems_version = ">= 1.3.6"
   s.summary = %q{Various middleware for Faraday}
-  s.test_files = [
-    "test/helper.rb",
-    "test/oauth2_test.rb"
-  ]
-
-  s.add_bundler_dependencies
+  s.test_files = `git ls-files -- {test,spec,features}/*`.split("\n")
+  s.version = FaradayMiddleware::VERSION
 end
