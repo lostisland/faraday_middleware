@@ -15,7 +15,6 @@ GEM
     mcmire-matchy (0.5.2)
     multi_json (0.0.4)
     rack (1.2.1)
-    redgreen (1.2.2)
     shoulda (2.11.3)
 
 PLATFORMS
@@ -27,5 +26,4 @@ DEPENDENCIES
   hashie (~> 0.4.0)
   mcmire-matchy (~> 0.5.2)
   multi_json (~> 0.0.4)
-  redgreen (~> 1.2.2)
   shoulda (~> 2.11.3)
