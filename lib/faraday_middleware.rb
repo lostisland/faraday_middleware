@@ -1,7 +1,7 @@
 require 'faraday'
 
 module FaradayMiddleware
-  VERSION = "0.0.1".freeze
+  VERSION = "0.0.2".freeze
 end
 
 directory = File.expand_path(File.dirname(__FILE__))

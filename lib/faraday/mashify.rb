@@ -8,7 +8,7 @@ module Faraday
           json = finished_env[:body]
           if json.is_a?(Hash)
             finished_env[:body] = Hashie::Mash.new(json)
-          elsif json.is_a?(Array)
+          elsif json.is_a?(Array) and json.first.is_a?(Hash)
             finished_env[:body] = json.map{|item| Hashie::Mash.new(item) }
           end
         end

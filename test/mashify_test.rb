@@ -24,5 +24,12 @@ class MashifyTest < Test::Unit::TestCase
       us.first.username.should == 'pengwynn'
       us.last.username.should == 'jnunemaker'
     end
+    
+    should 'handle arrays of non-hashes' do
+      @stubs.get('/array/simple') { [200, {}, "[123, 456]" ] }
+      values = @conn.get("/array/simple").body
+      values.first.should == 123
+      values.last.should == 456
+    end
   end
 end
