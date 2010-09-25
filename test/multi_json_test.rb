@@ -39,6 +39,5 @@ class Multi_Json_Test < Test::Unit::TestCase
         response.body.should be_nil
       end
     end
-    
   end
 end

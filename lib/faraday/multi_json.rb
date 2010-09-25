@@ -15,7 +15,7 @@ module Faraday
     rescue LoadError, NameError => e
       self.load_error = e
     end
-    
+
     def initialize(app)
       super
       @parser = nil
