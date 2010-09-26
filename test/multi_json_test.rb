@@ -15,12 +15,11 @@ class Multi_Json_Test < Test::Unit::TestCase
         @stubs.get('/me') { [200, {}, "{\"name\":\"Wynn Netherland\",\"username\":\"pengwynn\"}"] }
       end
 
-      should 'should parse the body as JSON' do
+      should 'parse the body as JSON' do
         me = @conn.get("/me").body
         assert me.is_a?(Hash)
-        me['name'].should == 'Wynn Netherland'
-        me['username'].should == 'pengwynn'
-
+        assert_equal 'Wynn Netherland', me['name']
+        assert_equal 'pengwynn', me['username']
       end
     end
 
@@ -31,12 +30,12 @@ class Multi_Json_Test < Test::Unit::TestCase
 
       should 'still have the status code' do
         response = @conn.get("/me")
-        response.status.should == 200
+        assert_equal 200, response.status
       end
 
       should 'set body to nil' do
         response = @conn.get("/me")
-        response.body.should be_nil
+        assert_equal response.body, nil
       end
     end
   end

@@ -2,7 +2,6 @@ require 'test/unit'
 require 'pathname'
 require 'rubygems'
 require 'shoulda'
-require 'matchy'
 require 'faraday'
 
 $LOAD_PATH.unshift(File.dirname(__FILE__))
