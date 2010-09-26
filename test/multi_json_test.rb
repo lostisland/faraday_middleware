@@ -38,5 +38,38 @@ class Multi_Json_Test < Test::Unit::TestCase
         assert_equal response.body, nil
       end
     end
+
+    context "when the JSON body is 'true'" do
+      setup do
+        @stubs.get('/me') { [200, {}, "true"] }
+      end
+
+      should 'still have the status code' do
+        response = @conn.get("/me")
+        assert_equal 200, response.status
+      end
+
+      should 'set body to nil' do
+        response = @conn.get("/me")
+        assert_equal response.body, true
+      end
+    end
+
+    context "when the JSON body is 'false'" do
+      setup do
+        @stubs.get('/me') { [200, {}, "false"] }
+      end
+
+      should 'still have the status code' do
+        response = @conn.get("/me")
+        assert_equal 200, response.status
+      end
+
+      should 'set body to nil' do
+        response = @conn.get("/me")
+        assert_equal response.body, false
+      end
+    end
+
   end
 end
