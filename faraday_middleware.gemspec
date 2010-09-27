@@ -1,4 +1,4 @@
-require File.expand_path("../lib/faraday_middleware", __FILE__)
+require File.expand_path("../lib/faraday_middleware/version", __FILE__)
 
 Gem::Specification.new do |s|
   s.add_development_dependency('hashie', ['~> 0.4.0'])
@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files = ["README.md"]
   s.files = `git ls-files`.split("\n")
   s.homepage = 'http://wynnnetherland.com/projects/faraday-middleware/'
-  s.name = 'faraday-middleware'
+  s.name = 'faraday_middleware'
   s.platform = Gem::Platform::RUBY
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
