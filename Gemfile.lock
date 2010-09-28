@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    faraday_middleware (0.0.3)
+    faraday_middleware (0.0.4)
       faraday (~> 0.4.5)
 
 GEM
@@ -12,7 +12,6 @@ GEM
       addressable (>= 2.1.1)
       rack (>= 1.0.1)
     hashie (0.4.0)
-    mcmire-matchy (0.5.2)
     multi_json (0.0.4)
     rack (1.2.1)
     shoulda (2.11.3)
@@ -24,6 +23,5 @@ DEPENDENCIES
   faraday (~> 0.4.5)
   faraday_middleware!
   hashie (~> 0.4.0)
-  mcmire-matchy (~> 0.5.2)
   multi_json (~> 0.0.4)
   shoulda (~> 2.11.3)
