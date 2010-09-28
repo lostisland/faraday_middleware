@@ -1,3 +1,3 @@
 module FaradayMiddleware
-  VERSION = "0.0.4".freeze
+  VERSION = "0.0.4"
 end
