@@ -1,20 +1,16 @@
+require 'hashie'
+
 module Faraday
   class Response::Mashify < Response::Middleware
-    begin
-      require 'hashie'
-
-      def self.register_on_complete(env)
-        env[:response].on_complete do |response|
-          json = response[:body]
-          if json.is_a?(Hash)
-            response[:body] = Hashie::Mash.new(json)
-          elsif json.is_a?(Array) and json.first.is_a?(Hash)
-            response[:body] = json.map{|item| Hashie::Mash.new(item) }
-          end
+    def self.register_on_complete(env)
+      env[:response].on_complete do |response|
+        json = response[:body]
+        if json.is_a?(Hash)
+          response[:body] = Hashie::Mash.new(json)
+        elsif json.is_a?(Array) and json.first.is_a?(Hash)
+          response[:body] = json.map{|item| Hashie::Mash.new(item) }
         end
       end
-    rescue LoadError, NameError => e
-      self.load_error = e
     end
 
     def initialize(app)
