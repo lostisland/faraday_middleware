@@ -4,9 +4,9 @@ module Faraday
       require 'multi_json'
 
       def self.register_on_complete(env)
-        env[:response].on_complete do |finished_env|
-          finished_env[:body] = begin
-            case finished_env[:body]
+        env[:response].on_complete do |response|
+          response[:body] = begin
+            case response[:body]
             when ""
               nil
             when "true"
@@ -14,7 +14,7 @@ module Faraday
             when "false"
               false
             else
-              MultiJson.decode(finished_env[:body])
+              MultiJson.decode(response[:body])
             end
           end
         end

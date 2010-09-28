@@ -4,12 +4,12 @@ module Faraday
       require 'hashie'
 
       def self.register_on_complete(env)
-        env[:response].on_complete do |finished_env|
-          json = finished_env[:body]
+        env[:response].on_complete do |response|
+          json = response[:body]
           if json.is_a?(Hash)
-            finished_env[:body] = Hashie::Mash.new(json)
+            response[:body] = Hashie::Mash.new(json)
           elsif json.is_a?(Array) and json.first.is_a?(Hash)
-            finished_env[:body] = json.map{|item| Hashie::Mash.new(item) }
+            response[:body] = json.map{|item| Hashie::Mash.new(item) }
           end
         end
       end
