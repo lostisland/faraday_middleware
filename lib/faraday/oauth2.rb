@@ -1,10 +1,7 @@
+require 'oauth2'
+
 module Faraday
   class Request::OAuth2 < Faraday::Middleware
-    begin
-      require 'oauth2'
-    rescue LoadError, NameError => e
-      self.load_error = e
-    end
     def initialize(app, *args)
       @app = app
       @token = args.shift
