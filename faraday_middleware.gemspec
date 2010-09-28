@@ -4,6 +4,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('hashie', ['~> 0.4.0'])
   s.add_development_dependency('multi_json', ['~> 0.0.4'])
   s.add_development_dependency('shoulda', ['~> 2.11.3'])
+  s.add_development_dependency('rake', ['~> 0.8.7'])
   s.add_runtime_dependency('faraday', ['~> 0.4.5'])
   s.authors = ["Wynn Netherland"]
   s.description = %q{Various middleware for Faraday}
