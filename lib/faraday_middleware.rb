@@ -1,6 +1,6 @@
 require 'faraday'
 
-directory = File.expand_path(File.dirname(__FILE__))
-require File.join(directory, 'faraday', 'oauth2')
-require File.join(directory, 'faraday', 'multi_json')
-require File.join(directory, 'faraday', 'mashify')
+faraday_middleware_files = Dir[File.join(File.dirname(__FILE__), "/faraday/**/*.rb")].sort
+faraday_middleware_files.each do |file|
+  require file
+end
