@@ -1,7 +1,7 @@
 require 'multi_json'
 
 module Faraday
-  class Response::MultiJson < Response::Middleware
+  class Response::ParseJson < Response::Middleware
     def self.register_on_complete(env)
       env[:response].on_complete do |response|
         response[:body] = begin

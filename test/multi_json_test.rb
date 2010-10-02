@@ -1,12 +1,12 @@
 require 'helper'
 
-class Multi_Json_Test < Test::Unit::TestCase
+class ParseJsonTest < Test::Unit::TestCase
   context 'when used' do
     setup do
       @stubs = Faraday::Adapter::Test::Stubs.new
       @conn  = Faraday::Connection.new do |builder|
         builder.adapter :test, @stubs
-        builder.use Faraday::Response::MultiJson
+        builder.use Faraday::Response::ParseJson
       end
     end
 
