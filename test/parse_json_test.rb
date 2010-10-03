@@ -12,7 +12,7 @@ class ParseJsonTest < Test::Unit::TestCase
 
     context "when there is a JSON body" do
       setup do
-        @stubs.get('/me') { [200, {}, "{\"name\":\"Wynn Netherland\",\"username\":\"pengwynn\"}"] }
+        @stubs.get('/me') {[200, {}, '{"name":"Wynn Netherland","username":"pengwynn"}']}
       end
 
       should 'parse the body as JSON' do
@@ -25,7 +25,7 @@ class ParseJsonTest < Test::Unit::TestCase
 
     context "when the JSON body is empty" do
       setup do
-        @stubs.get('/me') { [200, {}, ""] }
+        @stubs.get('/me') {[200, {}, ""]}
       end
 
       should 'still have the status code' do
@@ -35,13 +35,13 @@ class ParseJsonTest < Test::Unit::TestCase
 
       should 'set body to nil' do
         response = @conn.get("/me")
-        assert_equal response.body, nil
+        assert_equal nil, response.body
       end
     end
 
     context "when the JSON body is 'true'" do
       setup do
-        @stubs.get('/me') { [200, {}, "true"] }
+        @stubs.get('/me') {[200, {}, "true"]}
       end
 
       should 'still have the status code' do
@@ -49,15 +49,15 @@ class ParseJsonTest < Test::Unit::TestCase
         assert_equal 200, response.status
       end
 
-      should 'set body to nil' do
+      should 'set body to true' do
         response = @conn.get("/me")
-        assert_equal response.body, true
+        assert_equal true, response.body
       end
     end
 
     context "when the JSON body is 'false'" do
       setup do
-        @stubs.get('/me') { [200, {}, "false"] }
+        @stubs.get('/me') {[200, {}, "false"]}
       end
 
       should 'still have the status code' do
@@ -65,9 +65,9 @@ class ParseJsonTest < Test::Unit::TestCase
         assert_equal 200, response.status
       end
 
-      should 'set body to nil' do
+      should 'set body to false' do
         response = @conn.get("/me")
-        assert_equal response.body, false
+        assert_equal false, response.body
       end
     end
 
