@@ -5,8 +5,8 @@ Collection of [Faraday](http://github.com/technoweenie/faraday) middlewares I've
 
 ## Installation
 
-    sudo gem install faraday-middleware
-    
+    sudo gem install faraday_middleware
+
 
 #### Some examples
 
@@ -24,7 +24,7 @@ Let's decode the response body with [MultiJson](http://github.com/intridea/multi
     u = resp.body
     u['name']
     # => "Wynn Netherland"
-    
+
 
 Want to ditch the brackets and use dot notation? [Mashify](http://github.com/intridea/hashie) it!
 
