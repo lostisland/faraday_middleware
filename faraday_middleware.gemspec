@@ -10,7 +10,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency('multi_json', ['~> 0.0.4'])
   s.add_runtime_dependency('multi_xml', ['~> 0.0.1'])
   s.add_runtime_dependency('oauth2', ['~> 0.0.13'])
-  s.add_runtime_dependency('roauth', ['~> 0.0.3'])
   s.authors = ["Wynn Netherland"]
   s.description = %q{Various middleware for Faraday}
   s.email = ['wynn.netherland@gmail.com']

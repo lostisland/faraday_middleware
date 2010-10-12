@@ -7,7 +7,6 @@ PATH
       multi_json (~> 0.0.4)
       multi_xml (~> 0.0.1)
       oauth2 (~> 0.0.13)
-      roauth (~> 0.0.3)
 
 GEM
   remote: http://rubygems.org/
@@ -25,7 +24,6 @@ GEM
       multi_json (>= 0.0.4)
     rack (1.2.1)
     rake (0.8.7)
-    roauth (0.0.3)
     shoulda (2.11.3)
 
 PLATFORMS
@@ -40,5 +38,4 @@ DEPENDENCIES
   multi_xml (~> 0.0.1)
   oauth2 (~> 0.0.13)
   rake (~> 0.8.7)
-  roauth (~> 0.0.3)
   shoulda (~> 2.11.3)
