@@ -4,7 +4,6 @@ module Faraday
       require 'multi_json'
     rescue LoadError, NameError => error
       self.load_error = error
-      raise error
     end 
 
     def self.register_on_complete(env)
@@ -18,7 +17,7 @@ module Faraday
           when "false"
             false
           else
-            MultiJson.decode(response[:body])
+            ::MultiJson.decode(response[:body])
           end
         end
       end

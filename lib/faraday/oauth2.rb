@@ -4,7 +4,6 @@ module Faraday
       require 'oauth2'
     rescue LoadError, NameError => error
       self.load_error = error
-      raise error
     end 
 
     def call(env)
