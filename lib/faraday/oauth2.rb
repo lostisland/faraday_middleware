@@ -1,11 +1,11 @@
-require 'oauth2'
-
 module Faraday
   class Request::OAuth2 < Faraday::Middleware
-    def initialize(app, *args)
-      @app = app
-      @token = args.shift
-    end
+    begin
+      require 'oauth2'
+    rescue LoadError, NameError => error
+      self.load_error = error
+      raise error
+    end 
 
     def call(env)
       params = env[:url].query_values || {}
@@ -13,6 +13,11 @@ module Faraday
       env[:request_headers].merge!('Authorization' => "Token token=\"#{@token}\"")
 
       @app.call env
+    end
+
+    def initialize(app, *args)
+      @app = app
+      @token = args.shift
     end
   end
 end

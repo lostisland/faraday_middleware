@@ -1,7 +1,12 @@
-require 'multi_json'
-
 module Faraday
   class Response::ParseJson < Response::Middleware
+    begin
+      require 'multi_json'
+    rescue LoadError, NameError => error
+      self.load_error = error
+      raise error
+    end 
+
     def self.register_on_complete(env)
       env[:response].on_complete do |response|
         response[:body] = begin
