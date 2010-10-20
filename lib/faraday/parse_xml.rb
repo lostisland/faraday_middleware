@@ -4,7 +4,7 @@ module Faraday
       require 'multi_xml'
     rescue LoadError, NameError => error
       self.load_error = error
-    end 
+    end
 
     def self.register_on_complete(env)
       env[:response].on_complete do |response|

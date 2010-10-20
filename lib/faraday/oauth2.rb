@@ -4,7 +4,7 @@ module Faraday
       require 'oauth2'
     rescue LoadError, NameError => error
       self.load_error = error
-    end 
+    end
 
     def call(env)
       params = env[:url].query_values || {}
