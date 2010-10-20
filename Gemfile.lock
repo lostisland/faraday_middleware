@@ -23,6 +23,7 @@ GEM
     rack (1.2.1)
     rake (0.8.7)
     shoulda (2.11.3)
+    test-unit (2.1.1)
 
 PLATFORMS
   ruby
@@ -37,3 +38,4 @@ DEPENDENCIES
   oauth2 (~> 0.1)
   rake (~> 0.8)
   shoulda (~> 2.11)
+  test-unit (~> 2.1)
