@@ -29,7 +29,7 @@ module Faraday
 
     private
 
-    def parse_json(response_body)
+    def self.parse_json(response_body)
       case response_body
       when ''
         nil
@@ -38,11 +38,11 @@ module Faraday
       when 'false'
         false
       else
-        ::MultiJson.decode(response[:body])
+        ::MultiJson.decode(response_body)
       end
     end
 
-    def parse_xml
+    def self.parse_xml(response_body)
       ::MultiXml.parse(response_body)
     end
   end
