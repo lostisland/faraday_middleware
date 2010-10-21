@@ -12,18 +12,9 @@ module Faraday
         response[:body] = begin
           case response[:response_headers]['content-type']
           when /application\/json/
-            case response[:body]
-            when ''
-              nil
-            when 'true'
-              true
-            when 'false'
-              false
-            else
-              ::MultiJson.decode(response[:body])
-            end
+            parse_json(response[:body])
           when /application\/xml/
-            ::MultiXml.parse(response[:body])
+            parse_xml(response[:body])
           else
             ''
           end
@@ -34,6 +25,25 @@ module Faraday
     def initialize(app)
       super
       @parser = nil
+    end
+
+    private
+
+    def parse_json(response_body)
+      case response_body
+      when ''
+        nil
+      when 'true'
+        true
+      when 'false'
+        false
+      else
+        ::MultiJson.decode(response[:body])
+      end
+    end
+
+    def parse_xml
+      ::MultiXml.parse(response_body)
     end
   end
 end
