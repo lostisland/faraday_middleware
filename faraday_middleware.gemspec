@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('hashie', '~> 0.4')
   s.add_development_dependency('json', '~> 1.4')
   s.add_development_dependency('multi_json', '~> 0.0')
-  s.add_development_dependency('multi_xml', '~> 0.1')
+  s.add_development_dependency('multi_xml', '~> 0.2')
   s.add_development_dependency('oauth2', '~> 0.1')
   s.add_development_dependency('rake', '~> 0.8')
   s.add_development_dependency('shoulda', '~> 2.11')
