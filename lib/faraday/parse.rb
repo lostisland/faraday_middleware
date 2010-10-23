@@ -10,7 +10,7 @@ module Faraday
     def self.register_on_complete(env)
       env[:response].on_complete do |response|
         response[:body] = begin
-          case response[:response_headers]['content-type']
+          case response[:response_headers].values_at('content-type', 'Content-Type').first
           when /application\/json/
             parse_json(response[:body])
           when /application\/xml/
