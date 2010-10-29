@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    faraday_middleware (0.2.1)
+    faraday_middleware (0.2.2)
       faraday (~> 0.5.2)
 
 GEM
