@@ -11,9 +11,9 @@ module Faraday
       env[:response].on_complete do |response|
         response[:body] = begin
           case response[:response_headers].values_at('content-type', 'Content-Type').first
-          when /application\/json/
+          when /\/json/
             parse_json(response[:body])
-          when /application\/xml/
+          when /\/xml/
             parse_xml(response[:body])
           else
             ''
