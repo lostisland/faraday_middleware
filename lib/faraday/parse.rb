@@ -13,7 +13,7 @@ module Faraday
           case response[:response_headers].values_at('content-type', 'Content-Type').first
           when /\/json/
             parse_json(response[:body])
-          when /\/xml/
+          when /\/.*xml/
             parse_xml(response[:body])
           else
             ''

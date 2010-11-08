@@ -85,6 +85,19 @@ class ParseTest < Test::Unit::TestCase
       end
     end
 
+    context "when there is a ATOM body" do
+      setup do
+        @stubs.get('/me') {[200, {'content-type' => 'application/atom+xml; charset=utf-8'}, '<user><name>Erik Michaels-Ober</name><username>sferik</username></user>']}
+      end
+
+      should 'parse the body as XML' do
+        me = @conn.get("/me").body['user']
+        assert me.is_a?(Hash)
+        assert_equal 'Erik Michaels-Ober', me['name']
+        assert_equal 'sferik', me['username']
+      end
+    end
+
     context "when the XML body is empty" do
       setup do
         @stubs.get('/me') {[200, {'content-type' => 'application/xml; charset=utf-8'}, ""]}
