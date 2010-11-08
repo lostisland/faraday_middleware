@@ -6,7 +6,7 @@ class MashifyTest < Test::Unit::TestCase
       @stubs = Faraday::Adapter::Test::Stubs.new
       @conn  = Faraday::Connection.new do |builder|
         builder.adapter :test, @stubs
-        builder.use Faraday::Response::Parse
+        builder.use Faraday::Response::ParseJson
         builder.use Faraday::Response::Mashify
       end
     end

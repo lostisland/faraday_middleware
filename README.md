@@ -14,7 +14,7 @@ Let's decode the response body with [MultiJson](http://github.com/intridea/multi
 
     conn = Faraday::Connection.new(:url => 'http://api.twitter.com/1') do |builder|
       builder.adapter Faraday.default_adapter
-      builder.use Faraday::Response::Parse
+      builder.use Faraday::Response::ParseJson
     end
 
     resp = conn.get do |req|
@@ -30,7 +30,7 @@ Want to ditch the brackets and use dot notation? [Mashify](http://github.com/int
 
     conn = Faraday::Connection.new(:url => 'http://api.twitter.com/1') do |builder|
       builder.adapter Faraday.default_adapter
-      builder.use Faraday::Response::Parse
+      builder.use Faraday::Response::ParseJson
       builder.use Faraday::Response::Mashify
     end
 
