@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('rake', '~> 0.8')
   s.add_development_dependency('shoulda', '~> 2.11')
   s.add_development_dependency('test-unit', '~> 2.1')
-  s.add_runtime_dependency('faraday', '~> 0.5.2')
+  s.add_runtime_dependency('faraday', '~> 0.5.3')
   s.authors = ["Wynn Netherland"]
   s.description = %q{Various middleware for Faraday}
   s.email = ['wynn.netherland@gmail.com']

@@ -2,13 +2,13 @@ PATH
   remote: .
   specs:
     faraday_middleware (0.2.3)
-      faraday (~> 0.5.2)
+      faraday (~> 0.5.3)
 
 GEM
   remote: http://rubygems.org/
   specs:
     addressable (2.2.2)
-    faraday (0.5.2)
+    faraday (0.5.3)
       addressable (~> 2.2.2)
       multipart-post (~> 1.0.1)
       rack (>= 1.1.0, < 2)
@@ -29,7 +29,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  faraday (~> 0.5.2)
+  faraday (~> 0.5.3)
   faraday_middleware!
   hashie (~> 0.4)
   json (~> 1.4)
