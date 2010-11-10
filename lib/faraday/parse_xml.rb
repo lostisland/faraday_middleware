@@ -1,3 +1,5 @@
+require 'faraday'
+
 module Faraday
   class Response::ParseXml < Response::Middleware
     begin

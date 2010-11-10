@@ -1,3 +1,5 @@
+require 'faraday'
+
 module Faraday
   class Response::ParseJson < Response::Middleware
     begin

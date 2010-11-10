@@ -1,9 +1,9 @@
-require 'test/unit'
-require 'pathname'
-require 'rubygems'
-require 'shoulda'
-require 'faraday'
+require 'simplecov'
+SimpleCov.start do
+  add_group 'Libraries', 'lib'
+end
 
-$LOAD_PATH.unshift(File.dirname(__FILE__))
-$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
-require 'faraday_middleware'
+require 'test/unit'
+require 'shoulda'
+
+require File.expand_path('../../lib/faraday_middleware', __FILE__)

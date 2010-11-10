@@ -1,3 +1,5 @@
+require 'faraday'
+
 module Faraday
   class Request::OAuth2 < Faraday::Middleware
     begin
