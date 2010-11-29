@@ -27,7 +27,7 @@ GEM
     simplecov (0.3.7)
       simplecov-html (>= 0.3.7)
     simplecov-html (0.3.9)
-    test-unit (2.1.1)
+    test-unit (2.1.2)
 
 PLATFORMS
   java
