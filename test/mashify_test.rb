@@ -31,5 +31,13 @@ class MashifyTest < Test::Unit::TestCase
       assert_equal 123, values.first
       assert_equal 456, values.last
     end
+    
+    should 'handle arrays of hashes and non-hashes' do
+      @stubs.get('/array/simple') {[200, {'content-type' => 'application/json; charset=utf-8'}, '[123, {"username":"slainer68"}, 42]']}
+      values = @conn.get("/array/simple").body
+      assert_equal 123, values[0]
+      assert_equal "slainer68", values[1].username
+      assert_equal 42, values[2]
+    end
   end
 end
