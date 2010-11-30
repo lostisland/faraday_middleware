@@ -13,8 +13,8 @@ module Faraday
         response_body = response[:body]
         if response_body.is_a?(Hash)
           response[:body] = ::Hashie::Mash.new(response_body)
-        elsif response_body.is_a?(Array) and response_body.first.is_a?(Hash)
-          response[:body] = response_body.map{|item| ::Hashie::Mash.new(item)}
+        elsif response_body.is_a?(Array)
+          response[:body] = response_body.map{|item| item.is_a?(Hash) ? ::Hashie::Mash.new(item) : item}
         end
       end
     end
