@@ -2,7 +2,7 @@ require File.expand_path('../lib/faraday_middleware/version', __FILE__)
 
 Gem::Specification.new do |s|
   s.add_development_dependency('hashie', '~> 1.0')
-  s.add_development_dependency('json', '~> 1.4')
+  s.add_development_dependency('json', '~> 1.5')
   s.add_development_dependency('multi_json', '~> 0.0')
   s.add_development_dependency('multi_xml', '~> 0.2')
   s.add_development_dependency('oauth2', '~> 0.1')
