@@ -9,10 +9,10 @@ Gem::Specification.new do |s|
   s.add_development_dependency('rake', '~> 0.8')
   s.add_development_dependency('rspec', '~> 2.5')
   s.add_development_dependency('simplecov', '~> 0.4')
-  s.add_runtime_dependency('faraday', '~> 0.5.4')
-  s.authors = ["Wynn Netherland"]
+  s.add_runtime_dependency('faraday', '~> 0.5.7')
+  s.authors = ["Erik Michaels-Ober", "Wynn Netherland"]
   s.description = %q{Various middleware for Faraday}
-  s.email = ['wynn.netherland@gmail.com']
+  s.email = ['sferik@gmail.com', 'wynn.netherland@gmail.com']
   s.executables = `git ls-files -- bin/*`.split("\n").map{|f| File.basename(f)}
   s.extra_rdoc_files = ["README.md"]
   s.files = `git ls-files`.split("\n")
