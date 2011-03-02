@@ -1,4 +1,4 @@
-require File.expand_path('../helper', __FILE__)
+require 'helper'
 
 describe Faraday::Response::ParseJson do
   context 'when used' do

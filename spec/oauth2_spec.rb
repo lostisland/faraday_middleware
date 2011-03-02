@@ -1,4 +1,4 @@
-require File.expand_path('../helper', __FILE__)
+require 'helper'
 
 describe Faraday::Request::OAuth2 do
   context 'when used' do

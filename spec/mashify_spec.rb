@@ -1,4 +1,4 @@
-require File.expand_path('../helper', __FILE__)
+require 'helper'
 
 describe Faraday::Response::Mashify do
   context 'during configuration' do
