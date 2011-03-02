@@ -8,12 +8,18 @@ module Faraday
       self.load_error = error
     end
 
+    class << self
+      attr_accessor :mash_class
+    end
+
+    self.mash_class = ::Hashie::Mash
+
     def on_complete(env)
       response_body = env[:body]
-      if response_body.is_a?(Hash)
-        env[:body] = ::Hashie::Mash.new(response_body)
+      env[:body] = if response_body.is_a?(Hash)
+        self.class.mash_class.new(response_body)
       elsif response_body.is_a?(Array)
-        env[:body] = response_body.map{|item| item.is_a?(Hash) ? ::Hashie::Mash.new(item) : item}
+        response_body.map { |item| item.is_a?(Hash) ? self.class.mash_class.new(item) : item }
       end
     end
   end
