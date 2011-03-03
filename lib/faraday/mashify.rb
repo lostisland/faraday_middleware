@@ -14,12 +14,14 @@ module Faraday
 
     self.mash_class = ::Hashie::Mash
 
-    def on_complete(env)
-      response_body = env[:body]
-      env[:body] = if response_body.is_a?(Hash)
-        self.class.mash_class.new(response_body)
-      elsif response_body.is_a?(Array)
-        response_body.map { |item| item.is_a?(Hash) ? self.class.mash_class.new(item) : item }
+    def parse(body)
+      case body
+      when Hash
+        self.class.mash_class.new(body)
+      when Array
+        body.map { |item| item.is_a?(Hash) ? self.class.mash_class.new(item) : item }
+      else
+        body
       end
     end
   end
