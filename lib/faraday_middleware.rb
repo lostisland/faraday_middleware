@@ -1,6 +1,7 @@
 require 'faraday'
 
 class Faraday::Request
+  autoload :OAuth,  'faraday/oauth'
   autoload :OAuth2, 'faraday/oauth2'
 end
 
