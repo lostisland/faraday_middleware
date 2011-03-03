@@ -10,8 +10,12 @@ module Faraday
 
     def call(env)
       params = env[:url].query_values || {}
-      env[:url].query_values = params.merge('access_token' => @token)
-      env[:request_headers].merge!('Authorization' => "Token token=\"#{@token}\"")
+
+      env[:url].query_values = { 'access_token' => @token }.merge(params)
+
+      token = env[:url].query_values['access_token']
+
+      env[:request_headers].merge!('Authorization' => "Token token=\"#{token}\"")
 
       @app.call env
     end
