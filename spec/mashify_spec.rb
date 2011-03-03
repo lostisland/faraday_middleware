@@ -9,46 +9,45 @@ describe Faraday::Response::Mashify do
   end
 
   context 'when used' do
-    before do
-      @stubs = Faraday::Adapter::Test::Stubs.new
-      @connection = Faraday::Connection.new do |builder|
-        builder.adapter :test, @stubs
-        builder.use Faraday::Response::ParseJson
-        builder.use Faraday::Response::Mashify
-      end
-      Faraday::Response::Mashify.mash_class = ::Hashie::Mash
-    end
+    before(:each) { Faraday::Response::Mashify.mash_class = ::Hashie::Mash }
+    let(:mashify) { Faraday::Response::Mashify.new }
 
     it 'should create a Hashie::Mash from the body' do
-      @stubs.get('/hash') {[200, {'content-type' => 'application/json; charset=utf-8'}, '{"name":"Erik Michaels-Ober","username":"sferik"}']}
-      me = @connection.get('/hash').body
+      env = { :body => { "name" => "Erik Michaels-Ober", "username" => "sferik" } }
+      me  = mashify.on_complete(env)
       me.class.should == Hashie::Mash
     end
 
+    it 'should handle strings' do
+      env = { :body => "Most amazing string EVER" }
+      me  = mashify.on_complete(env)
+      me.should == "Most amazing string EVER"
+    end
+
     it 'should handle hashes' do
-      @stubs.get('/hash') {[200, {'content-type' => 'application/json; charset=utf-8'}, '{"name":"Erik Michaels-Ober","username":"sferik"}']}
-      me = @connection.get('/hash').body
+      env = { :body => { "name" => "Erik Michaels-Ober", "username" => "sferik" } }
+      me  = mashify.on_complete(env)
       me.name.should == 'Erik Michaels-Ober'
       me.username.should == 'sferik'
     end
 
     it 'should handle arrays' do
-      @stubs.get('/array/integers') {[200, {'content-type' => 'application/json; charset=utf-8'}, "[123, 456]"]}
-      values = @connection.get('/array/integers').body
+      env = { :body => [123, 456] }
+      values = mashify.on_complete(env)
       values.first.should == 123
       values.last.should == 456
     end
 
     it 'should handle arrays of hashes' do
-      @stubs.get('/array/hashes') {[200, {'content-type' => 'application/json; charset=utf-8'}, '[{"username":"sferik"},{"username":"pengwynn"}]']}
-      us = @connection.get('/array/hashes').body
+      env = { :body => [{ "username" => "sferik" }, { "username" => "pengwynn" }] }
+      us  = mashify.on_complete(env)
       us.first.username.should == 'sferik'
       us.last.username.should == 'pengwynn'
     end
 
     it 'should handle mixed arrays' do
-      @stubs.get('/array/mixed') {[200, {'content-type' => 'application/json; charset=utf-8'}, '[123, {"username":"sferik"}, 456]']}
-      values = @connection.get('/array/mixed').body
+      env = { :body => [123, { "username" => "sferik" }, 456] }
+      values = mashify.on_complete(env)
       values.first.should == 123
       values.last.should == 456
       values[1].username.should == 'sferik'
@@ -58,9 +57,29 @@ describe Faraday::Response::Mashify do
       class MyMash < ::Hashie::Mash; end
       Faraday::Response::Mashify.mash_class = MyMash
 
-      @stubs.get('/hash') {[200, {'content-type' => 'application/json; charset=utf-8'}, '{"name":"Erik Michaels-Ober","username":"sferik"}']}
-      values = @connection.get('/hash').body
-      values.class.should == MyMash
+      env = { :body => { "name" => "Erik Michaels-Ober", "username" => "sferik" } }
+      me  = mashify.on_complete(env)
+
+      me.class.should == MyMash
+    end
+  end
+
+  context 'integration test' do
+    let(:stubs) { Faraday::Adapter::Test::Stubs.new }
+    let(:connection) do
+      Faraday::Connection.new do |builder|
+        builder.adapter :test, stubs
+        builder.use Faraday::Response::Mashify
+      end
+    end
+
+    # although it is not good practice to pass a hash as the body, if we add ParseJson
+    # to the middleware stack we end up testing two middlewares instead of one
+    it 'should create a Hash from the body' do
+      stubs.get('/hash') {[200, {'content-type' => 'application/json; charset=utf-8'}, { "name" => "Erik Michaels-Ober", "username" => "sferik" }]}
+      me = connection.get('/hash').body
+      me.name.should == 'Erik Michaels-Ober'
+      me.username.should == 'sferik'
     end
   end
 end
