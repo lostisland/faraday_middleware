@@ -8,18 +8,16 @@ module Faraday
       self.load_error = error
     end
 
-    def on_complete(env)
-      env[:body] = begin
-        case env[:body]
-        when ''
-          nil
-        when 'true'
-          true
-        when 'false'
-          false
-        else
-          ::MultiJson.decode(env[:body])
-        end
+    def parse(body)
+      case body
+      when ''
+        nil
+      when 'true'
+        true
+      when 'false'
+        false
+      else
+        ::MultiJson.decode(body)
       end
     end
   end
