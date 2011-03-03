@@ -1,4 +1,4 @@
-faraday_middleware_files = Dir[File.join(File.dirname(__FILE__), "/faraday/**/*.rb")].sort
-faraday_middleware_files.each do |file|
-  require file
-end
+require 'faraday/mashify'
+require 'faraday/oauth2'
+require 'faraday/parse_json'
+require 'faraday/parse_xml'
