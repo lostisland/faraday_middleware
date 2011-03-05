@@ -1,3 +1,6 @@
+require 'bundler'
+Bundler.require
+
 require 'simplecov'
 SimpleCov.start
 require File.expand_path('../../lib/faraday_middleware', __FILE__)
