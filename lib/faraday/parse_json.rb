@@ -9,6 +9,8 @@ module Faraday
     end
 
     def on_complete(env)
+      return env[:body] unless env[:response_headers]["content-type"].include? "json"
+      
       env[:body] = begin
         case env[:body]
         when ''

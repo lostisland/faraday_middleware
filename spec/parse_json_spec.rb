@@ -10,6 +10,12 @@ describe Faraday::Response::ParseJson do
       end
     end
 
+    it "shouldn't change the response if it isn't json" do
+      @stubs.get('/text') {[200, {'content-type' => 'text/plain'}, 'plain']}
+      empty = @connection.get('/text').body
+      empty.should == 'plain'
+    end
+    
     it 'should handle a blank response' do
       @stubs.get('/empty') {[200, {'content-type' => 'application/json; charset=utf-8'}, '']}
       empty = @connection.get('/empty').body
