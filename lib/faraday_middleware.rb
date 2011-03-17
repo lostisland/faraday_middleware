@@ -1,12 +1,12 @@
 require 'faraday'
 
 class Faraday::Request
-  autoload :OAuth,  'faraday/oauth'
-  autoload :OAuth2, 'faraday/oauth2'
+  autoload :OAuth,  'faraday/request/oauth'
+  autoload :OAuth2, 'faraday/request/oauth2'
 end
 
 class Faraday::Response
-  autoload :Mashify,   'faraday/mashify'
-  autoload :ParseJson, 'faraday/parse_json'
-  autoload :ParseXml,  'faraday/parse_xml'
+  autoload :Mashify,   'faraday/response/mashify'
+  autoload :ParseJson, 'faraday/response/parse_json'
+  autoload :ParseXml,  'faraday/response/parse_xml'
 end
