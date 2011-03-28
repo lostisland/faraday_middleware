@@ -8,7 +8,7 @@ module Faraday
       attr_accessor :mash_class
     end
 
-    self.mash_class = ::Hashie::Mash
+    self.mash_class = ::Hashie::Rash
 
     def parse(body)
       case body

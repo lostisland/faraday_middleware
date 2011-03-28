@@ -9,13 +9,13 @@ describe Faraday::Response::Mashify do
   end
 
   context 'when used' do
-    before(:each) { Faraday::Response::Mashify.mash_class = ::Hashie::Mash }
+    before(:each) { Faraday::Response::Mashify.mash_class = ::Hashie::Rash }
     let(:mashify) { Faraday::Response::Mashify.new }
 
-    it 'should create a Hashie::Mash from the body' do
+    it 'should create a Hashie::Rash from the body' do
       env = { :body => { "name" => "Erik Michaels-Ober", "username" => "sferik" } }
       me  = mashify.on_complete(env)
-      me.class.should == Hashie::Mash
+      me.class.should == Hashie::Rash
     end
 
     it 'should handle strings' do
@@ -24,11 +24,11 @@ describe Faraday::Response::Mashify do
       me.should == "Most amazing string EVER"
     end
 
-    it 'should handle hashes' do
-      env = { :body => { "name" => "Erik Michaels-Ober", "username" => "sferik" } }
+    it 'should handle hashes and decamelcase the keys' do
+      env = { :body => { "name" => "Erik Michaels-Ober", "userName" => "sferik" } }
       me  = mashify.on_complete(env)
       me.name.should == 'Erik Michaels-Ober'
-      me.username.should == 'sferik'
+      me.user_name.should == 'sferik'
     end
 
     it 'should handle arrays' do
