@@ -2,11 +2,7 @@ require 'faraday'
 
 module Faraday
   class Request::OAuth2 < Faraday::Middleware
-    begin
-      require 'oauth2'
-    rescue LoadError, NameError => error
-      self.load_error = error
-    end
+    dependency 'oauth2'
 
     def call(env)
       params = env[:url].query_values || {}

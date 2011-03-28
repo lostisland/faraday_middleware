@@ -2,11 +2,7 @@ require 'faraday'
 
 module Faraday
   class Response::Mashify < Response::Middleware
-    begin
-      require 'hashie'
-    rescue LoadError, NameError => error
-      self.load_error = error
-    end
+    dependency 'faraday_middleware/support/rash'
 
     class << self
       attr_accessor :mash_class

@@ -2,11 +2,7 @@ require 'faraday'
 
 module Faraday
   class Response::ParseJson < Response::Middleware
-    begin
-      require 'multi_json'
-    rescue LoadError, NameError => error
-      self.load_error = error
-    end
+    dependency 'multi_json'
 
     def parse(body)
       case body

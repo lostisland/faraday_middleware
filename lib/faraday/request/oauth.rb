@@ -2,11 +2,7 @@ require 'faraday'
 
 module Faraday
   class Request::OAuth < Faraday::Middleware
-    begin
-      require 'simple_oauth'
-    rescue LoadError, NameError => error
-      self.load_error = error
-    end
+    dependency 'simple_oauth'
 
     def call(env)
       params = env[:body].is_a?(Hash) ? env[:body] : {}

@@ -2,11 +2,7 @@ require 'faraday'
 
 module Faraday
   class Response::ParseXml < Response::Middleware
-    begin
-      require 'multi_xml'
-    rescue LoadError, NameError => error
-      self.load_error = error
-    end
+    dependency 'multi_xml'
 
     def parse(body)
       ::MultiXml.parse(body)
