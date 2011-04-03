@@ -2,7 +2,7 @@ require 'faraday'
 
 module Faraday
   class Response::Mashify < Response::Middleware
-    dependency 'faraday_middleware/support/rash'
+    dependency 'rash'
 
     class << self
       attr_accessor :mash_class

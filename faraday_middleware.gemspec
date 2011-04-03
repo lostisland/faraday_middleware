@@ -27,7 +27,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('rake', '~> 0.8')
   s.add_development_dependency('rspec', '~> 2.5')
   s.add_development_dependency('simplecov', '~> 0.4')
-  s.add_development_dependency('hashie', '~> 1.0')
+  s.add_development_dependency('rash', '~> 0.3')
   s.add_development_dependency('json_pure', '~> 1.5')
   s.add_development_dependency('multi_json', '~> 0.0')
   s.add_development_dependency('multi_xml', '~> 0.2')
