@@ -9,4 +9,5 @@ class Faraday::Response
   autoload :Mashify,   'faraday/response/mashify'
   autoload :ParseJson, 'faraday/response/parse_json'
   autoload :ParseXml,  'faraday/response/parse_xml'
+  autoload :Rashify,   'faraday/response/rashify'
 end
