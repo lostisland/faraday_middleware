@@ -2,6 +2,7 @@ require 'faraday'
 
 module Faraday
   class Response::Rashify < Response::Middleware
+    dependency 'hashie/mash'
     dependency 'rash'
 
     def parse(body)
