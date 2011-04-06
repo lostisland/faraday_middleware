@@ -5,7 +5,7 @@ module Faraday
     dependency 'simple_oauth'
 
     def call(env)
-      params = env.fetch(:body, {})
+      params = env[:body] || {}
 
       signature_params = params.reject{ |k,v| v.respond_to?(:content_type) }
 
