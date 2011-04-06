@@ -18,10 +18,6 @@ Gem::Specification.new do |s|
   s.test_files  = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
 
-  s.has_rdoc = true
-  s.extra_rdoc_files = ["README.md"]
-  s.rdoc_options = ['--charset=UTF-8']
-
   s.required_rubygems_version = Gem::Requirement.new('>= 1.3.6') if s.respond_to? :required_rubygems_version=
 
   s.add_runtime_dependency('faraday', '~> 0.6.0')
