@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('simplecov', '~> 0.4')
   s.add_development_dependency('rash', '~> 0.3')
   s.add_development_dependency('json_pure', '~> 1.5')
-  s.add_development_dependency('multi_json', '~> 0.0')
+  s.add_development_dependency('multi_json', '~> 1.0')
   s.add_development_dependency('multi_xml', '~> 0.2')
   s.add_development_dependency('oauth2', '~> 0.2')
   s.add_development_dependency('simple_oauth', '~> 0.1')
