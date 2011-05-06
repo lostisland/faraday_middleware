@@ -1,43 +1,41 @@
-# Faraday Middleware
+Faraday Middleware
+==================
 
-Collection of [Faraday](http://github.com/technoweenie/faraday) middlewares I've been using in some of my API wrappers
+A collection of some useful [Faraday](http://github.com/technoweenie/faraday) middleware
 
+Installation
+------------
+    gem install faraday_middleware
 
-## Installation
+Examples
+--------
+Let's decode the response body with [MultiJson](http://github.com/intridea/multi_json)!
 
-    sudo gem install faraday_middleware
-
-
-#### Some examples
-
-Let's decode the response body with [MultiJson](http://github.com/intridea/multi_json)
-
-    conn = Faraday::Connection.new(:url => 'http://api.twitter.com/1') do |builder|
-      builder.adapter Faraday.default_adapter
+    connection = Faraday.new(:url => 'http://api.twitter.com/1') do |builder|
       builder.use Faraday::Response::ParseJson
+      builder.adapter Faraday.default_adapter
     end
 
-    resp = conn.get do |req|
-      req.url '/users/show.json', :screen_name => 'pengwynn'
+    response = connection.get do |request|
+      request.url '/users/show.json', :screen_name => 'pengwynn'
     end
 
-    u = resp.body
+    u = response.body
     u['name']
     # => "Wynn Netherland"
 
-
 Want to ditch the brackets and use dot notation? [Mashify](http://github.com/intridea/hashie) it!
 
-    conn = Faraday::Connection.new(:url => 'http://api.twitter.com/1') do |builder|
-      builder.adapter Faraday.default_adapter
-      builder.use Faraday::Response::ParseJson
+    connection = Faraday.new(:url => 'http://api.twitter.com/1') do |builder|
       builder.use Faraday::Response::Mashify
+      builder.use Faraday::Response::ParseJson
+      builder.adapter Faraday.default_adapter
     end
 
-    resp = conn.get do |req|
-      req.url '/users/show.json', :screen_name => 'pengwynn'
+    response = connection.get do |request|
+      request.url '/users/show.json', :screen_name => 'pengwynn'
     end
 
-    u = resp.body
+    u = response.body
     u.name
     # => "Wynn Netherland"
