@@ -16,7 +16,7 @@ describe Faraday::Request::OAuth do
     let(:oauth) { Faraday::Request::OAuth.new(DummyApp.new, config) }
 
     let(:env) do
-      { :request_headers => {}, :url => Addressable::URI.parse('http://www.github.com') }
+      { :request_headers => {}, :url => Addressable::URI.parse('http://www.github.com'), :body => { :test => "test" } }
     end
 
     it 'should add the access token to the header' do
