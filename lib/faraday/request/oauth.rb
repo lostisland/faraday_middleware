@@ -6,12 +6,8 @@ module Faraday
 
     def call(env)
       params = env[:body] || {}
-      
-      con = false
-      env[:request_headers].each do |k,v|
-        con = true if v.to_s.downcase == "application/x-www-form-urlencoded"
-      end
-      signature_params = con ? params.reject{ |k,v| v.respond_to?(:content_type) } : {}
+
+      signature_params = params.reject{ |k,v| v.respond_to?(:content_type) }
 
       header = SimpleOAuth::Header.new(env[:method], env[:url], signature_params, @options)
 
