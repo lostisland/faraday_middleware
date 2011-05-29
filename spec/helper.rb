@@ -1,16 +1,9 @@
-begin
-  require 'bundler/setup'
-rescue LoadError
-  puts 'although not required, its recommended you use bundler when running the tests'
-end
-
+$:.unshift File.expand_path('..', __FILE__)
+$:.unshift File.expand_path('../../lib', __FILE__)
 require 'simplecov'
 SimpleCov.start
-
-require 'rspec'
-
 require 'faraday_middleware'
-
+require 'rspec'
 
 class DummyApp
   attr_accessor :env
