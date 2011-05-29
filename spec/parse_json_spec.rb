@@ -2,46 +2,46 @@ require 'helper'
 
 describe Faraday::Response::ParseJson do
   context 'when used' do
-    let(:multi_json) { Faraday::Response::ParseJson.new }
+    let(:parse_json) { Faraday::Response::ParseJson.new }
 
     it 'should handle a blank response' do
-      empty = multi_json.on_complete(:body => '')
+      empty = parse_json.on_complete(:body => '')
       empty.should be_nil
     end
 
     it 'should handle a true response' do
-      response = multi_json.on_complete(:body => 'true')
+      response = parse_json.on_complete(:body => 'true')
       response.should be_true
     end
 
     it 'should handle a false response' do
-      response = multi_json.on_complete(:body => 'false')
+      response = parse_json.on_complete(:body => 'false')
       response.should be_false
     end
 
     it 'should handle hashes' do
-      me = multi_json.on_complete(:body => '{"name":"Erik Michaels-Ober","screen_name":"sferik"}')
+      me = parse_json.on_complete(:body => '{"name":"Erik Michaels-Ober","screen_name":"sferik"}')
       me.class.should == Hash
       me['name'].should == 'Erik Michaels-Ober'
       me['screen_name'].should == 'sferik'
     end
 
     it 'should handle arrays' do
-      values = multi_json.on_complete(:body => '[123, 456]')
+      values = parse_json.on_complete(:body => '[123, 456]')
       values.class.should == Array
       values.first.should == 123
       values.last.should == 456
     end
 
     it 'should handle arrays of hashes' do
-      us = multi_json.on_complete(:body => '[{"screen_name":"sferik"},{"screen_name":"pengwynn"}]')
+      us = parse_json.on_complete(:body => '[{"screen_name":"sferik"},{"screen_name":"pengwynn"}]')
       us.class.should == Array
       us.first['screen_name'].should == 'sferik'
       us.last['screen_name'].should  == 'pengwynn'
     end
 
     it 'should handle mixed arrays' do
-      values = multi_json.on_complete(:body => '[123, {"screen_name":"sferik"}, 456]')
+      values = parse_json.on_complete(:body => '[123, {"screen_name":"sferik"}, 456]')
       values.class.should == Array
       values.first.should == 123
       values.last.should == 456

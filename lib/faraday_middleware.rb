@@ -6,8 +6,10 @@ class Faraday::Request
 end
 
 class Faraday::Response
-  autoload :Mashify,   'faraday/response/mashify'
-  autoload :ParseJson, 'faraday/response/parse_json'
-  autoload :ParseXml,  'faraday/response/parse_xml'
-  autoload :Rashify,   'faraday/response/rashify'
+  autoload :Mashify,      'faraday/response/mashify'
+  autoload :ParseJson,    'faraday/response/parse_json'
+  autoload :ParseMarshal, 'faraday/response/parse_marshal'
+  autoload :ParseXml,     'faraday/response/parse_xml'
+  autoload :ParseYaml,    'faraday/response/parse_yaml'
+  autoload :Rashify,      'faraday/response/rashify'
 end
