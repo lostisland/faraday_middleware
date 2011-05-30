@@ -6,8 +6,9 @@ module Faraday
 
     def call(env)
       params = env[:body] || {}
+      signature_params = params
 
-      signature_params = params.reject{ |k,v| v.respond_to?(:content_type) }
+      params.map{ |k,v| signature_params = {} if v.respond_to?(:content_type) }
 
       header = SimpleOAuth::Header.new(env[:method], env[:url], signature_params, @options)
 
