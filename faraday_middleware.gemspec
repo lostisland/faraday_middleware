@@ -26,6 +26,6 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rash', '~> 0.3'
   gem.add_development_dependency 'multi_json', '~> 1.0'
   gem.add_development_dependency 'multi_xml', '~> 0.2'
-  gem.add_development_dependency 'oauth2', '~> 0.2'
+  gem.add_development_dependency 'oauth2', '~> 0.5.0.rc1'
   gem.add_development_dependency 'simple_oauth', '~> 0.1'
 end
