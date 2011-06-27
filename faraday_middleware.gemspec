@@ -19,7 +19,7 @@ Gem::Specification.new do |gem|
 
   gem.required_rubygems_version = Gem::Requirement.new('>= 1.3.6')
 
-  gem.add_runtime_dependency 'faraday', '~> 0.6.0'
+  gem.add_runtime_dependency 'faraday', '~> 0.7.3'
   gem.add_development_dependency 'rake', '~> 0.9'
   gem.add_development_dependency 'rspec', '~> 2.6'
   gem.add_development_dependency 'simplecov', '~> 0.4'
