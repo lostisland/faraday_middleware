@@ -3,11 +3,11 @@ Faraday Middleware
 
 A collection of some useful [Faraday](https://github.com/technoweenie/faraday) middleware
 
-Installation
+<a name="installation">Installation</a>
 ------------
     gem install faraday_middleware
 
-Examples
+<a name="examples">Examples</a>
 --------
 Let's decode the response body with [MultiJson](https://github.com/intridea/multi_json)!
 
