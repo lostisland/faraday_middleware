@@ -1,19 +1,9 @@
 require 'faraday'
 
 module Faraday
-  class Response::Rashify < Response::Middleware
-    dependency 'hashie/mash'
+  class Response::Rashify < Response::Mashify
     dependency 'rash'
 
-    def parse(body)
-      case body
-      when Hash
-        ::Hashie::Rash.new(body)
-      when Array
-        body.map { |item| item.is_a?(Hash) ? ::Hashie::Rash.new(item) : item }
-      else
-        body
-      end
-    end
+    self.mash_class = ::Hashie::Rash
   end
 end
