@@ -1,6 +1,7 @@
 require 'helper'
+require 'faraday_middleware/request/oauth'
 
-describe Faraday::Request::OAuth do
+describe FaradayMiddleware::OAuth do
   OAUTH_HEADER_REGEX = /^OAuth oauth_consumer_key=\"\d{4}\", oauth_nonce=\".+\", oauth_signature=\".+\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"\d{10}\", oauth_token=\"\d{4}\", oauth_version=\"1\.0\"/
 
   let(:config) do
@@ -13,7 +14,7 @@ describe Faraday::Request::OAuth do
   end
 
   context 'when used' do
-    let(:oauth) { Faraday::Request::OAuth.new(DummyApp.new, config) }
+    let(:oauth) { described_class.new(lambda {|env| env}, config) }
 
     let(:env) do
       { :request_headers => {}, :url => Addressable::URI.parse('http://www.github.com') }
@@ -30,7 +31,7 @@ describe Faraday::Request::OAuth do
     let(:stubs) { Faraday::Adapter::Test::Stubs.new }
     let(:connection) do
       Faraday::Connection.new do |builder|
-        builder.use Faraday::Request::OAuth, config
+        builder.use described_class, config
         builder.adapter :test, stubs
       end
     end

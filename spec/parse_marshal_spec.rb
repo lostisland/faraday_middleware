@@ -1,8 +1,9 @@
 require 'helper'
+require 'faraday_middleware/response/parse_marshal'
 
-describe Faraday::Response::ParseMarshal do
+describe FaradayMiddleware::ParseMarshal do
   context 'when used' do
-    let(:parse_marshal) { Faraday::Response::ParseMarshal.new }
+    let(:parse_marshal) { described_class.new }
 
     it 'should load a marshalled hash' do
       me = parse_marshal.on_complete(:body => "\x04\b{\x06I\"\tname\x06:\x06ETI\"\x17Erik Michaels-Ober\x06;\x00T")
@@ -20,7 +21,7 @@ describe Faraday::Response::ParseMarshal do
     let(:connection) do
       Faraday::Connection.new do |builder|
         builder.adapter :test, stubs
-        builder.use Faraday::Response::ParseMarshal
+        builder.use described_class
       end
     end
 

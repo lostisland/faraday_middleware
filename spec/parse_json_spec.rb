@@ -1,8 +1,9 @@
 require 'helper'
+require 'faraday_middleware/response/parse_json'
 
-describe Faraday::Response::ParseJson do
+describe FaradayMiddleware::ParseJson do
   context 'when used' do
-    let(:parse_json) { Faraday::Response::ParseJson.new }
+    let(:parse_json) { described_class.new }
 
     it 'should handle a blank response' do
       empty = parse_json.on_complete(:body => '')
@@ -54,7 +55,7 @@ describe Faraday::Response::ParseJson do
     let(:connection) do
       Faraday::Connection.new do |builder|
         builder.adapter :test, stubs
-        builder.use Faraday::Response::ParseJson
+        builder.use described_class
       end
     end
 

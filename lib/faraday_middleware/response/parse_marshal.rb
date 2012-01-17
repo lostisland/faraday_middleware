@@ -1,7 +1,7 @@
 require 'faraday'
 
-module Faraday
-  class Response::ParseMarshal < Response::Middleware
+module FaradayMiddleware
+  class ParseMarshal < Faraday::Response::Middleware
 
     def parse(body)
       ::Marshal.load(body)

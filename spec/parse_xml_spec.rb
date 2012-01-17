@@ -1,8 +1,9 @@
 require 'helper'
+require 'faraday_middleware/response/parse_xml'
 
-describe Faraday::Response::ParseXml do
+describe FaradayMiddleware::ParseXml do
   context 'when used' do
-    let(:parse_xml) { Faraday::Response::ParseXml.new }
+    let(:parse_xml) { described_class.new }
 
     it 'should handle an empty response' do
       empty = parse_xml.on_complete(:body => '')
@@ -26,7 +27,7 @@ describe Faraday::Response::ParseXml do
     let(:connection) do
       Faraday::Connection.new do |builder|
         builder.adapter :test, stubs
-        builder.use Faraday::Response::ParseXml
+        builder.use described_class
       end
     end
 

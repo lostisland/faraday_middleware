@@ -1,7 +1,7 @@
 require 'faraday'
 
-module Faraday
-  class Response::ParseJson < Response::Middleware
+module FaradayMiddleware
+  class ParseJson < Faraday::Response::Middleware
     dependency 'multi_json'
 
     def parse(body)

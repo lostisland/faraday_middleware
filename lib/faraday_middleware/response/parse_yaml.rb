@@ -1,7 +1,7 @@
 require 'faraday'
 
-module Faraday
-  class Response::ParseYaml < Response::Middleware
+module FaradayMiddleware
+  class ParseYaml < Faraday::Response::Middleware
     dependency 'yaml'
 
     def parse(body)

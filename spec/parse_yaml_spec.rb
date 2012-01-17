@@ -1,8 +1,9 @@
 require 'helper'
+require 'faraday_middleware/response/parse_yaml'
 
-describe Faraday::Response::ParseYaml do
+describe FaradayMiddleware::ParseYaml do
   context 'when used' do
-    let(:parse_yaml) { Faraday::Response::ParseYaml.new }
+    let(:parse_yaml) { described_class.new }
 
     it 'should load a marshalled hash' do
       me = parse_yaml.on_complete(:body => "--- \nname: Erik Michaels-Ober\n")
@@ -20,7 +21,7 @@ describe Faraday::Response::ParseYaml do
     let(:connection) do
       Faraday::Connection.new do |builder|
         builder.adapter :test, stubs
-        builder.use Faraday::Response::ParseYaml
+        builder.use described_class
       end
     end
 

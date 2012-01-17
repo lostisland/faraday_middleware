@@ -1,7 +1,7 @@
 require 'faraday'
 
-module Faraday
-  class Request::OAuth2 < Faraday::Middleware
+module FaradayMiddleware
+  class OAuth2 < Faraday::Middleware
     dependency 'oauth2'
 
     def call(env)

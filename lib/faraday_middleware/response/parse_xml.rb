@@ -1,7 +1,7 @@
 require 'faraday'
 
-module Faraday
-  class Response::ParseXml < Response::Middleware
+module FaradayMiddleware
+  class ParseXml < Faraday::Response::Middleware
     dependency 'multi_xml'
 
     def parse(body)
