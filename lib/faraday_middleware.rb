@@ -5,6 +5,7 @@ module FaradayMiddleware
     middleware = {
       :OAuth        => 'request/oauth',
       :OAuth2       => 'request/oauth2',
+      :EncodeJson   => 'request/encode_json',
       :Mashify      => 'response/mashify',
       :Rashify      => 'response/rashify',
       :ParseJson    => 'response/parse_json',
