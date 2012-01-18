@@ -1,5 +1,9 @@
-require 'simplecov'
-SimpleCov.start
+if ENV['COVERAGE']
+  require 'simplecov'
+  SimpleCov.start do
+    # add_filter 'faraday_middleware.rb'
+    add_filter 'backwards_compatibility.rb'
+  end
+end
 
-require 'faraday_middleware'
 require 'rspec'
