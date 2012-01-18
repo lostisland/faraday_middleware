@@ -1,5 +1,6 @@
 require 'helper'
 require 'faraday_middleware/request/oauth'
+require 'uri'
 
 describe FaradayMiddleware::OAuth do
   OAUTH_HEADER_REGEX = /^OAuth oauth_consumer_key=\"\d{4}\", oauth_nonce=\".+\", oauth_signature=\".+\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"\d{10}\", oauth_token=\"\d{4}\", oauth_version=\"1\.0\"/
@@ -17,7 +18,7 @@ describe FaradayMiddleware::OAuth do
     let(:oauth) { described_class.new(lambda {|env| env}, config) }
 
     let(:env) do
-      { :request_headers => {}, :url => Addressable::URI.parse('http://www.github.com') }
+      { :request_headers => {}, :url => URI('http://www.github.com') }
     end
 
     it 'should add the access token to the header' do

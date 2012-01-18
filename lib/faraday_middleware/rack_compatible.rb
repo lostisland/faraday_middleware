@@ -35,7 +35,7 @@ module FaradayMiddleware
       url = env[:url]
       env['rack.url_scheme'] = url.scheme
       env['PATH_INFO'] = url.path
-      env['SERVER_PORT'] = url.inferred_port
+      env['SERVER_PORT'] = url.respond_to?(:inferred_port) ? url.inferred_port : url.port
       env['QUERY_STRING'] = url.query
       env['REQUEST_METHOD'] = env[:method].to_s.upcase
 
