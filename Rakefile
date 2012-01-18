@@ -11,3 +11,7 @@ RSpec::Core::RakeTask.new(:spec)
 task :enable_coverage do
   ENV['COVERAGE'] = 'yes' unless ENV['CI']
 end
+
+task :test do
+  sh 'ruby', '-Ilib', 'spec/caching_test.rb'
+end

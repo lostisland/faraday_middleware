@@ -11,7 +11,9 @@ module FaradayMiddleware
       :ParseJson    => 'response/parse_json',
       :ParseXml     => 'response/parse_xml',
       :ParseMarshal => 'response/parse_marshal',
-      :ParseYaml    => 'response/parse_yaml'
+      :ParseYaml    => 'response/parse_yaml',
+      :Caching      => 'response/caching',
+      :RackCompatible  => 'rack_compatible'
     }
 
     # autoload without the autoload
@@ -39,7 +41,8 @@ module FaradayMiddleware
       :json_fix => lambda { ParseJson::MimeTypeFix },
       :xml      => lambda { ParseXml },
       :marshal  => lambda { ParseMarshal },
-      :yaml     => lambda { ParseYaml }
+      :yaml     => lambda { ParseYaml },
+      :caching  => lambda { Caching }
   end
 end
 
