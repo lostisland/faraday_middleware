@@ -25,6 +25,22 @@ module FaradayMiddleware
       end
     }
   end
+
+  if Faraday.respond_to? :register_middleware
+    Faraday.register_middleware :request,
+      :oauth    => lambda { OAuth },
+      :oauth2   => lambda { OAuth2 },
+      :json     => lambda { EncodeJson }
+
+    Faraday.register_middleware :response,
+      :mashify  => lambda { Mashify },
+      :rashify  => lambda { Rashify },
+      :json     => lambda { ParseJson },
+      :json_fix => lambda { ParseJson::MimeTypeFix },
+      :xml      => lambda { ParseXml },
+      :marshal  => lambda { ParseMarshal },
+      :yaml     => lambda { ParseYaml }
+  end
 end
 
 require 'faraday_middleware/backwards_compatibility'
