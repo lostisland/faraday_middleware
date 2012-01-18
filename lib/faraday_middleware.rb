@@ -14,7 +14,8 @@ module FaradayMiddleware
       :ParseYaml    => 'response/parse_yaml',
       :Caching      => 'response/caching',
       :RackCompatible  => 'rack_compatible',
-      :FollowRedirects => 'response/follow_redirects'
+      :FollowRedirects => 'response/follow_redirects',
+      :Instrumentation => 'instrumentation'
     }
 
     # autoload without the autoload
@@ -45,6 +46,9 @@ module FaradayMiddleware
       :yaml     => lambda { ParseYaml },
       :caching  => lambda { Caching },
       :follow_redirects => lambda { FollowRedirects }
+
+    Faraday.register_middleware \
+      :instrumentation  => lambda { Instrumentation }
   end
 end
 
