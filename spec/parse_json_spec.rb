@@ -1,23 +1,7 @@
 require 'helper'
 require 'faraday_middleware/response/parse_json'
 
-describe FaradayMiddleware::ParseJson do
-  let(:options) { Hash.new }
-  let(:middleware) {
-    described_class.new(lambda {|env|
-      Faraday::Response.new(env)
-    }, options)
-  }
-
-  def process(body, content_type = nil, options = {})
-    env = {
-      :body => body, :request => options,
-      :response_headers => Faraday::Utils::Headers.new
-    }
-    env[:response_headers]['content-type'] = content_type if content_type
-    middleware.call(env)
-  end
-
+describe FaradayMiddleware::ParseJson, :type => :response do
   context "no type matching" do
     it "doesn't change nil body" do
       process(nil).body.should be_nil

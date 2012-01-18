@@ -1,40 +1,71 @@
 require 'helper'
 require 'faraday_middleware/response/parse_xml'
 
-describe FaradayMiddleware::ParseXml do
-  context 'when used' do
-    let(:parse_xml) { described_class.new }
+describe FaradayMiddleware::ParseXml, :type => :response do
+  let(:xml)  { '<user><name>Erik Michaels-Ober</name><screen_name>sferik</screen_name></user>' }
+  let(:user) { {'user' => {'name' => 'Erik Michaels-Ober', 'screen_name' => 'sferik'} } }
 
-    it 'should handle an empty response' do
-      empty = parse_xml.on_complete(:body => '')
-      empty.should == Hash.new
+  context "no type matching" do
+    it "doesn't change nil body" do
+      process(nil).body.should be_nil
     end
 
-    it 'should create a Hash from the body' do
-      me = parse_xml.on_complete(:body => '<user><name>Erik Michaels-Ober</name><screen_name>sferik</screen_name></user>')
-      me.class.should == Hash
+    it "turns empty body into empty hash" do
+      process('').body.should be_eql({})
     end
 
-    it 'should handle hashes' do
-      me = parse_xml.on_complete(:body => '<user><name>Erik Michaels-Ober</name><screen_name>sferik</screen_name></user>')
-      me['user']['name'].should == 'Erik Michaels-Ober'
-      me['user']['screen_name'].should == 'sferik'
+    it "parses xml body" do
+      response = process(xml)
+      response.body.should eql(user)
+      response.env[:raw_body].should be_nil
     end
   end
 
-  context 'integration test' do
-    let(:stubs) { Faraday::Adapter::Test::Stubs.new }
-    let(:connection) do
-      Faraday::Connection.new do |builder|
-        builder.adapter :test, stubs
-        builder.use described_class
-      end
+  context "with preserving raw" do
+    let(:options) { {:preserve_raw => true} }
+
+    it "parses xml body" do
+      response = process(xml)
+      response.body.should eql(user)
+      response.env[:raw_body].should eql(xml)
     end
 
-    it 'should create a Hash from the body' do
-      stubs.get('/hash') {[200, {'content-type' => 'application/xml; charset=utf-8'}, '<user><name>Erik Michaels-Ober</name><screen_name>sferik</screen_name></user>']}
-      me = connection.get('/hash').body
-      me.class.should == Hash
+    it "can opt out of preserving raw" do
+      response = process(xml, nil, :preserve_raw => false)
+      response.env[:raw_body].should be_nil
+    end
+  end
+
+  context "with regexp type matching" do
+    let(:options) { {:content_type => /\bxml$/} }
+
+    it "parses xml body of correct type" do
+      response = process(xml, 'application/xml')
+      response.body.should eql(user)
+    end
+
+    it "ignores xml body of incorrect type" do
+      response = process(xml, 'text/html')
+      response.body.should eql(xml)
+    end
+  end
+
+  context "with array type matching" do
+    let(:options) { {:content_type => %w[a/b c/d]} }
+
+    it "parses xml body of correct type" do
+      process(xml, 'a/b').body.should be_a(Hash)
+      process(xml, 'c/d').body.should be_a(Hash)
+    end
+
+    it "ignores xml body of incorrect type" do
+      process(xml, 'a/d').body.should_not be_a(Hash)
+    end
+  end
+
+  it "chokes on invalid xml" do
+    ['{!', '"a"', 'true', 'null', '1'].each do |data|
+      expect { process(data) }.to raise_error(Faraday::Error::ParsingError)
     end
   end
 end

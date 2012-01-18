@@ -1,10 +1,10 @@
-require 'faraday'
+require 'faraday_middleware/response_middleware'
 
 module FaradayMiddleware
-  class ParseMarshal < Faraday::Response::Middleware
-
-    def parse(body)
-      ::Marshal.load(body)
-    end
+  # Public: Restore marshalled Ruby objects in response bodies.
+  class ParseMarshal < ResponseMiddleware
+    define_parser { |body|
+      ::Marshal.load body unless body.empty?
+    }
   end
 end

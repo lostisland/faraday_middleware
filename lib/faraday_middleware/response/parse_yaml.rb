@@ -1,11 +1,10 @@
-require 'faraday'
+require 'faraday_middleware/response_middleware'
 
 module FaradayMiddleware
-  class ParseYaml < Faraday::Response::Middleware
+  # Public: Parse response bodies as YAML.
+  class ParseYaml < ResponseMiddleware
     dependency 'yaml'
 
-    def parse(body)
-      ::YAML.load(body)
-    end
+    define_parser { |body| ::YAML.load body }
   end
 end

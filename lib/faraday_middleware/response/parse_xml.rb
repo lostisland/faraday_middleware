@@ -1,11 +1,11 @@
-require 'faraday'
+require 'faraday_middleware/response_middleware'
 
 module FaradayMiddleware
-  class ParseXml < Faraday::Response::Middleware
+  class ParseXml < ResponseMiddleware
     dependency 'multi_xml'
 
-    def parse(body)
+    define_parser { |body|
       ::MultiXml.parse(body)
-    end
+    }
   end
 end
