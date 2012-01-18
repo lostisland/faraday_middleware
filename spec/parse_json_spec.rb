@@ -2,69 +2,109 @@ require 'helper'
 require 'faraday_middleware/response/parse_json'
 
 describe FaradayMiddleware::ParseJson do
-  context 'when used' do
-    let(:parse_json) { described_class.new }
+  let(:options) { Hash.new }
+  let(:middleware) {
+    described_class.new(lambda {|env|
+      Faraday::Response.new(env)
+    }, options)
+  }
 
-    it 'should handle a blank response' do
-      empty = parse_json.on_complete(:body => '')
-      empty.should be_nil
+  def process(body, content_type = nil, options = {})
+    env = {
+      :body => body, :request => options,
+      :response_headers => Faraday::Utils::Headers.new
+    }
+    env[:response_headers]['content-type'] = content_type if content_type
+    middleware.call(env)
+  end
+
+  context "no type matching" do
+    it "doesn't change nil body" do
+      process(nil).body.should be_nil
     end
 
-    it 'should handle a true response' do
-      response = parse_json.on_complete(:body => 'true')
-      response.should be_true
+    it "nullifies empty body" do
+      process('').body.should be_nil
     end
 
-    it 'should handle a false response' do
-      response = parse_json.on_complete(:body => 'false')
-      response.should be_false
-    end
-
-    it 'should handle hashes' do
-      me = parse_json.on_complete(:body => '{"name":"Erik Michaels-Ober","screen_name":"sferik"}')
-      me.class.should == Hash
-      me['name'].should == 'Erik Michaels-Ober'
-      me['screen_name'].should == 'sferik'
-    end
-
-    it 'should handle arrays' do
-      values = parse_json.on_complete(:body => '[123, 456]')
-      values.class.should == Array
-      values.first.should == 123
-      values.last.should == 456
-    end
-
-    it 'should handle arrays of hashes' do
-      us = parse_json.on_complete(:body => '[{"screen_name":"sferik"},{"screen_name":"pengwynn"}]')
-      us.class.should == Array
-      us.first['screen_name'].should == 'sferik'
-      us.last['screen_name'].should  == 'pengwynn'
-    end
-
-    it 'should handle mixed arrays' do
-      values = parse_json.on_complete(:body => '[123, {"screen_name":"sferik"}, 456]')
-      values.class.should == Array
-      values.first.should == 123
-      values.last.should == 456
-      values[1]['screen_name'].should == 'sferik'
+    it "parses json body" do
+      response = process('{"a":1}')
+      response.body.should eql('a' => 1)
+      response.env[:raw_body].should be_nil
     end
   end
 
-  context 'integration test' do
-    let(:stubs) { Faraday::Adapter::Test::Stubs.new }
-    let(:connection) do
-      Faraday::Connection.new do |builder|
-        builder.adapter :test, stubs
-        builder.use described_class
-      end
+  context "with preserving raw" do
+    let(:options) { {:preserve_raw => true} }
+
+    it "parses json body" do
+      response = process('{"a":1}')
+      response.body.should eql('a' => 1)
+      response.env[:raw_body].should eql('{"a":1}')
     end
 
-    it 'should create a Hash from the body' do
-      stubs.get('/hash') {[200, {'content-type' => 'application/json; charset=utf-8'}, '{"name":"Erik Michaels-Ober","screen_name":"sferik"}']}
-      me = connection.get('/hash').body
-      me.class.should == Hash
-      me['name'].should == 'Erik Michaels-Ober'
-      me['screen_name'].should == 'sferik'
+    it "can opt out of preserving raw" do
+      response = process('{"a":1}', nil, :preserve_raw => false)
+      response.env[:raw_body].should be_nil
+    end
+  end
+
+  context "with regexp type matching" do
+    let(:options) { {:content_type => /\bjson$/} }
+
+    it "parses json body of correct type" do
+      response = process('{"a":1}', 'application/x-json')
+      response.body.should eql('a' => 1)
+    end
+
+    it "ignores json body of incorrect type" do
+      response = process('{"a":1}', 'text/json-xml')
+      response.body.should eql('{"a":1}')
+    end
+  end
+
+  context "with array type matching" do
+    let(:options) { {:content_type => %w[a/b c/d]} }
+
+    it "parses json body of correct type" do
+      process('{"a":1}', 'a/b').body.should be_a(Hash)
+      process('{"a":1}', 'c/d').body.should be_a(Hash)
+    end
+
+    it "ignores json body of incorrect type" do
+      process('{"a":1}', 'a/d').body.should_not be_a(Hash)
+    end
+  end
+
+  it "chokes on invalid json" do
+    ['{!', ' ', '"a"', 'true', 'null', '1'].each do |data|
+      expect { process(data) }.to raise_error(Faraday::Error::ParsingError)
+    end
+  end
+
+  context "with mime type fix" do
+    let(:middleware) {
+      app = described_class::MimeTypeFix.new(lambda {|env|
+        Faraday::Response.new(env)
+      }, :content_type => /^text\//)
+      described_class.new(app, :content_type => 'application/json')
+    }
+
+    it "ignores completely incompatible type" do
+      response = process('{"a":1}', 'application/xml')
+      response.body.should eql('{"a":1}')
+    end
+
+    it "ignores compatible type with bad data" do
+      response = process('var a = 1', 'text/javascript')
+      response.body.should eql('var a = 1')
+      response['content-type'].should eql('text/javascript')
+    end
+
+    it "corrects compatible type and data" do
+      response = process('{"a":1}', 'text/javascript')
+      response.body.should be_a(Hash)
+      response['content-type'].should eql('application/json')
     end
   end
 end
