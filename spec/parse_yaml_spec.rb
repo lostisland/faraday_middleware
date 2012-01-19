@@ -1,33 +1,53 @@
 require 'helper'
+require 'faraday_middleware/response/parse_yaml'
 
-describe Faraday::Response::ParseYaml do
-  context 'when used' do
-    let(:parse_yaml) { Faraday::Response::ParseYaml.new }
-
-    it 'should load a marshalled hash' do
-      me = parse_yaml.on_complete(:body => "--- \nname: Erik Michaels-Ober\n")
-      me.class.should == Hash
+describe FaradayMiddleware::ParseYaml, :type => :response do
+  context "no type matching" do
+    it "doesn't change nil body" do
+      process(nil).body.should be_nil
     end
 
-    it 'should handle hashes' do
-      me = parse_yaml.on_complete(:body => "--- \nname: Erik Michaels-Ober\n")
-      me['name'].should == 'Erik Michaels-Ober'
+    it "returns false for empty body" do
+      process('').body.should be_false
+    end
+
+    it "parses yaml body" do
+      response = process('a: 1')
+      response.body.should eql('a' => 1)
+      response.env[:raw_body].should be_nil
     end
   end
 
-  context 'integration test' do
-    let(:stubs) { Faraday::Adapter::Test::Stubs.new }
-    let(:connection) do
-      Faraday::Connection.new do |builder|
-        builder.adapter :test, stubs
-        builder.use Faraday::Response::ParseYaml
-      end
+  context "with preserving raw" do
+    let(:options) { {:preserve_raw => true} }
+
+    it "parses yaml body" do
+      response = process('a: 1')
+      response.body.should eql('a' => 1)
+      response.env[:raw_body].should eql('a: 1')
     end
 
-    it 'should create a Hash from the body' do
-      stubs.get('/hash') {[200, {'content-type' => 'application/xml; charset=utf-8'}, "--- \nname: Erik Michaels-Ober\n"]}
-      me = connection.get('/hash').body
-      me.class.should == Hash
+    it "can opt out of preserving raw" do
+      response = process('a: 1', nil, :preserve_raw => false)
+      response.env[:raw_body].should be_nil
     end
+  end
+
+  context "with regexp type matching" do
+    let(:options) { {:content_type => /\byaml$/} }
+
+    it "parses json body of correct type" do
+      response = process('a: 1', 'application/x-yaml')
+      response.body.should eql('a' => 1)
+    end
+
+    it "ignores json body of incorrect type" do
+      response = process('a: 1', 'text/yaml-xml')
+      response.body.should eql('a: 1')
+    end
+  end
+
+  it "chokes on invalid yaml" do
+    expect { process('{!') }.to raise_error(Faraday::Error::ParsingError)
   end
 end

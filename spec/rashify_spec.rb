@@ -1,9 +1,10 @@
 require 'helper'
+require 'faraday_middleware/response/rashify'
 
-describe Faraday::Response::Rashify do
+describe FaradayMiddleware::Rashify do
 
   context 'when used' do
-    let(:rashify) { Faraday::Response::Rashify.new }
+    let(:rashify) { described_class.new }
 
     it 'should create a Hashie::Rash from the body' do
       env = { :body => { "name" => "Erik Michaels-Ober", "username" => "sferik" } }
@@ -52,7 +53,7 @@ describe Faraday::Response::Rashify do
     let(:connection) do
       Faraday::Connection.new do |builder|
         builder.adapter :test, stubs
-        builder.use Faraday::Response::Rashify
+        builder.use described_class
       end
     end
 

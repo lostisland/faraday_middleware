@@ -1,7 +1,7 @@
 source 'http://rubygems.org'
 
-platforms :jruby do
-  gem "jruby-openssl", "~> 0.7"
-end
+gem 'simplecov' unless ENV['CI']
+gem 'json', :platforms => [:ruby_18, :jruby]
+gem 'jruby-openssl', '~> 0.7', :platforms => :jruby
 
 gemspec

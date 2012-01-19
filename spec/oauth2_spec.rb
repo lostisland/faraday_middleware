@@ -1,34 +1,40 @@
 require 'helper'
+require 'uri'
+require 'faraday_middleware/request/oauth2'
 
-describe Faraday::Request::OAuth2 do
+describe FaradayMiddleware::OAuth2 do
+
+  def query_params(request)
+    Faraday::Utils.parse_query request[:url].query
+  end
 
   context 'when used with a access token in the initializer' do
-    let(:oauth2) { Faraday::Request::OAuth2.new(DummyApp.new, '1234') }
+    let(:oauth2) { described_class.new(lambda{|env| env}, '1234') }
 
     it 'should add the access token to the request' do
       env = {
         :request_headers => {},
-        :url => Addressable::URI.parse('http://www.github.com')
+        :url => URI('http://www.github.com')
       }
 
       request = oauth2.call(env)
       request[:request_headers]["Authorization"].should == "Token token=\"1234\""
-      request[:url].query_values["access_token"].should == "1234"
+      query_params(request)["access_token"].should == "1234"
     end
   end
 
   context 'when used with a access token in the query_values' do
-    let(:oauth2) { Faraday::Request::OAuth2.new(DummyApp.new) }
+    let(:oauth2) { described_class.new(lambda{|env| env}) }
 
     it 'should add the access token to the request' do
       env = {
         :request_headers => {},
-        :url => Addressable::URI.parse('http://www.github.com/?access_token=1234')
+        :url => URI('http://www.github.com/?access_token=1234')
       }
 
       request = oauth2.call(env)
       request[:request_headers]["Authorization"].should == "Token token=\"1234\""
-      request[:url].query_values["access_token"].should == "1234"
+      query_params(request)["access_token"].should == "1234"
     end
   end
 
@@ -36,7 +42,7 @@ describe Faraday::Request::OAuth2 do
     let(:stubs) { Faraday::Adapter::Test::Stubs.new }
     let(:connection) do
       Faraday::Connection.new do |builder|
-        builder.use Faraday::Request::OAuth2, '1234'
+        builder.use described_class, '1234'
         builder.adapter :test, stubs
       end
     end
