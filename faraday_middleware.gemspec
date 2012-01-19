@@ -1,15 +1,14 @@
 require File.expand_path('../lib/faraday_middleware/version', __FILE__)
 
 Gem::Specification.new do |gem|
-  gem.add_dependency 'faraday', '~> 0.7.4'
-  gem.add_development_dependency 'multi_json', '~> 1.0'
+  gem.add_dependency 'faraday', ['>= 0.7.4', '< 0.9']
   gem.add_development_dependency 'multi_xml', '~> 0.2'
   gem.add_development_dependency 'oauth2', '~> 0.5.0'
   gem.add_development_dependency 'rake', '~> 0.9'
   gem.add_development_dependency 'rash', '~> 0.3'
   gem.add_development_dependency 'rspec', '~> 2.6'
   gem.add_development_dependency 'simple_oauth', '~> 0.1'
-  gem.add_development_dependency 'simplecov', '~> 0.4'
+  gem.add_development_dependency 'rack-cache', '~> 1.1'
   gem.authors = ["Erik Michaels-Ober", "Wynn Netherland"]
   gem.description = %q{Various middleware for Faraday}
   gem.email = ['sferik@gmail.com', 'wynn.netherland@gmail.com']

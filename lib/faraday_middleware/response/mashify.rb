@@ -1,7 +1,7 @@
 require 'faraday'
 
-module Faraday
-  class Response::Mashify < Response::Middleware
+module FaradayMiddleware
+  class Mashify < Faraday::Response::Middleware
     dependency 'hashie/mash'
 
     class << self

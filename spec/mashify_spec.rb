@@ -1,16 +1,17 @@
 require 'helper'
+require 'faraday_middleware/response/mashify'
 
-describe Faraday::Response::Mashify do
+describe FaradayMiddleware::Mashify do
   context 'during configuration' do
     it 'should allow for a custom Mash class to be set' do
-      Faraday::Response::Mashify.should respond_to(:mash_class)
-      Faraday::Response::Mashify.should respond_to(:mash_class=)
+      described_class.should respond_to(:mash_class)
+      described_class.should respond_to(:mash_class=)
     end
   end
 
   context 'when used' do
-    before(:each) { Faraday::Response::Mashify.mash_class = ::Hashie::Mash }
-    let(:mashify) { Faraday::Response::Mashify.new }
+    before(:each) { described_class.mash_class = ::Hashie::Mash }
+    let(:mashify) { described_class.new }
 
     it 'should create a Hashie::Mash from the body' do
       env = { :body => { "name" => "Erik Michaels-Ober", "username" => "sferik" } }
@@ -48,7 +49,7 @@ describe Faraday::Response::Mashify do
 
     it 'should allow for use of custom Mash subclasses' do
       class MyMash < ::Hashie::Mash; end
-      Faraday::Response::Mashify.mash_class = MyMash
+      described_class.mash_class = MyMash
 
       env = { :body => { "name" => "Erik Michaels-Ober", "username" => "sferik" } }
       me  = mashify.on_complete(env)
@@ -62,7 +63,7 @@ describe Faraday::Response::Mashify do
     let(:connection) do
       Faraday::Connection.new do |builder|
         builder.adapter :test, stubs
-        builder.use Faraday::Response::Mashify
+        builder.use described_class
       end
     end
 

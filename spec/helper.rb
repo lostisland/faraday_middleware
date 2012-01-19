@@ -1,18 +1,33 @@
-$:.unshift File.expand_path('..', __FILE__)
-$:.unshift File.expand_path('../../lib', __FILE__)
-require 'simplecov'
-SimpleCov.start
-require 'faraday_middleware'
+if ENV['COVERAGE']
+  require 'simplecov'
+  SimpleCov.start do
+    # add_filter 'faraday_middleware.rb'
+    add_filter 'backwards_compatibility.rb'
+  end
+end
+
 require 'rspec'
 
-class DummyApp
-  attr_accessor :env
-
-  def call(env)
-    @env = env
+module ResponseMiddlewareExampleGroup
+  def self.included(base)
+    base.let(:options) { Hash.new }
+    base.let(:middleware) {
+      described_class.new(lambda {|env|
+        Faraday::Response.new(env)
+      }, options)
+    }
   end
 
-  def reset
-    @env = nil
+  def process(body, content_type = nil, options = {})
+    env = {
+      :body => body, :request => options,
+      :response_headers => Faraday::Utils::Headers.new
+    }
+    env[:response_headers]['content-type'] = content_type if content_type
+    middleware.call(env)
   end
+end
+
+RSpec.configure do |config|
+  config.include ResponseMiddlewareExampleGroup, :type => :response
 end
