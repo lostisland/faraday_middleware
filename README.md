@@ -1,41 +1,41 @@
 Faraday Middleware
 ==================
 
-A collection of some useful [Faraday](https://github.com/technoweenie/faraday) middleware
+A collection of useful [Faraday][] middleware. [See the documentation][docs].
 
-<a name="installation">Installation</a>
-------------
     gem install faraday_middleware
 
-<a name="examples">Examples</a>
+Examples
 --------
-Let's decode the response body with [MultiJson](https://github.com/intridea/multi_json)!
 
-    connection = Faraday.new(:url => 'http://api.twitter.com/1') do |builder|
-      builder.use Faraday::Response::ParseJson
-      builder.adapter Faraday.default_adapter
-    end
+``` rb
+require 'faraday_middleware'
 
-    response = connection.get do |request|
-      request.url '/users/show.json', :screen_name => 'pengwynn'
-    end
+## in Faraday 0.8 or above:
+connection = Faraday.new 'http://example.com/api' do |conn|
+  conn.request :oauth2, 'TOKEN'
+  conn.request :json
 
-    u = response.body
-    u['name']
-    # => "Wynn Netherland"
+  conn.response :xml,  :content_type => /\bxml$/
+  conn.response :json, :content_type => /\bjson$/
 
-Want to ditch the brackets and use dot notation? [Mashify](https://github.com/intridea/hashie) it!
+  conn.use :instrumentation
+  conn.adapter Faraday.default_adapter
+end
 
-    connection = Faraday.new(:url => 'http://api.twitter.com/1') do |builder|
-      builder.use Faraday::Response::Mashify
-      builder.use Faraday::Response::ParseJson
-      builder.adapter Faraday.default_adapter
-    end
+## with Faraday 0.7:
+connection = Faraday.new 'http://example.com/api' do |builder|
+  builder.use FaradayMiddleware::OAuth2, 'TOKEN'
+  builder.use FaradayMiddleware::EncodeJson
 
-    response = connection.get do |request|
-      request.url '/users/show.json', :screen_name => 'pengwynn'
-    end
+  builder.use FaradayMiddleware::ParseXml,  :content_type => /\bxml$/
+  builder.use FaradayMiddleware::ParseJson, :content_type => /\bjson$/
 
-    u = response.body
-    u.name
-    # => "Wynn Netherland"
+  builder.use FaradayMiddleware::Instrumentation
+  builder.adapter Faraday.default_adapter
+end
+```
+
+
+  [faraday]: https://github.com/technoweenie/faraday#readme
+  [docs]: https://github.com/pengwynn/faraday_middleware/wiki
