@@ -3,46 +3,99 @@ require 'faraday_middleware/request/oauth'
 require 'uri'
 
 describe FaradayMiddleware::OAuth do
-  OAUTH_HEADER_REGEX = /^OAuth oauth_consumer_key=\"\d{4}\", oauth_nonce=\".+\", oauth_signature=\".+\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"\d{10}\", oauth_token=\"\d{4}\", oauth_version=\"1\.0\"/
+  def auth_header(env)
+    env[:request_headers]['Authorization']
+  end
 
-  let(:config) do
-    {
-      :consumer_key => '1234',
-      :consumer_secret => '1234',
-      :token => '1234',
-      :token_secret => '1234'
+  def auth_values(env)
+    if auth = auth_header(env)
+      raise "invalid header: #{auth.inspect}" unless auth.sub!('OAuth ', '')
+      Hash[*auth.split(/, |=/)]
+    end
+  end
+
+  def perform(oauth_options = {}, headers = {})
+    env = {
+      :url => URI('http://example.com/'),
+      :request_headers => Faraday::Utils::Headers.new.update(headers),
+      :request => {}
     }
+    unless oauth_options.is_a? Hash and oauth_options.empty?
+      env[:request][:oauth] = oauth_options
+    end
+    app = make_app
+    app.call(env)
   end
 
-  context 'when used' do
-    let(:oauth) { described_class.new(lambda {|env| env}, config) }
+  def make_app
+    described_class.new(lambda{|env| env}, *Array(options))
+  end
 
-    let(:env) do
-      { :request_headers => {}, :url => URI('http://www.github.com') }
-    end
+  context "invalid options" do
+    let(:options) { nil }
 
-    it 'should add the access token to the header' do
-      request = oauth.call(env)
-      request[:request_headers]["Authorization"].should match OAUTH_HEADER_REGEX
+    it "should error out" do
+      expect { make_app }.to raise_error(ArgumentError)
     end
   end
 
+  context "empty options" do
+    let(:options) { [{}] }
 
-  context 'integration test' do
-    let(:stubs) { Faraday::Adapter::Test::Stubs.new }
-    let(:connection) do
-      Faraday::Connection.new do |builder|
-        builder.use described_class, config
-        builder.adapter :test, stubs
-      end
+    it "should sign request" do
+      auth = auth_values(perform)
+      expected_keys = %w[ oauth_nonce
+                          oauth_signature oauth_signature_method
+                          oauth_timestamp oauth_version ]
+
+      auth.keys.should eq(expected_keys)
+    end
+  end
+
+  context "configured with consumer and token" do
+    let(:options) do
+      [{ :consumer_key => 'CKEY', :consumer_secret => 'CSECRET',
+         :token => 'TOKEN', :token_secret => 'TSECRET'
+      }]
     end
 
-    # Sadly we can not check the headers in this integration test, but this will
-    # confirm that the middleware doesn't break the stack
-    it 'should add the access token to the query string' do
-      stubs.get('/me') {[200, {}, 'sferik']}
-      me = connection.get('http://www.github.com/me')
-      me.body.should == 'sferik'
+    it "adds auth info to the header" do
+      auth = auth_values(perform)
+      expected_keys = %w[ oauth_consumer_key oauth_nonce
+                          oauth_signature oauth_signature_method
+                          oauth_timestamp oauth_token oauth_version ]
+
+      auth.keys.should eq(expected_keys)
+      auth['oauth_version'].should eq(%("1.0"))
+      auth['oauth_signature_method'].should eq(%("HMAC-SHA1"))
+      auth['oauth_consumer_key'].should eq(%("CKEY"))
+      auth['oauth_token'].should eq(%("TOKEN"))
+    end
+
+    it "doesn't override existing header" do
+      request = perform({}, "Authorization" => "iz me!")
+      auth_header(request).should eq("iz me!")
+    end
+
+    it "can override oauth options per-request" do
+      auth = auth_values(perform(:consumer_key => 'CKEY2'))
+
+      auth['oauth_consumer_key'].should eq(%("CKEY2"))
+      auth['oauth_token'].should eq(%("TOKEN"))
+    end
+
+    it "can turn off oauth signing per-request" do
+      auth_header(perform(false)).should be_nil
+    end
+  end
+
+  context "configured without token" do
+    let(:options) { [{ :consumer_key => 'CKEY', :consumer_secret => 'CSECRET' }] }
+
+    it "adds auth info to the header" do
+      auth = auth_values(perform)
+      auth.should include('oauth_consumer_key')
+      auth.should_not include('oauth_token')
     end
   end
 end
