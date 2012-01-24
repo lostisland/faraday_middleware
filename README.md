@@ -5,6 +5,19 @@ A collection of useful [Faraday][] middleware. [See the documentation][docs].
 
     gem install faraday_middleware
 
+Dependencies
+------------
+
+Some dependent libraries are needed only when using specific middleware:
+
+* FaradayMiddleware::EncodeJson & FaradayMiddleware::ParseJson: "json"
+  for ruby older than 1.9
+* FaradayMiddleware::ParseXml: "multi_xml"
+* FaradayMiddleware::OAuth: "simple_oauth"
+* FaradayMiddleware::Mashify: "hashie"
+* FaradayMiddleware::Rashify: "rash"
+* FaradayMiddleware::Instrumentation: "activesupport"
+
 Examples
 --------
 
