@@ -48,7 +48,7 @@ describe FaradayMiddleware::OAuth do
                           oauth_signature oauth_signature_method
                           oauth_timestamp oauth_version ]
 
-      auth.keys.should eq(expected_keys)
+      auth.keys.should =~ expected_keys
     end
   end
 
@@ -65,7 +65,7 @@ describe FaradayMiddleware::OAuth do
                           oauth_signature oauth_signature_method
                           oauth_timestamp oauth_token oauth_version ]
 
-      auth.keys.should eq(expected_keys)
+      auth.keys.should =~ expected_keys
       auth['oauth_version'].should eq(%("1.0"))
       auth['oauth_signature_method'].should eq(%("HMAC-SHA1"))
       auth['oauth_consumer_key'].should eq(%("CKEY"))
