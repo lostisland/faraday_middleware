@@ -16,7 +16,7 @@ module FaradayMiddleware
 
     def self.inherited(subclass)
       super
-      subclass.load_error = self.load_error
+      subclass.load_error = self.load_error if subclass.respond_to? :load_error=
       subclass.parser = self.parser
     end
 
