@@ -2,8 +2,9 @@ require 'faraday_middleware/response/mashify'
 
 module FaradayMiddleware
   class Rashify < Mashify
-    dependency 'rash'
-
-    self.mash_class = ::Hashie::Rash
+    dependency do
+      require 'rash'
+      self.mash_class = ::Hashie::Rash
+    end
   end
 end

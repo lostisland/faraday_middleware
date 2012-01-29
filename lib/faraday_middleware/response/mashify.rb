@@ -2,13 +2,14 @@ require 'faraday'
 
 module FaradayMiddleware
   class Mashify < Faraday::Response::Middleware
-    dependency 'hashie/mash'
-
     class << self
       attr_accessor :mash_class
     end
 
-    self.mash_class = ::Hashie::Mash
+    dependency do
+      require 'hashie/mash'
+      self.mash_class = ::Hashie::Mash
+    end
 
     def parse(body)
       case body
