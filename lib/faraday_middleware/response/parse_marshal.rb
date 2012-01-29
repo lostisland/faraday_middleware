@@ -8,3 +8,6 @@ module FaradayMiddleware
     }
   end
 end
+
+# deprecated alias
+Faraday::Response::ParseMarshal = FaradayMiddleware::ParseMarshal

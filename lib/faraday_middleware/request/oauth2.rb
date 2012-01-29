@@ -57,3 +57,6 @@ module FaradayMiddleware
     end
   end
 end
+
+# deprecated alias
+Faraday::Request::OAuth2 = FaradayMiddleware::OAuth2

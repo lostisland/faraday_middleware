@@ -33,3 +33,6 @@ module FaradayMiddleware
     end
   end
 end
+
+# deprecated alias
+Faraday::Response::ParseJson = FaradayMiddleware::ParseJson

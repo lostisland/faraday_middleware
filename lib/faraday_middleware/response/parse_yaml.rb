@@ -8,3 +8,6 @@ module FaradayMiddleware
     define_parser { |body| ::YAML.load body }
   end
 end
+
+# deprecated alias
+Faraday::Response::ParseYaml = FaradayMiddleware::ParseYaml

@@ -1,30 +1,15 @@
-deprecation_warning = lambda { |old, new, trace|
-  warn "Deprecation warning: #{old} is deprecated; use #{new}"
-  warn trace[0,10].join("\n") if $DEBUG
-}
+# deprecated constants
 
-Faraday::Request.extend Module.new {
-  legacy = [:OAuth, :OAuth2]
-  define_method(:const_missing) { |const|
-    if legacy.include? const
-      klass = FaradayMiddleware.const_get(const)
-      deprecation_warning.call "Faraday::Request::#{const}", klass.name, caller
-      const_set const, klass
-    else
-      super
-    end
-  }
-}
+Faraday::Request.class_eval do
+  autoload :OAuth,        'faraday_middleware/request/oauth'
+  autoload :OAuth2,       'faraday_middleware/request/oauth2'
+end
 
-Faraday::Response.extend Module.new {
-  legacy = [:Mashify, :Rashify, :ParseJson, :ParseMarshal, :ParseXml, :ParseYaml]
-  define_method(:const_missing) { |const|
-    if legacy.include? const
-      klass = FaradayMiddleware.const_get(const)
-      deprecation_warning.call "Faraday::Response::#{const}", klass.name, caller
-      const_set const, klass
-    else
-      super
-    end
-  }
-}
+Faraday::Response.class_eval do
+  autoload :Mashify,      'faraday_middleware/response/mashify'
+  autoload :Rashify,      'faraday_middleware/response/rashify'
+  autoload :ParseJson,    'faraday_middleware/response/parse_json'
+  autoload :ParseXml,     'faraday_middleware/response/parse_xml'
+  autoload :ParseMarshal, 'faraday_middleware/response/parse_marshal'
+  autoload :ParseYaml,    'faraday_middleware/response/parse_yaml'
+end

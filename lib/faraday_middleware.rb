@@ -1,34 +1,19 @@
 require 'faraday'
 
 module FaradayMiddleware
-  class << self
-    middleware = {
-      :OAuth        => 'request/oauth',
-      :OAuth2       => 'request/oauth2',
-      :EncodeJson   => 'request/encode_json',
-      :Mashify      => 'response/mashify',
-      :Rashify      => 'response/rashify',
-      :ParseJson    => 'response/parse_json',
-      :ParseXml     => 'response/parse_xml',
-      :ParseMarshal => 'response/parse_marshal',
-      :ParseYaml    => 'response/parse_yaml',
-      :Caching      => 'response/caching',
-      :RackCompatible  => 'rack_compatible',
-      :FollowRedirects => 'response/follow_redirects',
-      :Instrumentation => 'instrumentation'
-    }
-
-    # autoload without the autoload
-    define_method(:const_missing) { |const|
-      if middleware.member? const
-        require "faraday_middleware/#{middleware[const]}"
-        raise NameError, "missing #{const} middleware" unless const_defined? const
-        const_get const
-      else
-        super
-      end
-    }
-  end
+  autoload :OAuth,           'faraday_middleware/request/oauth'
+  autoload :OAuth2,          'faraday_middleware/request/oauth2'
+  autoload :EncodeJson,      'faraday_middleware/request/encode_json'
+  autoload :Mashify,         'faraday_middleware/response/mashify'
+  autoload :Rashify,         'faraday_middleware/response/rashify'
+  autoload :ParseJson,       'faraday_middleware/response/parse_json'
+  autoload :ParseXml,        'faraday_middleware/response/parse_xml'
+  autoload :ParseMarshal,    'faraday_middleware/response/parse_marshal'
+  autoload :ParseYaml,       'faraday_middleware/response/parse_yaml'
+  autoload :Caching,         'faraday_middleware/response/caching'
+  autoload :RackCompatible,  'faraday_middleware/rack_compatible'
+  autoload :FollowRedirects, 'faraday_middleware/response/follow_redirects'
+  autoload :Instrumentation, 'faraday_middleware/instrumentation'
 
   if Faraday.respond_to? :register_middleware
     Faraday.register_middleware :request,
