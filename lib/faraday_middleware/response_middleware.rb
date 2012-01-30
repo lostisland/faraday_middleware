@@ -26,8 +26,8 @@ module FaradayMiddleware
       @content_types = Array(options[:content_type])
     end
 
-    def call(env)
-      @app.call(env).on_complete do
+    def call(environment)
+      @app.call(environment).on_complete do |env|
         if process_response_type?(response_type(env)) and parse_response?(env)
           process_response(env)
         end

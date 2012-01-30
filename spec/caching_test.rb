@@ -22,6 +22,16 @@ class CachingTest < Test::Unit::TestCase
     end
   end
 
+  class Lint < Struct.new(:app)
+    def call(env)
+      app.call(env).on_complete do
+        raise "no headers" unless env[:response_headers].is_a? Hash
+        raise "no response" unless env[:response].is_a? Faraday::Response
+        raise "env not identical" unless env[:response].env.object_id == env.object_id
+      end
+    end
+  end
+
   def setup
     @cache = TestCache.new
 
@@ -31,6 +41,7 @@ class CachingTest < Test::Unit::TestCase
     }
 
     @conn = Faraday.new do |b|
+      b.use Lint
       b.use FaradayMiddleware::Caching, @cache
       b.adapter :test do |stub|
         stub.get('/', &response)
@@ -55,7 +66,7 @@ class CachingTest < Test::Unit::TestCase
     get('/') # make cache
     response = get('/')
     assert_equal :get, response.env[:method]
-    assert_equal '/', response.env[:url].to_s
+    assert_equal '/', response.env[:url].request_uri
   end
 
   def test_cache_query_params

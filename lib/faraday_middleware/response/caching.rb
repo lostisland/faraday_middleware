@@ -68,8 +68,13 @@ module FaradayMiddleware
     end
 
     def finalize_response(response, env)
-      response = env[:response] = response.dup if response.frozen?
-      response.apply_request env unless response.env[:method]
+      response = response.dup if response.frozen?
+      env[:response] = response
+      unless env[:response_headers]
+        env.update response.env
+        # FIXME: omg hax
+        response.instance_variable_set('@env', env)
+      end
       response
     end
   end
