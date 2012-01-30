@@ -90,5 +90,11 @@ describe FaradayMiddleware::ParseJson, :type => :response do
       response.body.should be_a(Hash)
       response['content-type'].should eql('application/json')
     end
+
+    it "corrects compatible type even when data starts with whitespace" do
+      response = process(%( \r\n\t{"a":1}), 'text/javascript')
+      response.body.should be_a(Hash)
+      response['content-type'].should eql('application/json')
+    end
   end
 end

@@ -26,9 +26,19 @@ module FaradayMiddleware
       end
 
       BRACKETS = %w- [ { -
+      WHITESPACE = [ " ", "\n", "\r", "\t" ]
 
       def parse_response?(env)
-        super and BRACKETS.include? env[:body][0,1]
+        super and BRACKETS.include? first_char(env[:body])
+      end
+
+      def first_char(body)
+        idx = -1
+        begin
+          char = body[idx += 1]
+          char = char.chr if char
+        end while char and WHITESPACE.include? char
+        char
       end
     end
   end
