@@ -14,11 +14,12 @@ describe FaradayMiddleware::OAuth do
     end
   end
 
-  def perform(oauth_options = {}, headers = {})
+  def perform(oauth_options = {}, headers = {}, params = {})
     env = {
       :url => URI('http://example.com/'),
       :request_headers => Faraday::Utils::Headers.new.update(headers),
-      :request => {}
+      :request => {},
+      :body => params
     }
     unless oauth_options.is_a? Hash and oauth_options.empty?
       env[:request][:oauth] = oauth_options
@@ -98,4 +99,27 @@ describe FaradayMiddleware::OAuth do
       auth.should_not include('oauth_token')
     end
   end
+
+  context "handling body parameters" do
+    let(:options) { [{ :consumer_key => 'CKEY', :consumer_secret => 'CSECRET' }] }
+
+    it "includes the body with an unspecified Content-Type" do
+      value = { 'foo' => 'bar' }
+      SimpleOAuth::Header.should_receive(:new).with(anything(), anything(), value, anything())
+      perform({}, {}, value)
+    end
+
+    it "includes the body with Content-Type application/x-www-form-urlencoded" do
+      value = { 'foo' => 'bar' }
+      SimpleOAuth::Header.should_receive(:new).with(anything(), anything(), value, anything())
+      perform({}, { 'Content-Type' => 'application/x-www-form-urlencoded' }, value)
+    end
+
+    it "does not include the body with a Content-Type that is not application/x-www-form-urlencoded" do
+      value = { 'foo' => 'bar' }
+      SimpleOAuth::Header.should_receive(:new).with(anything(), anything(), {}, anything())
+      perform({}, { 'Content-Type' => 'application/json' }, value)
+    end
+  end
+
 end

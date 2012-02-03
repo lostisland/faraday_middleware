@@ -50,7 +50,16 @@ module FaradayMiddleware
     end
 
     def body_params(env)
-      env[:body] || {}
+      if include_body_params?(env)
+        env[:body] || {}
+      else
+        {}
+      end
+    end
+
+    def include_body_params?(env)
+      # see RFC 5489, section 3.4.1.3.1 for details
+      env[:request_headers]['Content-Type'].nil? || env[:request_headers]['Content-Type'] == 'application/x-www-form-urlencoded'
     end
 
     def signature_params(params)
