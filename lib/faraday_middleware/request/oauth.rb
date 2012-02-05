@@ -11,10 +11,19 @@ module FaradayMiddleware
   # The signature is added to the "Authorization" HTTP request header. If the
   # value for this header already exists, it is not overriden.
   #
-  # For requests that have parameters in the body, such as POST, this
-  # middleware expects them to be in Hash form, i.e. not encoded to string.
-  # This means this middleware has to be positioned on the stack before any
-  # encoding middleware such as UrlEncoded.
+  # If no Content-Type header is specified, this middleware assumes that the
+  # body hash should be included in the signature parameters. Otherwise, it only
+  # includes them if the Content-Type is application/x-www-form-urlencoded, as
+  # required by the OAuth 1.0 specification.
+  #
+  # If the body is a string and the Content-Type is either unspecified or
+  # application/x-www-form-urlencoded, this middleware re-parses the body
+  # using Faraday::Utils.parse_nested_query and includes the result in the
+  # OAuth signature parameters. Thus, this middleware can be included either
+  # before *or* after UrlEncoded.
+  #
+  # All other types of encoding middleware should appear *before* this
+  # middleware to ensure that Content-Type is set appropriately.
   class OAuth < Faraday::Middleware
     dependency 'simple_oauth'
 
@@ -51,7 +60,13 @@ module FaradayMiddleware
 
     def body_params(env)
       if include_body_params?(env)
-        env[:body] || {}
+        if env[:body].respond_to?(:to_str)
+          # same test Faraday::Request::UrlEncoded uses to check for String
+          # this should exactly reverse that middleware's work
+          Faraday::Utils.parse_nested_query(env[:body])
+        else
+          env[:body] || {}
+        end
       else
         {}
       end
