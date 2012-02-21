@@ -10,6 +10,15 @@ module FaradayMiddleware
     end
   end
 
+  class NoRedirectLocation < Faraday::Error::ClientError
+    attr_reader :response
+
+    def initialize(response)
+      super "no redirect location was supplied in the request"
+      @response = response
+    end
+  end
+
   # Public: Follow HTTP 30x redirects.
   class FollowRedirects < Faraday::Middleware
     # TODO: 307 & standards-compliant 302
@@ -34,7 +43,7 @@ module FaradayMiddleware
       response.on_complete do |env|
         if redirect? response
           raise RedirectLimitReached, response if follows.zero?
-          env[:url] += response['location']
+          env[:url] += redirect_url(response)
           env[:method] = :get
           response = process_response(@app.call(env), follows - 1)
         end
@@ -49,5 +58,18 @@ module FaradayMiddleware
     def follow_limit
       @options.fetch(:limit, FOLLOW_LIMIT)
     end
+
+private 
+
+    def redirect_url(response)
+      if response['location'].nil?
+        body_match = response.body.match(/<a href=\"([^>]+)\">/i)
+        raise NoRedirectLocation.new(response) unless body_match
+        body_match[1]
+      else
+        response['location']
+      end
+    end
+
   end
 end
