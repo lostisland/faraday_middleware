@@ -12,6 +12,7 @@ describe FaradayMiddleware::FollowRedirects do
         stub.post('/create') { [302, {'Location' => '/'}, ''] }
         stub.get('/found')   { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
         stub.get('/loop')    { [302, {'Location' => '/loop'}, ''] }
+        stub.get('/temp')    { [307, {'Location' => '/found'}, ''] }
       end
     end
   }
@@ -21,6 +22,10 @@ describe FaradayMiddleware::FollowRedirects do
 
   it "follows redirect" do
     get('/').body.should eql('fin')
+  end
+
+  it "follows temp redirect" do
+    get('/temp').body.should eql('fin')
   end
 
   it "follows redirect twice" do

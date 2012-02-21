@@ -13,7 +13,7 @@ module FaradayMiddleware
   # Public: Follow HTTP 30x redirects.
   class FollowRedirects < Faraday::Middleware
     # TODO: 307 & standards-compliant 302
-    REDIRECTS = [301, 302, 303]
+    REDIRECTS = [301, 302, 303, 307]
     # Default value for max redirects followed
     FOLLOW_LIMIT = 3
 
