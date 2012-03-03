@@ -10,10 +10,29 @@ module FaradayMiddleware
     end
   end
 
-  # Public: Follow HTTP 30x redirects.
+  # Public: Follow HTTP 301, 302, 303, and 307 redirects for GET, PATCH, POST,
+  # PUT, and DELETE requests.
+  #
+  # For HTTP 301, 302, and 303, the original request is transformed into a
+  # GET request to the response Location.
+  #
+  # This middleware does not follow the HTTP specification for HTTP 302, in
+  # that it follows the improper implementation currently used by all major
+  # web browsers which forces the redirected request to become a GET request
+  # regardless of the original request method.
+  #
+  # For HTTP 307, the original request is replayed to the response Location,
+  # including original HTTP request method (GET, POST, PUT, DELETE, PATCH),
+  # original headers, and original body.
   class FollowRedirects < Faraday::Middleware
-    # TODO: 307 & standards-compliant 302
-    REDIRECTS = [301, 302, 303]
+    REDIRECTABLE_REQUEST = Set.new [:delete, :get, :patch, :post, :put]
+    REDIRECTS = {
+      301 => :get,
+      302 => :get, # According to the spec, this should be :any, but we're disregarding that to mimic browser implementations.
+      303 => :get,
+      307 => :any
+    }
+
     # Default value for max redirects followed
     FOLLOW_LIMIT = 3
 
@@ -27,23 +46,35 @@ module FaradayMiddleware
     end
 
     def call(env)
-      process_response(@app.call(env), follow_limit)
+      process_response(env[:body], @app.call(env), follow_limit)
     end
 
-    def process_response(response, follows)
+    private
+
+    def method_for_response(env, response)
+      forced_method = REDIRECTS[response.status]
+      forced_method == :any ? env[:method] : forced_method
+    end
+
+    def process_response(body, response, follows)
       response.on_complete do |env|
-        if redirect? response
+        if redirectable?(env) && redirect?(response)
           raise RedirectLimitReached, response if follows.zero?
           env[:url] += response['location']
-          env[:method] = :get
-          response = process_response(@app.call(env), follows - 1)
+          env[:method] = method_for_response(env, response)
+          env[:body] = body
+          response = process_response(body, @app.call(env), follows - 1)
         end
       end
       response
     end
 
+    def redirectable?(env)
+      REDIRECTABLE_REQUEST.include? env[:method]
+    end
+
     def redirect?(response)
-      REDIRECTS.include? response.status
+      REDIRECTS.keys.include? response.status
     end
 
     def follow_limit
