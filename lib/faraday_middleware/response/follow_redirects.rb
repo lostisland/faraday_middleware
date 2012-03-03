@@ -12,8 +12,14 @@ module FaradayMiddleware
 
   # Public: Follow HTTP 30x redirects.
   class FollowRedirects < Faraday::Middleware
-    # TODO: 307 & standards-compliant 302
-    REDIRECTS = [301, 302, 303]
+    REDIRECTABLE_REQUEST = Set.new [:delete, :get, :patch, :post, :put]
+    REDIRECTS = {
+      301 => :get,
+      302 => :get, # According to the spec, this should be :any, but we're disregarding that to mimic browser implementations.
+      303 => :get,
+      307 => :any
+    }
+
     # Default value for max redirects followed
     FOLLOW_LIMIT = 3
 
@@ -26,24 +32,38 @@ module FaradayMiddleware
       @options = options
     end
 
+
     def call(env)
       process_response(@app.call(env), follow_limit)
     end
 
+
+    private
+
+
+    def method_for_response(env, response)
+      forced_method = REDIRECTS[response.status]
+      forced_method == :any ? env[:method] : forced_method
+    end
+
     def process_response(response, follows)
       response.on_complete do |env|
-        if redirect? response
+        if redirectable?(env) && redirect?(response)
           raise RedirectLimitReached, response if follows.zero?
           env[:url] += response['location']
-          env[:method] = :get
+          env[:method] = method_for_response(env, response)
           response = process_response(@app.call(env), follows - 1)
         end
       end
       response
     end
 
+    def redirectable?(env)
+      REDIRECTABLE_REQUEST.include? env[:method]
+    end
+
     def redirect?(response)
-      REDIRECTS.include? response.status
+      REDIRECTS.keys.include? response.status
     end
 
     def follow_limit
