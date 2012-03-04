@@ -94,6 +94,13 @@ describe FaradayMiddleware::FollowRedirects do
   context 'for an HTTP 307 response' do
     it_should_behave_like 'a successful redirection', 307
 
+    it 'redirects with the original request headers' do
+      connection = connection do |stub|
+        stub.get('/redirect') { [307, {'Location' => '/found'}, ''] }
+        stub.get('/found') { |env| [200, {'Content-Type' => 'text/plain'}, env[:request_headers]['X-Test-Value']] }
+      end.get('/redirect', 'X-Test-Value' => 'success').body.should eql 'success'
+    end
+
     %w(put post delete patch).each do |method|
       it "a #{method.upcase} request is replayed as a #{method.upcase} request to the new Location" do
         connection = connection do |stub|
@@ -106,7 +113,7 @@ describe FaradayMiddleware::FollowRedirects do
     %w(put post patch).each do |method|
       it "a #{method.upcase} request forwards the original body (data) to the new Location" do
         connection = connection do |stub|
-          stub.send(method, '/redirect') { |env| [307, {'Location' => '/found'}, ''] }
+          stub.send(method, '/redirect') { [307, {'Location' => '/found'}, ''] }
           stub.send(method, '/found') { |env| [200, {'Content-Type' => 'text/plain'}, env[:body]] }
         end.send(method, '/redirect', 'original data').body.should eql 'original data'
       end
