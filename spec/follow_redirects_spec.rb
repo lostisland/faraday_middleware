@@ -11,16 +11,10 @@ describe FaradayMiddleware::FollowRedirects do
       end.get('/permanent').body.should eql 'fin'
     end
 
-    ##
-    # FIXME: The HTTP OPTIONS method interface, options, appears to have been 
-    # overridden in the returned connection object to return an options hash.
-    #
-    %w(head).each do |method|
-      it "returning the response headers for a #{method.upcase} request" do
-        connection do |stub|
-          stub.send(method, '/permanent') { [status_code, {'Location' => '/found'}, ''] }
-        end.send(method, '/permanent').headers['Location'].should eql('/found')
-      end
+    it "returning the response headers for a HEAD request" do
+      connection do |stub|
+        stub.head('/permanent') { [status_code, {'Location' => '/found'}, ''] }
+      end.head('/permanent').headers['Location'].should eql('/found')
     end
   end
 
