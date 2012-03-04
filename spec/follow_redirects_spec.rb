@@ -101,11 +101,20 @@ describe FaradayMiddleware::FollowRedirects do
     it_should_behave_like 'a successful redirection', 307
 
     %w(put post delete patch).each do |method|
-      it "a #{method.upcase} request is replayed as a #{method.upcase} request to the new location" do
+      it "a #{method.upcase} request is replayed as a #{method.upcase} request to the new Location" do
         connection = connection do |stub|
           stub.send(method, '/redirect') { [307, {'Location' => '/found'}, ''] }
           stub.send(method, '/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
         end.send(method, '/redirect').body.should eql 'fin'
+      end
+    end
+
+    %w(put post patch).each do |method|
+      it "a #{method.upcase} request forwards the original body (data) to the new Location" do
+        connection = connection do |stub|
+          stub.send(method, '/redirect') { |env| [307, {'Location' => '/found'}, ''] }
+          stub.send(method, '/found') { |env| [200, {'Content-Type' => 'text/plain'}, env[:body]] }
+        end.send(method, '/redirect', 'original data').body.should eql 'original data'
       end
     end
   end

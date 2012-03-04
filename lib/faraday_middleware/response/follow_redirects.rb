@@ -34,7 +34,7 @@ module FaradayMiddleware
 
 
     def call(env)
-      process_response(@app.call(env), follow_limit)
+      process_response(env[:body], @app.call(env), follow_limit)
     end
 
 
@@ -46,13 +46,14 @@ module FaradayMiddleware
       forced_method == :any ? env[:method] : forced_method
     end
 
-    def process_response(response, follows)
+    def process_response(body, response, follows)
       response.on_complete do |env|
         if redirectable?(env) && redirect?(response)
           raise RedirectLimitReached, response if follows.zero?
           env[:url] += response['location']
           env[:method] = method_for_response(env, response)
-          response = process_response(@app.call(env), follows - 1)
+          env[:body] = body
+          response = process_response(body, @app.call(env), follows - 1)
         end
       end
       response
