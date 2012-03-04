@@ -10,7 +10,20 @@ module FaradayMiddleware
     end
   end
 
-  # Public: Follow HTTP 30x redirects.
+  # Public: Follow HTTP 301, 302, 303, and 307 redirects for GET, PATCH, POST,
+  # PUT, and DELETE requests.
+  #
+  # For HTTP 301, 302, and 303, the original request is transformed into a
+  # GET request to the response Location.
+  #
+  # This middleware does not follow the HTTP specification for HTTP 302, in
+  # that it follows the improper implementation currently used by all major
+  # web browsers which forces the redirected request to become a GET request
+  # regardless of the original request method.
+  #
+  # For HTTP 307, the original request is replayed to the response Location,
+  # including original HTTP request method (GET, POST, PUT, DELETE, PATCH),
+  # original headers, and original body.
   class FollowRedirects < Faraday::Middleware
     REDIRECTABLE_REQUEST = Set.new [:delete, :get, :patch, :post, :put]
     REDIRECTS = {
