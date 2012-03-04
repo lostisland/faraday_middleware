@@ -28,9 +28,9 @@ describe FaradayMiddleware::FollowRedirects do
     %w(put post delete patch).each do |method|
       it "a #{method.upcase} request is converted to a GET" do
         connection = connection do |stub|
-          stub.send(method, '/permanent') { [status_code, {'Location' => '/found'}, ''] }
+          stub.send(method, '/redirect') { [status_code, {'Location' => '/found'}, ''] }
           stub.get('/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
-        end.send(method, '/permanent').body.should eql 'fin'
+        end.send(method, '/redirect').body.should eql 'fin'
       end
     end
   end
@@ -103,9 +103,9 @@ describe FaradayMiddleware::FollowRedirects do
     %w(put post delete patch).each do |method|
       it "a #{method.upcase} request is replayed as a #{method.upcase} request to the new location" do
         connection = connection do |stub|
-          stub.send(method, '/permanent') { [307, {'Location' => '/found'}, ''] }
+          stub.send(method, '/redirect') { [307, {'Location' => '/found'}, ''] }
           stub.send(method, '/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
-        end.send(method, '/permanent').body.should eql 'fin'
+        end.send(method, '/redirect').body.should eql 'fin'
       end
     end
   end
