@@ -126,11 +126,22 @@ describe FaradayMiddleware::FollowRedirects do
     end
   end
 
+  # checks env hash in request phase for basic validity
+  class Lint < Struct.new(:app)
+    def call(env)
+      if env[:status] or env[:response] or env[:response_headers]
+        raise "invalid request: #{env.inspect}"
+      end
+      app.call(env)
+    end
+  end
+
   private
 
   def connection(options = {})
     Faraday.new do |c|
       c.use described_class, options
+      c.use Lint
       c.adapter :test do |stub|
         yield(stub) if block_given?
       end

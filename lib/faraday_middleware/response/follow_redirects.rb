@@ -33,6 +33,8 @@ module FaradayMiddleware
     ALLOWED_METHODS = Set.new [:get, :post, :put, :patch, :delete]
     # HTTP redirect status codes that this middleware implements
     REDIRECT_CODES  = Set.new [301, 302, 303, 307]
+    # Keys in env hash which will get cleared between requests
+    ENV_TO_CLEAR    = Set.new [:status, :response, :response_headers]
 
     # Default value for max redirects followed
     FOLLOW_LIMIT = 3
@@ -79,6 +81,8 @@ module FaradayMiddleware
       else
         env[:body] = request_body
       end
+
+      ENV_TO_CLEAR.each {|key| env.delete key }
 
       env
     end
