@@ -2,6 +2,9 @@ require 'helper'
 require 'faraday_middleware/response/follow_redirects'
 require 'faraday'
 
+# expose a method in Test adapter that should have been public
+Faraday::Adapter::Test::Stubs.class_eval { public :new_stub }
+
 describe FaradayMiddleware::FollowRedirects do
   shared_examples_for 'a successful redirection' do |status_code|
     it "follows the redirection for a GET request" do
@@ -11,26 +14,22 @@ describe FaradayMiddleware::FollowRedirects do
       end.get('/permanent').body.should eql 'fin'
     end
 
-    ##
-    # FIXME: The HTTP OPTIONS method interface, options, appears to have been 
-    # overridden in the returned connection object to return an options hash.
-    #
-    %w(head).each do |method|
-      it "returning the response headers for a #{method.upcase} request" do
+    [:head, :options].each do |method|
+      it "returning the response headers for a #{method.to_s.upcase} request" do
         connection do |stub|
-          stub.send(method, '/permanent') { [status_code, {'Location' => '/found'}, ''] }
-        end.send(method, '/permanent').headers['Location'].should eql('/found')
+          stub.new_stub(method, '/permanent') { [status_code, {'Location' => '/found'}, ''] }
+        end.run_request(method, '/permanent', nil, nil).headers['Location'].should eql('/found')
       end
     end
   end
 
   shared_examples_for 'a forced GET redirection' do |status_code|
-    %w(put post delete patch).each do |method|
-      it "a #{method.upcase} request is converted to a GET" do
+    [:put, :post, :delete, :patch].each do |method|
+      it "a #{method.to_s.upcase} request is converted to a GET" do
         connection = connection do |stub|
-          stub.send(method, '/redirect') { [status_code, {'Location' => '/found'}, ''] }
+          stub.new_stub(method, '/redirect') { [status_code, {'Location' => '/found'}, ''] }
           stub.get('/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
-        end.send(method, '/redirect').body.should eql 'fin'
+        end.run_request(method, '/redirect', nil, nil).body.should eql 'fin'
       end
     end
   end
@@ -59,7 +58,7 @@ describe FaradayMiddleware::FollowRedirects do
   end
 
   it "raises a FaradayMiddleware::RedirectLimitReached after 3 redirections (by default)" do
-    connection = connection do |stub|
+    conn = connection do |stub|
       stub.get('/')          { [301, {'Location' => '/redirect1'}, ''] }
       stub.get('/redirect1') { [301, {'Location' => '/redirect2'}, ''] }
       stub.get('/redirect2') { [301, {'Location' => '/redirect3'}, ''] }
@@ -67,19 +66,17 @@ describe FaradayMiddleware::FollowRedirects do
       stub.get('/found')     { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
     end
 
-    expect { connection.get('/') }.
-      to raise_error(FaradayMiddleware::RedirectLimitReached)
+    expect { conn.get('/') }.to raise_error(FaradayMiddleware::RedirectLimitReached)
   end
 
   it "raises a FaradayMiddleware::RedirectLimitReached after the initialized limit" do
-    connection = connection(:limit => 1) do |stub|
+    conn = connection(:limit => 1) do |stub|
       stub.get('/')          { [301, {'Location' => '/redirect1'}, ''] }
       stub.get('/redirect1') { [301, {'Location' => '/found'}, ''] }
       stub.get('/found')     { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
     end
 
-    expect { connection.get('/') }.
-      to raise_error(FaradayMiddleware::RedirectLimitReached)
+    expect { conn.get('/') }.to raise_error(FaradayMiddleware::RedirectLimitReached)
   end
 
   context 'for an HTTP 301 response' do
@@ -101,27 +98,27 @@ describe FaradayMiddleware::FollowRedirects do
     it_should_behave_like 'a successful redirection', 307
 
     it 'redirects with the original request headers' do
-      connection = connection do |stub|
+      connection do |stub|
         stub.get('/redirect') { [307, {'Location' => '/found'}, ''] }
         stub.get('/found') { |env| [200, {'Content-Type' => 'text/plain'}, env[:request_headers]['X-Test-Value']] }
       end.get('/redirect', 'X-Test-Value' => 'success').body.should eql 'success'
     end
 
-    %w(put post delete patch).each do |method|
-      it "a #{method.upcase} request is replayed as a #{method.upcase} request to the new Location" do
-        connection = connection do |stub|
-          stub.send(method, '/redirect') { [307, {'Location' => '/found'}, ''] }
-          stub.send(method, '/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
-        end.send(method, '/redirect').body.should eql 'fin'
+    [:put, :post, :delete, :patch].each do |method|
+      it "a #{method.to_s.upcase} request is replayed as a #{method.to_s.upcase} request to the new Location" do
+        connection do |stub|
+          stub.new_stub(method, '/redirect') { [307, {'Location' => '/found'}, ''] }
+          stub.new_stub(method, '/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
+        end.run_request(method, '/redirect', nil, nil).body.should eql 'fin'
       end
     end
 
-    %w(put post patch).each do |method|
-      it "a #{method.upcase} request forwards the original body (data) to the new Location" do
-        connection = connection do |stub|
-          stub.send(method, '/redirect') { [307, {'Location' => '/found'}, ''] }
-          stub.send(method, '/found') { |env| [200, {'Content-Type' => 'text/plain'}, env[:body]] }
-        end.send(method, '/redirect', 'original data').body.should eql 'original data'
+    [:put, :post, :patch].each do |method|
+      it "a #{method.to_s.upcase} request forwards the original body (data) to the new Location" do
+        connection do |stub|
+          stub.new_stub(method, '/redirect') { [307, {'Location' => '/found'}, ''] }
+          stub.new_stub(method, '/found') { |env| [200, {'Content-Type' => 'text/plain'}, env[:body]] }
+        end.run_request(method, '/redirect', 'original data', nil).body.should eql 'original data'
       end
     end
   end
