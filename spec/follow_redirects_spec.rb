@@ -27,9 +27,12 @@ describe FaradayMiddleware::FollowRedirects do
     [:put, :post, :delete, :patch].each do |method|
       it "a #{method.to_s.upcase} request is converted to a GET" do
         connection = connection do |stub|
-          stub.new_stub(method, '/redirect') { [status_code, {'Location' => '/found'}, ''] }
-          stub.get('/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
-        end.run_request(method, '/redirect', nil, nil).body.should eql 'fin'
+          stub.new_stub(method, '/redirect') { [status_code, {'Location' => '/found'}, 'elsewhere'] }
+          stub.get('/found') { |env|
+            body = env[:body] and body.empty? && (body = nil)
+            [200, {'Content-Type' => 'text/plain'}, body.inspect]
+          }
+        end.run_request(method, '/redirect', 'request data', nil).body.should eql('nil')
       end
     end
   end

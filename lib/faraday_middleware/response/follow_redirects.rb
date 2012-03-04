@@ -75,6 +75,7 @@ module FaradayMiddleware
 
       if transform_into_get?(response)
         env[:method] = :get
+        env[:body] = nil
       else
         env[:body] = request_body
       end
