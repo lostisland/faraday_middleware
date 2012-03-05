@@ -14,13 +14,16 @@ module FaradayMiddleware
   # Public: Follow HTTP 301, 302, 303, and 307 redirects for GET, PATCH, POST,
   # PUT, and DELETE requests.
   #
-  # For HTTP 301, 302, and 303, the original request is transformed into a
-  # GET request to the response Location.
+  # This middleware does not follow the HTTP specification for HTTP 302, by
+  # default, in that it follows the improper implementation used by most major
+  # web browsers which forces the redirected request to become a GET request
+  # regardless of the original request method.
   #
-  # This middleware does not follow the HTTP specification for HTTP 302, in
-  # that it follows the improper implementation used by most major web browsers
-  # which forces the redirected request to become a GET request regardless of
-  # the original request method.
+  # For HTTP 301, 302, and 303, the original request is transformed into a
+  # GET request to the response Location, by default. However, with standards
+  # compliance enabled, a 302 will instead act in accordance with the HTTP
+  # specification, which will replay the original request to the received
+  # Location, just as with a 307.
   #
   # For HTTP 307, the original request is replayed to the response Location,
   # including original HTTP request method (GET, POST, PUT, DELETE, PATCH),
@@ -43,9 +46,13 @@ module FaradayMiddleware
     #
     # options - An options Hash (default: {}):
     #           limit - A Numeric redirect limit (default: 3)
+    #           standards_compliant - A boolean to indicate 302 redirection compliance
     def initialize(app, options = {})
       super(app)
       @options = options
+
+      @replay_request_codes = Set.new [307]
+      @replay_request_codes << 302 if standards_compliant?
     end
 
     def call(env)
@@ -55,7 +62,7 @@ module FaradayMiddleware
     private
 
     def transform_into_get?(response)
-      307 != response.status
+      !@replay_request_codes.include? response.status
     end
 
     def perform_with_redirection(env, follows)
@@ -94,6 +101,10 @@ module FaradayMiddleware
 
     def follow_limit
       @options.fetch(:limit, FOLLOW_LIMIT)
+    end
+
+    def standards_compliant?
+      @options.fetch(:standards_compliant, false)
     end
   end
 end
