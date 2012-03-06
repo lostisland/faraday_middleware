@@ -6,6 +6,8 @@ require 'faraday'
 Faraday::Adapter::Test::Stubs.class_eval { public :new_stub }
 
 describe FaradayMiddleware::FollowRedirects do
+  let(:middleware_options) { Hash.new }
+
   shared_examples_for 'a successful redirection' do |status_code|
     it "follows the redirection for a GET request" do
       connection do |stub|
@@ -33,6 +35,33 @@ describe FaradayMiddleware::FollowRedirects do
             [200, {'Content-Type' => 'text/plain'}, body.inspect]
           }
         end.run_request(method, '/redirect', 'request data', nil).body.should eql('nil')
+      end
+    end
+  end
+
+  shared_examples_for 'a replayed redirection' do |status_code|
+    it 'redirects with the original request headers' do
+      connection do |stub|
+        stub.get('/redirect') { [status_code, {'Location' => '/found'}, ''] }
+        stub.get('/found') { |env| [200, {'Content-Type' => 'text/plain'}, env[:request_headers]['X-Test-Value']] }
+      end.get('/redirect', 'X-Test-Value' => 'success').body.should eql 'success'
+    end
+
+    [:put, :post, :delete, :patch].each do |method|
+      it "a #{method.to_s.upcase} request is replayed as a #{method.to_s.upcase} request to the new Location" do
+        connection do |stub|
+          stub.new_stub(method, '/redirect') { [status_code, {'Location' => '/found'}, ''] }
+          stub.new_stub(method, '/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
+        end.run_request(method, '/redirect', nil, nil).body.should eql 'fin'
+      end
+    end
+
+    [:put, :post, :patch].each do |method|
+      it "a #{method.to_s.upcase} request forwards the original body (data) to the new Location" do
+        connection do |stub|
+          stub.new_stub(method, '/redirect') { [status_code, {'Location' => '/found'}, ''] }
+          stub.new_stub(method, '/found') { |env| [200, {'Content-Type' => 'text/plain'}, env[:body]] }
+        end.run_request(method, '/redirect', 'original data', nil).body.should eql 'original data'
       end
     end
   end
@@ -89,7 +118,15 @@ describe FaradayMiddleware::FollowRedirects do
 
   context 'for an HTTP 302 response' do
     it_should_behave_like 'a successful redirection', 302
-    it_should_behave_like 'a forced GET redirection', 302
+
+    context 'by default' do
+      it_should_behave_like 'a forced GET redirection', 302
+    end
+
+    context 'with standards compliancy enabled' do
+      let(:middleware_options) { { :standards_compliant => true } }
+      it_should_behave_like 'a replayed redirection', 302
+    end
   end
 
   context 'for an HTTP 303 response' do
@@ -99,31 +136,7 @@ describe FaradayMiddleware::FollowRedirects do
 
   context 'for an HTTP 307 response' do
     it_should_behave_like 'a successful redirection', 307
-
-    it 'redirects with the original request headers' do
-      connection do |stub|
-        stub.get('/redirect') { [307, {'Location' => '/found'}, ''] }
-        stub.get('/found') { |env| [200, {'Content-Type' => 'text/plain'}, env[:request_headers]['X-Test-Value']] }
-      end.get('/redirect', 'X-Test-Value' => 'success').body.should eql 'success'
-    end
-
-    [:put, :post, :delete, :patch].each do |method|
-      it "a #{method.to_s.upcase} request is replayed as a #{method.to_s.upcase} request to the new Location" do
-        connection do |stub|
-          stub.new_stub(method, '/redirect') { [307, {'Location' => '/found'}, ''] }
-          stub.new_stub(method, '/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
-        end.run_request(method, '/redirect', nil, nil).body.should eql 'fin'
-      end
-    end
-
-    [:put, :post, :patch].each do |method|
-      it "a #{method.to_s.upcase} request forwards the original body (data) to the new Location" do
-        connection do |stub|
-          stub.new_stub(method, '/redirect') { [307, {'Location' => '/found'}, ''] }
-          stub.new_stub(method, '/found') { |env| [200, {'Content-Type' => 'text/plain'}, env[:body]] }
-        end.run_request(method, '/redirect', 'original data', nil).body.should eql 'original data'
-      end
-    end
+    it_should_behave_like 'a replayed redirection', 307
   end
 
   # checks env hash in request phase for basic validity
@@ -138,7 +151,7 @@ describe FaradayMiddleware::FollowRedirects do
 
   private
 
-  def connection(options = {})
+  def connection(options = middleware_options)
     Faraday.new do |c|
       c.use described_class, options
       c.use Lint
