@@ -1,4 +1,5 @@
 require 'faraday'
+require 'forwardable'
 
 module FaradayMiddleware
   # Public: Uses the simple_oauth library to sign requests according the
@@ -11,23 +12,25 @@ module FaradayMiddleware
   # The signature is added to the "Authorization" HTTP request header. If the
   # value for this header already exists, it is not overriden.
   #
-  # If no Content-Type header is specified, this middleware assumes that the
-  # body hash should be included in the signature parameters. Otherwise, it only
-  # includes them if the Content-Type is application/x-www-form-urlencoded, as
-  # required by the OAuth 1.0 specification.
+  # If no Content-Type header is specified, this middleware assumes that
+  # request body parameters should be included while signing the request.
+  # Otherwise, it only includes them if the Content-Type is
+  # "application/x-www-form-urlencoded", as per OAuth 1.0.
   #
-  # If the body is a string and the Content-Type is either unspecified or
-  # application/x-www-form-urlencoded, this middleware re-parses the body
-  # using Faraday::Utils.parse_nested_query and includes the result in the
-  # OAuth signature parameters. Thus, this middleware can be included either
-  # before *or* after UrlEncoded.
-  #
-  # All other types of encoding middleware should appear *before* this
-  # middleware to ensure that Content-Type is set appropriately.
+  # For better performance while signing requests, this middleware should be
+  # positioned before UrlEncoded middleware on the stack, but after any other
+  # body-encoding middleware (such as EncodeJson).
   class OAuth < Faraday::Middleware
     dependency 'simple_oauth'
 
     AUTH_HEADER = 'Authorization'.freeze
+    CONTENT_TYPE = 'Content-Type'.freeze
+    TYPE_URLENCODED = 'application/x-www-form-urlencoded'.freeze
+
+    extend Forwardable
+    parser_method = :parse_nested_query
+    parser_module = ::Faraday::Utils.respond_to?(parser_method) ? 'Faraday::Utils' : 'Rack::Utils'
+    def_delegator parser_module, parser_method
 
     def initialize(app, options)
       super(app)
@@ -61,20 +64,16 @@ module FaradayMiddleware
     def body_params(env)
       if include_body_params?(env)
         if env[:body].respond_to?(:to_str)
-          # same test Faraday::Request::UrlEncoded uses to check for String
-          # this should exactly reverse that middleware's work
-          Faraday::Utils.parse_nested_query(env[:body])
+          parse_nested_query env[:body]
         else
-          env[:body] || {}
+          env[:body]
         end
-      else
-        {}
-      end
+      end || {}
     end
 
     def include_body_params?(env)
       # see RFC 5489, section 3.4.1.3.1 for details
-      env[:request_headers]['Content-Type'].nil? || env[:request_headers]['Content-Type'] == 'application/x-www-form-urlencoded'
+      !(type = env[:request_headers][CONTENT_TYPE]) or type == TYPE_URLENCODED
     end
 
     def signature_params(params)

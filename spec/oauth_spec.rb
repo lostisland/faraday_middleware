@@ -1,6 +1,7 @@
 require 'helper'
 require 'faraday_middleware/request/oauth'
 require 'uri'
+require 'forwardable'
 
 describe FaradayMiddleware::OAuth do
   def auth_header(env)
@@ -106,42 +107,48 @@ describe FaradayMiddleware::OAuth do
                        :nonce => '547fed103e122eecf84c080843eedfe6',
                        :timestamp => '1286830180'}] }
 
+    let(:value) { {'foo' => 'bar'} }
+
+    let(:type_json) { {'Content-Type' => 'application/json'} }
+    let(:type_form) { {'Content-Type' => 'application/x-www-form-urlencoded'} }
+
+    extend Forwardable
+    query_method = :build_nested_query
+    query_module = ::Faraday::Utils.respond_to?(query_method) ? 'Faraday::Utils' : 'Rack::Utils'
+    def_delegator query_module, query_method
+
     it "does not include the body with a Content-Type that is not application/x-www-form-urlencoded" do
-      value = { 'foo' => 'bar' }
-      auth_header_with    = auth_header(perform({}, { 'Content-Type' => 'application/json' }, JSON.dump(value)))
-      auth_header_without = auth_header(perform({}, { 'Content-Type' => 'application/json' }, {}))
+      auth_header_with    = auth_header(perform({}, type_json, '{"foo":"bar"}'))
+      auth_header_without = auth_header(perform({}, type_json, {}))
 
       auth_header_with.should == auth_header_without
     end
 
     it "includes the body parameters with Content-Type application/x-www-form-urlencoded" do
-      value = { 'foo' => 'bar' }
-      auth_header_with    = auth_header(perform({}, { 'Content-Type' => 'application/x-www-form-urlencoded' }, {}))
-      auth_header_without = auth_header(perform({}, { 'Content-Type' => 'application/x-www-form-urlencoded' }, value))
+      auth_header_with    = auth_header(perform({}, type_form, {}))
+      auth_header_without = auth_header(perform({}, type_form, value))
 
       auth_header_with.should_not == auth_header_without
     end
 
     it "includes the body parameters with an unspecified Content-Type" do
-      value = { 'foo' => 'bar' }
       auth_header_with    = auth_header(perform({}, {}, value))
-      auth_header_without = auth_header(perform({}, { 'Content-Type' => 'application/x-www-form-urlencoded' }, value))
+      auth_header_without = auth_header(perform({}, type_form, value))
 
       auth_header_with.should == auth_header_without
     end
 
     it "includes the body parameters with Content-Type application/x-www-form-urlencoded and a string body" do
-      value = { 'foo' => 'bar' }
-      auth_header_hash =   auth_header(perform({}, { 'Content-Type' => 'application/x-www-form-urlencoded' }, value))
-      auth_header_string = auth_header(perform({}, { 'Content-Type' => 'application/x-www-form-urlencoded' }, Faraday::Utils.build_query(value)))
+      auth_header_hash   = auth_header(perform({}, type_form, value))
+      auth_header_string = auth_header(perform({}, type_form, build_nested_query(value)))
       auth_header_string.should == auth_header_hash
     end
 
     it "includes the body parameters with Content-Type application/x-www-form-urlencoded and a string body with nested params" do
       # simulates the behavior of Faraday::MiddleWare::UrlEncoded
       value = { 'foo' => ['bar', 'baz', 'wat'] }
-      auth_header_hash =   auth_header(perform({}, { 'Content-Type' => 'application/x-www-form-urlencoded' }, value))
-      auth_header_string = auth_header(perform({}, { 'Content-Type' => 'application/x-www-form-urlencoded' }, Faraday::Utils.build_nested_query(value)))
+      auth_header_hash   = auth_header(perform({}, type_form, value))
+      auth_header_string = auth_header(perform({}, type_form, build_nested_query(value)))
       auth_header_string.should == auth_header_hash
     end
 
