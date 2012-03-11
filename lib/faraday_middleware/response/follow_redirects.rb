@@ -2,6 +2,7 @@ require 'faraday'
 require 'set'
 
 module FaradayMiddleware
+  # Public: Exception thrown when the maximum amount of requests is exceeded.
   class RedirectLimitReached < Faraday::Error::ClientError
     attr_reader :response
 

@@ -70,7 +70,10 @@ describe FaradayMiddleware::Mashify do
     # although it is not good practice to pass a hash as the body, if we add ParseJson
     # to the middleware stack we end up testing two middlewares instead of one
     it 'should create a Hash from the body' do
-      stubs.get('/hash') {[200, {'content-type' => 'application/json; charset=utf-8'}, { "name" => "Erik Michaels-Ober", "username" => "sferik" }]}
+      stubs.get('/hash') {
+        data = { 'name' => 'Erik Michaels-Ober', 'username' => 'sferik' }
+        [200, {'content-type' => 'application/json; charset=utf-8'}, data]
+      }
       me = connection.get('/hash').body
       me.name.should == 'Erik Michaels-Ober'
       me.username.should == 'sferik'

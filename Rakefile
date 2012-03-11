@@ -1,6 +1,6 @@
 #!/usr/bin/env rake
 
-task :default => [:enable_coverage, :spec, :test]
+task :default => [:enable_coverage, :spec, :test, :quality]
 
 require 'bundler'
 Bundler::GemHelper.install_tasks
@@ -9,9 +9,16 @@ require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec)
 
 task :enable_coverage do
-  ENV['COVERAGE'] = 'yes' unless ENV['CI']
+  ENV['COVERAGE'] = 'yes'
 end
 
 task :test do
   sh 'ruby', '-Ilib', 'spec/caching_test.rb'
+end
+
+task :quality do
+  sh 'cane',
+    '--style-measure=100',
+    '--gte=coverage/covered_percent,99',
+    '--max-violations=2' # TODO: remove for cane > 1.0.0
 end

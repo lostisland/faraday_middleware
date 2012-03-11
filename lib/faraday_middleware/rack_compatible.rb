@@ -26,11 +26,7 @@ module FaradayMiddleware
 
     # faraday to rack-compatible
     def prepare_env(env)
-      env[:request_headers].each do |name, value|
-        name = name.upcase.tr('-', '_')
-        name = "HTTP_#{name}" unless NonPrefixedHeaders.include? name
-        env[name] = value
-      end
+      headers_to_rack(env)
 
       url = env[:url]
       env['rack.url_scheme'] = url.scheme
@@ -42,6 +38,14 @@ module FaradayMiddleware
       env['rack.errors'] ||= StringIO.new
 
       env
+    end
+
+    def headers_to_rack(env)
+      env[:request_headers].each do |name, value|
+        name = name.upcase.tr('-', '_')
+        name = "HTTP_#{name}" unless NonPrefixedHeaders.include? name
+        env[name] = value
+      end
     end
 
     # rack to faraday-compatible

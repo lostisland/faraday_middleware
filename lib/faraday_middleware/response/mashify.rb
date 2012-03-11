@@ -1,6 +1,8 @@
 require 'faraday'
 
 module FaradayMiddleware
+  # Public: Converts parsed response bodies to a Hashie::Mash if they were of
+  # Hash or Array type.
   class Mashify < Faraday::Response::Middleware
     class << self
       attr_accessor :mash_class

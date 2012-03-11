@@ -102,7 +102,7 @@ describe FaradayMiddleware::OAuth do
   end
 
   context "handling body parameters" do
-    let(:options) { [{ :consumer_key => 'CKEY', 
+    let(:options) { [{ :consumer_key => 'CKEY',
                        :consumer_secret => 'CSECRET',
                        :nonce => '547fed103e122eecf84c080843eedfe6',
                        :timestamp => '1286830180'}] }
@@ -117,14 +117,14 @@ describe FaradayMiddleware::OAuth do
     query_module = ::Faraday::Utils.respond_to?(query_method) ? 'Faraday::Utils' : 'Rack::Utils'
     def_delegator query_module, query_method
 
-    it "does not include the body with a Content-Type that is not application/x-www-form-urlencoded" do
+    it "does not include the body for JSON" do
       auth_header_with    = auth_header(perform({}, type_json, '{"foo":"bar"}'))
       auth_header_without = auth_header(perform({}, type_json, {}))
 
       auth_header_with.should == auth_header_without
     end
 
-    it "includes the body parameters with Content-Type application/x-www-form-urlencoded" do
+    it "includes the body parameters with form Content-Type" do
       auth_header_with    = auth_header(perform({}, type_form, {}))
       auth_header_without = auth_header(perform({}, type_form, value))
 
@@ -138,13 +138,7 @@ describe FaradayMiddleware::OAuth do
       auth_header_with.should == auth_header_without
     end
 
-    it "includes the body parameters with Content-Type application/x-www-form-urlencoded and a string body" do
-      auth_header_hash   = auth_header(perform({}, type_form, value))
-      auth_header_string = auth_header(perform({}, type_form, build_nested_query(value)))
-      auth_header_string.should == auth_header_hash
-    end
-
-    it "includes the body parameters with Content-Type application/x-www-form-urlencoded and a string body with nested params" do
+    it "includes the body parameters for form type with string body" do
       # simulates the behavior of Faraday::MiddleWare::UrlEncoded
       value = { 'foo' => ['bar', 'baz', 'wat'] }
       auth_header_hash   = auth_header(perform({}, type_form, value))

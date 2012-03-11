@@ -29,7 +29,9 @@ describe FaradayMiddleware::FollowRedirects do
     [:put, :post, :delete, :patch].each do |method|
       it "a #{method.to_s.upcase} request is converted to a GET" do
         connection = connection do |stub|
-          stub.new_stub(method, '/redirect') { [status_code, {'Location' => '/found'}, 'elsewhere'] }
+          stub.new_stub(method, '/redirect') {
+            [status_code, {'Location' => '/found'}, 'elsewhere']
+          }
           stub.get('/found') { |env|
             body = env[:body] and body.empty? && (body = nil)
             [200, {'Content-Type' => 'text/plain'}, body.inspect]
@@ -41,14 +43,24 @@ describe FaradayMiddleware::FollowRedirects do
 
   shared_examples_for 'a replayed redirection' do |status_code|
     it 'redirects with the original request headers' do
-      connection do |stub|
-        stub.get('/redirect') { [status_code, {'Location' => '/found'}, ''] }
-        stub.get('/found') { |env| [200, {'Content-Type' => 'text/plain'}, env[:request_headers]['X-Test-Value']] }
-      end.get('/redirect') { |req| req.headers['X-Test-Value'] = 'success' }.body.should eql('success')
+      conn = connection do |stub|
+        stub.get('/redirect') {
+          [status_code, {'Location' => '/found'}, '']
+        }
+        stub.get('/found') { |env|
+          [200, {'Content-Type' => 'text/plain'}, env[:request_headers]['X-Test-Value']]
+        }
+      end
+
+      response = conn.get('/redirect') { |req|
+        req.headers['X-Test-Value'] = 'success'
+      }
+
+      response.body.should eql('success')
     end
 
     [:put, :post, :delete, :patch].each do |method|
-      it "a #{method.to_s.upcase} request is replayed as a #{method.to_s.upcase} request to the new Location" do
+      it "replays a #{method.to_s.upcase} request" do
         connection do |stub|
           stub.new_stub(method, '/redirect') { [status_code, {'Location' => '/found'}, ''] }
           stub.new_stub(method, '/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
@@ -57,11 +69,18 @@ describe FaradayMiddleware::FollowRedirects do
     end
 
     [:put, :post, :patch].each do |method|
-      it "a #{method.to_s.upcase} request forwards the original body (data) to the new Location" do
-        connection do |stub|
-          stub.new_stub(method, '/redirect') { [status_code, {'Location' => '/found'}, ''] }
-          stub.new_stub(method, '/found') { |env| [200, {'Content-Type' => 'text/plain'}, env[:body]] }
-        end.run_request(method, '/redirect', 'original data', nil).body.should eql 'original data'
+      it "forwards request body for a #{method.to_s.upcase} request" do
+        conn = connection do |stub|
+          stub.new_stub(method, '/redirect') {
+            [status_code, {'Location' => '/found'}, '']
+          }
+          stub.new_stub(method, '/found') { |env|
+            [200, {'Content-Type' => 'text/plain'}, env[:body]]
+          }
+        end
+
+        response = conn.run_request(method, '/redirect', 'original data', nil)
+        response.body.should eql('original data')
       end
     end
   end
