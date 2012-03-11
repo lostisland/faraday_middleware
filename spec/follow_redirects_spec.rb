@@ -44,7 +44,7 @@ describe FaradayMiddleware::FollowRedirects do
       connection do |stub|
         stub.get('/redirect') { [status_code, {'Location' => '/found'}, ''] }
         stub.get('/found') { |env| [200, {'Content-Type' => 'text/plain'}, env[:request_headers]['X-Test-Value']] }
-      end.get('/redirect', 'X-Test-Value' => 'success').body.should eql 'success'
+      end.get('/redirect') { |req| req.headers['X-Test-Value'] = 'success' }.body.should eql('success')
     end
 
     [:put, :post, :delete, :patch].each do |method|
