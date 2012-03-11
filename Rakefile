@@ -1,6 +1,10 @@
 #!/usr/bin/env rake
 
-task :default => [:enable_coverage, :spec, :test, :quality]
+if defined? RUBY_ENGINE and 'ruby' == RUBY_ENGINE and '1.9.3' == RUBY_VERSION
+  task :default => [:enable_coverage, :spec, :test, :quality]
+else
+  task :default => [:spec, :test]
+end
 
 require 'bundler'
 Bundler::GemHelper.install_tasks
