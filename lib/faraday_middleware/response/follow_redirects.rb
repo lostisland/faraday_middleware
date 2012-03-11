@@ -46,7 +46,9 @@ module FaradayMiddleware
     #
     # options - An options Hash (default: {}):
     #           limit - A Numeric redirect limit (default: 3)
-    #           standards_compliant - A boolean to indicate 302 redirection compliance
+    #           standards_compliant - A Boolean indicating whether to respect
+    #                                 the HTTP spec when following 302
+    #                                 (default: false)
     def initialize(app, options = {})
       super(app)
       @options = options
