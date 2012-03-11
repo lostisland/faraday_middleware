@@ -1,15 +1,14 @@
 if ENV['COVERAGE']
   require 'simplecov'
 
-  class SimpleCov::Formatter::QualityFormatter
+  SimpleCov.formatter = Class.new do
     def format(result)
-      SimpleCov::Formatter::HTMLFormatter.new.format(result)
+      SimpleCov::Formatter::HTMLFormatter.new.format(result) unless ENV['CI']
       File.open('coverage/covered_percent', 'w') do |f|
         f.puts result.source_files.covered_percent.to_i
       end
     end
   end
-  SimpleCov.formatter = SimpleCov::Formatter::QualityFormatter
 
   SimpleCov.start do
     # add_filter 'faraday_middleware.rb'
