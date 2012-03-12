@@ -9,6 +9,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rspec', '~> 2.6'
   gem.add_development_dependency 'simple_oauth', '~> 0.1'
   gem.add_development_dependency 'rack-cache', '~> 1.1'
+  gem.add_development_dependency 'nokogiri', '~> 1.5.2'
   gem.authors = ["Erik Michaels-Ober", "Wynn Netherland"]
   gem.description = %q{Various middleware for Faraday}
   gem.email = ['sferik@gmail.com', 'wynn.netherland@gmail.com']
