@@ -117,10 +117,17 @@ class HttpCachingTest < Test::Unit::TestCase
   def_delegators :@conn, :get, :post
 
   def test_cache_get
-    assert_equal 'request:1', get('/', :user_agent => 'test').body
+    response = get('/', :user_agent => 'test')
+    assert_equal 'request:1', response.body
+    assert_equal :get, response.env[:method]
+    assert_equal 200, response.status
+
     response = get('/', :user_agent => 'test')
     assert_equal 'request:1', response.body
     assert_equal 'text/plain', response['content-type']
+    assert_equal :get, response.env[:method]
+    assert response.env[:request].respond_to?(:fetch)
+    assert_equal 200, response.status
 
     assert_equal 'request:2', post('/').body
   end

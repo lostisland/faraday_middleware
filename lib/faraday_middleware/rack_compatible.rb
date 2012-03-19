@@ -67,13 +67,14 @@ module FaradayMiddleware
 
     def finalize_response(env, rack_response)
       status, headers, body = rack_response
-      body = body.inject('') { |str, part| str << part }
+      body = body.inject() { |str, part| str << part }
       headers = Faraday::Utils::Headers.new(headers) unless Faraday::Utils::Headers === headers
 
-      response_env = { :status => status, :body => body, :response_headers => headers }
+      env.update :status => status.to_i,
+                 :body => body,
+                 :response_headers => headers
 
-      env[:response] ||= Faraday::Response.new({})
-      env[:response].env.update(response_env)
+      env[:response] ||= Faraday::Response.new(env)
       env[:response]
     end
   end
