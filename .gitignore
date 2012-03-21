@@ -19,6 +19,7 @@ rdoc
 doc
 log
 .yardoc
+tmp
 
 # Bundler
 *.gem

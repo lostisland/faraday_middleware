@@ -2,6 +2,7 @@ require 'test/unit'
 require 'forwardable'
 require 'fileutils'
 require 'rack/cache'
+require 'faraday'
 require 'faraday_middleware/response/caching'
 require 'faraday_middleware/rack_compatible'
 
@@ -87,10 +88,22 @@ end
 class HttpCachingTest < Test::Unit::TestCase
   include FileUtils
 
-  CACHE_DIR = File.expand_path('../cache', __FILE__)
+  CACHE_DIR = File.expand_path('../../tmp/cache', __FILE__)
+
+  # middleware to check whether "rack.errors" is free of error reports
+  class RackErrorsComplainer < Struct.new(:app)
+    def call(env)
+      response = app.call(env)
+      error_stream = env['rack.errors'].string
+      raise %(unexpected error in 'rack.errors') if error_stream.include? 'error'
+      response
+    end
+  end
 
   def setup
     rm_r CACHE_DIR if File.exists? CACHE_DIR
+    # force reinitializing cache dirs
+    Rack::Cache::Storage.instance.clear
 
     request_count = 0
     response = lambda { |env|
@@ -101,6 +114,8 @@ class HttpCachingTest < Test::Unit::TestCase
     }
 
     @conn = Faraday.new do |b|
+      b.use RackErrorsComplainer
+
       b.use FaradayMiddleware::RackCompatible, Rack::Cache::Context,
         :metastore   => "file:#{CACHE_DIR}/rack/meta",
         :entitystore => "file:#{CACHE_DIR}/rack/body",
