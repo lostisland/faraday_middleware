@@ -47,9 +47,19 @@ describe FaradayMiddleware::Mashify do
       values[1].username.should == 'sferik'
     end
 
-    it 'should allow for use of custom Mash subclasses' do
+    it 'should allow for use of custom Mash subclasses at the class level' do
       class MyMash < ::Hashie::Mash; end
       described_class.mash_class = MyMash
+
+      env = { :body => { "name" => "Erik Michaels-Ober", "username" => "sferik" } }
+      me  = mashify.on_complete(env)
+
+      me.class.should == MyMash
+    end
+
+    it 'should allow for use of custom Mash subclasses at the instancel evel' do
+      class MyMash < ::Hashie::Mash; end
+      mashify = described_class.new(nil, mash_class: MyMash)
 
       env = { :body => { "name" => "Erik Michaels-Ober", "username" => "sferik" } }
       me  = mashify.on_complete(env)
