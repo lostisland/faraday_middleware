@@ -3,7 +3,9 @@ require 'faraday_middleware/response_middleware'
 module FaradayMiddleware
   # Public: Parse response bodies as JSON.
   class ParseJson < ResponseMiddleware
-    dependency 'json'
+    dependency {
+      require 'json' unless defined?(JSON)
+    }
 
     define_parser { |body|
       JSON.parse body unless body.empty?
