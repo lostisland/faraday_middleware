@@ -61,7 +61,7 @@ describe FaradayMiddleware::ParseJson, :type => :response do
   end
 
   it "chokes on invalid json" do
-    ['{!', ' ', '"a"', 'true', 'null', '1'].each do |data|
+    ['{!', '"a"', 'true', 'null', '1'].each do |data|
       expect { process(data) }.to raise_error(Faraday::Error::ParsingError)
     end
   end
@@ -95,6 +95,18 @@ describe FaradayMiddleware::ParseJson, :type => :response do
       response = process(%( \r\n\t{"a":1}), 'text/javascript')
       response.body.should be_a(Hash)
       response['content-type'].should eql('application/json')
+    end
+  end
+
+  context "HEAD responses" do
+    it "should nullify the body if it's only one space" do
+      response = process(' ')
+      response.body.should be_nil
+    end
+
+    it "should nullify the body if it's two spaces" do
+      response = process(' ')
+      response.body.should be_nil
     end
   end
 end
