@@ -59,7 +59,7 @@ describe FaradayMiddleware::Mashify do
 
     it 'should allow for use of custom Mash subclasses at the instance level' do
       class MyMash < ::Hashie::Mash; end
-      mashify = described_class.new(nil, mash_class: MyMash)
+      mashify = described_class.new(nil, :mash_class => MyMash)
 
       env = { :body => { "name" => "Erik Michaels-Ober", "username" => "sferik" } }
       me  = mashify.on_complete(env)
