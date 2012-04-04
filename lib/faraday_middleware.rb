@@ -4,6 +4,7 @@ module FaradayMiddleware
   autoload :OAuth,           'faraday_middleware/request/oauth'
   autoload :OAuth2,          'faraday_middleware/request/oauth2'
   autoload :EncodeJson,      'faraday_middleware/request/encode_json'
+  autoload :AddHeader,       'faraday_middleware/request/add_header'
   autoload :Mashify,         'faraday_middleware/response/mashify'
   autoload :Rashify,         'faraday_middleware/response/rashify'
   autoload :ParseJson,       'faraday_middleware/response/parse_json'
@@ -17,9 +18,10 @@ module FaradayMiddleware
 
   if Faraday.respond_to? :register_middleware
     Faraday.register_middleware :request,
-      :oauth    => lambda { OAuth },
-      :oauth2   => lambda { OAuth2 },
-      :json     => lambda { EncodeJson }
+      :oauth          => lambda { OAuth },
+      :oauth2         => lambda { OAuth2 },
+      :json           => lambda { EncodeJson },
+      :add_header     => lambda { AddHeader}
 
     Faraday.register_middleware :response,
       :mashify  => lambda { Mashify },

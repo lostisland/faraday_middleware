@@ -8,7 +8,7 @@ module FaradayMiddleware
     }
 
     define_parser { |body|
-      JSON.parse body unless body.empty?
+      JSON.parse body.strip unless body.strip.empty?
     }
 
     # Public: Override the content-type of the response with "application/json"
