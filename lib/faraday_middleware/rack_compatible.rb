@@ -58,7 +58,7 @@ module FaradayMiddleware
       headers.clear
 
       rack_env.each do |name, value|
-        next unless String === name
+        next unless String === name && String === value
         if NonPrefixedHeaders.include? name or name.index('HTTP_') == 0
           name = name.sub(/^HTTP_/, '').downcase.tr('_', '-')
           headers[name] = value
