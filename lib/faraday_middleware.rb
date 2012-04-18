@@ -11,6 +11,7 @@ module FaradayMiddleware
   autoload :ParseMarshal,    'faraday_middleware/response/parse_marshal'
   autoload :ParseYaml,       'faraday_middleware/response/parse_yaml'
   autoload :Caching,         'faraday_middleware/response/caching'
+  autoload :Chunked,         'faraday_middleware/response/chunked'
   autoload :RackCompatible,  'faraday_middleware/rack_compatible'
   autoload :FollowRedirects, 'faraday_middleware/response/follow_redirects'
   autoload :Instrumentation, 'faraday_middleware/instrumentation'
@@ -30,7 +31,8 @@ module FaradayMiddleware
       :marshal  => lambda { ParseMarshal },
       :yaml     => lambda { ParseYaml },
       :caching  => lambda { Caching },
-      :follow_redirects => lambda { FollowRedirects }
+      :follow_redirects => lambda { FollowRedirects },
+      :chunked => lambda { Chunked }
 
     Faraday.register_middleware \
       :instrumentation  => lambda { Instrumentation }
