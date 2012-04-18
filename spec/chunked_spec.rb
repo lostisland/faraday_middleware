@@ -62,6 +62,10 @@ describe FaradayMiddleware::Chunked, :type => :response do
     it "parses a chunked body with two extensions" do
       process("10;foo=bar;bar=baz\r\nasdfghjklasdfghj\r\n0\r\n").body.should eql('asdfghjklasdfghj')
     end
+
+    it "parses a chunked body with two chunks" do
+      process("8\r\nasdfghjk\r\n8\r\nlasdfghj\r\n0\r\n").body.should eql('asdfghjklasdfghj')
+    end
   end
 
   context "transfer-encoding chunked,chunked" do
