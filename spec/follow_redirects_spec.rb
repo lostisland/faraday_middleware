@@ -130,6 +130,29 @@ describe FaradayMiddleware::FollowRedirects do
     expect { conn.get('/') }.to raise_error(FaradayMiddleware::RedirectLimitReached)
   end
 
+  context 'when cookies option' do
+
+    let(:cookies) { 'cookie1=abcdefg; cookie2=1234567; cookie3=awesome' }
+
+    context "is :all" do
+      it "puts all cookies from the response into the next request"do
+        conn = connection(cookies: :all) do |stub|
+          stub.get('/')           { [301, {'Location' => '/found', 'Cookies' => cookies }, ''] }
+          stub.get('/found')      { [200, {'Content-Type' => 'text/plain'}, ''] }
+        end.get('/').env[:request_headers][:cookies].should == cookies
+      end
+    end
+
+    context "is an array of cookie names" do
+      it "puts selected cookies from the response into the next request"do
+        conn = connection(cookies: ['cookie2']) do |stub|
+          stub.get('/')           { [301, {'Location' => '/found', 'Cookies' => cookies }, ''] }
+          stub.get('/found')      { [200, {'Content-Type' => 'text/plain'}, ''] }
+        end.get('/').env[:request_headers][:cookies].should == 'cookie2=1234567'
+      end
+    end
+  end
+
   context 'for an HTTP 301 response' do
     it_should_behave_like 'a successful redirection', 301
     it_should_behave_like 'a forced GET redirection', 301

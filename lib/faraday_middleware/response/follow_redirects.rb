@@ -50,6 +50,9 @@ module FaradayMiddleware
     #           standards_compliant - A Boolean indicating whether to respect
     #                                 the HTTP spec when following 302
     #                                 (default: false)
+    #          cookie - Use either an array of strings
+    #                  (e.g. ['cookie1', 'cookie2']) to choose kept cookies
+    #                  or :all to keep all cookies.
     def initialize(app, options = {})
       super(app)
       @options = options
@@ -84,6 +87,7 @@ module FaradayMiddleware
 
     def update_env(env, request_body, response)
       env[:url] += response['location']
+      env[:request_headers][:cookies] = keep_cookies(env) if @options[:cookies]
 
       if transform_into_get?(response)
         env[:method] = :get
@@ -104,6 +108,25 @@ module FaradayMiddleware
 
     def follow_limit
       @options.fetch(:limit, FOLLOW_LIMIT)
+    end
+
+    def keep_cookies(env)
+      cookies = @options.fetch(:cookies, [])
+      response_cookies = env[:response_headers][:cookies]
+      cookies == :all ? response_cookies : selected_request_cookies(response_cookies)
+    end
+
+    def selected_request_cookies(cookies)
+      selected_cookies(cookies)[0...-1]
+    end
+
+    def selected_cookies(cookies)
+      "".tap do |cookie_string|
+        @options[:cookies].each do |cookie|
+          string = /#{cookie}=?[^;]*/.match(cookies)[0] + ';'
+          cookie_string << string
+        end
+      end
     end
 
     def standards_compliant?
