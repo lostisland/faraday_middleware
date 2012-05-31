@@ -1,20 +1,22 @@
 require 'faraday'
 
 module FaradayMiddleware
-  autoload :OAuth,           'faraday_middleware/request/oauth'
-  autoload :OAuth2,          'faraday_middleware/request/oauth2'
-  autoload :EncodeJson,      'faraday_middleware/request/encode_json'
-  autoload :Mashify,         'faraday_middleware/response/mashify'
-  autoload :Rashify,         'faraday_middleware/response/rashify'
-  autoload :ParseJson,       'faraday_middleware/response/parse_json'
-  autoload :ParseXml,        'faraday_middleware/response/parse_xml'
-  autoload :ParseMarshal,    'faraday_middleware/response/parse_marshal'
-  autoload :ParseYaml,       'faraday_middleware/response/parse_yaml'
-  autoload :Caching,         'faraday_middleware/response/caching'
-  autoload :Chunked,         'faraday_middleware/response/chunked'
-  autoload :RackCompatible,  'faraday_middleware/rack_compatible'
-  autoload :FollowRedirects, 'faraday_middleware/response/follow_redirects'
-  autoload :Instrumentation, 'faraday_middleware/instrumentation'
+  autoload :OAuth,            'faraday_middleware/request/oauth'
+  autoload :OAuth2,           'faraday_middleware/request/oauth2'
+  autoload :EncodeJson,       'faraday_middleware/request/encode_json'
+  autoload :Mashify,          'faraday_middleware/response/mashify'
+  autoload :Rashify,          'faraday_middleware/response/rashify'
+  autoload :ParseJson,        'faraday_middleware/response/parse_json'
+  autoload :ParseXml,         'faraday_middleware/response/parse_xml'
+  autoload :ParseMarshal,     'faraday_middleware/response/parse_marshal'
+  autoload :ParseYaml,        'faraday_middleware/response/parse_yaml'
+  autoload :Caching,          'faraday_middleware/response/caching'
+  autoload :Chunked,          'faraday_middleware/response/chunked'
+  autoload :RaiseClientError, 'faraday_middleware/response/raise_client_error'
+  autoload :RaiseServerError, 'faraday_middleware/response/raise_server_error'
+  autoload :RackCompatible,   'faraday_middleware/rack_compatible'
+  autoload :FollowRedirects,  'faraday_middleware/response/follow_redirects'
+  autoload :Instrumentation,  'faraday_middleware/instrumentation'
 
   if Faraday.respond_to? :register_middleware
     Faraday.register_middleware :request,
@@ -32,7 +34,9 @@ module FaradayMiddleware
       :yaml     => lambda { ParseYaml },
       :caching  => lambda { Caching },
       :follow_redirects => lambda { FollowRedirects },
-      :chunked => lambda { Chunked }
+      :chunked => lambda { Chunked },
+      :raise_client_error => lambda { RaiseClientError },
+      :raise_server_error => lambda { RaiseServerError }
 
     Faraday.register_middleware \
       :instrumentation  => lambda { Instrumentation }
