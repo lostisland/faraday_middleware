@@ -2,9 +2,12 @@ require "time"
 require "faraday"
 
 module FaradayMiddleware
-  # Parse ISO dates from response body
-  class ParseIsoDates < ::Faraday::Response::Middleware
+  # Parse dates from response body
+  class ParseDates < ::Faraday::Response::Middleware
+    ISO_DATE_FORMAT = /\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\Z/m
+
     def initialize(app, options = {})
+      @regexp = options[:match] || ISO_DATE_FORMAT
       super(app)
     end
 
@@ -26,7 +29,7 @@ module FaradayMiddleware
         value.each_with_index do |element, index|
           value[index] = parse_dates!(element)
         end
-      when /\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\Z/m
+      when @regexp
         Time.parse(value)
       else
         value

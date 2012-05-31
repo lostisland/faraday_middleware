@@ -1,8 +1,8 @@
 require 'helper'
-require 'faraday_middleware/response/parse_iso_dates'
+require 'faraday_middleware/response/parse_dates'
 require 'json'
 
-describe FaradayMiddleware::ParseIsoDates, :type => :response do
+describe FaradayMiddleware::ParseDates, :type => :response do
   # simulate the json-parse middleware being in front of this one
   def process(json)
     super(json.strip.empty? ? nil : JSON.parse(json))
