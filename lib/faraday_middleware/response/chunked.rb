@@ -6,7 +6,6 @@ module FaradayMiddleware
     TRANSFER_ENCODING = 'transfer-encoding'.freeze
 
     define_parser do |raw_body|
-      raw_body = body
       decoded_body = []
       until raw_body.empty?
         chunk_len, raw_body = raw_body.split("\r\n", 2)
