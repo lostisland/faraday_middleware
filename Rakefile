@@ -1,4 +1,4 @@
-if defined? RUBY_ENGINE and 'ruby' == RUBY_ENGINE and '1.9' < RUBY_VERSION
+if defined? RUBY_ENGINE and 'ruby' == RUBY_ENGINE and RUBY_VERSION.index('1.9') == 0
   task :default => [:enable_coverage, :spec, :test, :quality]
 else
   task :default => [:spec, :test]
