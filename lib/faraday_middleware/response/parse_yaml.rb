@@ -5,7 +5,9 @@ module FaradayMiddleware
   class ParseYaml < ResponseMiddleware
     dependency 'yaml'
 
-    define_parser { |body| ::YAML.load body }
+    define_parser do |body|
+      ::YAML.load body
+    end
   end
 end
 

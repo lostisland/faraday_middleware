@@ -3,13 +3,13 @@ require 'faraday_middleware/response_middleware'
 module FaradayMiddleware
   # Public: Parse response bodies as JSON.
   class ParseJson < ResponseMiddleware
-    dependency {
+    dependency do
       require 'json' unless defined?(::JSON)
-    }
+    end
 
-    define_parser { |body|
+    define_parser do |body|
       ::JSON.parse body unless body.strip.empty?
-    }
+    end
 
     # Public: Override the content-type of the response with "application/json"
     # if the response body looks like it might be JSON, i.e. starts with an
