@@ -136,7 +136,7 @@ describe FaradayMiddleware::FollowRedirects do
 
     context "is :all" do
       it "puts all cookies from the response into the next request" do
-        conn = connection(cookies: :all) do |stub|
+        conn = connection(:cookies => :all) do |stub|
           stub.get('/')           { [301, {'Location' => '/found', 'Cookies' => cookies }, ''] }
           stub.get('/found')      { [200, {'Content-Type' => 'text/plain'}, ''] }
         end.get('/').env[:request_headers][:cookies].should == cookies
@@ -145,7 +145,7 @@ describe FaradayMiddleware::FollowRedirects do
 
     context "is an array of cookie names" do
       it "puts selected cookies from the response into the next request" do
-        conn = connection(cookies: ['cookie2']) do |stub|
+        conn = connection(:cookies => ['cookie2']) do |stub|
           stub.get('/')           { [301, {'Location' => '/found', 'Cookies' => cookies }, ''] }
           stub.get('/found')      { [200, {'Content-Type' => 'text/plain'}, ''] }
         end.get('/').env[:request_headers][:cookies].should == 'cookie2=1234567'
