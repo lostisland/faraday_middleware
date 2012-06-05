@@ -5,7 +5,7 @@ module FaradayMiddleware
   class Chunked < FaradayMiddleware::ResponseMiddleware
     TRANSFER_ENCODING = 'transfer-encoding'.freeze
 
-    define_parser do |body|
+    define_parser do |raw_body|
       raw_body = body
       decoded_body = []
       until raw_body.empty?
@@ -20,8 +20,11 @@ module FaradayMiddleware
     end
 
     def parse_response?(env)
-      # Faraday is infected with the net/http behavior of joining multiple values of the same header
-      super && env[:response_headers][TRANSFER_ENCODING] && env[:response_headers][TRANSFER_ENCODING].split(',').include?('chunked')
+      super and chunked_encoding?(env[:response_headers])
+    end
+
+    def chunked_encoding?(headers)
+      encoding = headers[TRANSFER_ENCODING] and encoding.split(',').include?('chunked')
     end
   end
 end
