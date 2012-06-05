@@ -1,8 +1,8 @@
 source 'http://rubygems.org'
 
-platforms :ruby_19 do
+platforms :mri_19 do
   gem 'simplecov'
-  gem 'cane'
+  gem 'cane', '>= 0.3'
 end
 
 gem 'json', :platforms => [:ruby_18, :jruby]
