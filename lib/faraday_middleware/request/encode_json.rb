@@ -12,7 +12,9 @@ module FaradayMiddleware
     CONTENT_TYPE = 'Content-Type'.freeze
     MIME_TYPE    = 'application/json'.freeze
 
-    dependency 'json'
+    dependency {
+      require 'json' unless defined?(::JSON)
+    }
 
     def call(env)
       match_content_type(env) do |data|
@@ -22,7 +24,7 @@ module FaradayMiddleware
     end
 
     def encode(data)
-      JSON.dump data
+      ::JSON.dump data
     end
 
     def match_content_type(env)
