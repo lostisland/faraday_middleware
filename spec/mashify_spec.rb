@@ -39,6 +39,13 @@ describe FaradayMiddleware::Mashify do
       us.last.username.should == 'pengwynn'
     end
 
+    it 'should handle nested arrays of hashes' do
+      env = { :body => [[{ "username" => "sferik" }, { "username" => "pengwynn" }]] }
+      us  = mashify.on_complete(env)
+      us.first.first.username.should == 'sferik'
+      us.first.last.username.should == 'pengwynn'
+    end
+
     it 'should handle mixed arrays' do
       env = { :body => [123, { "username" => "sferik" }, 456] }
       values = mashify.on_complete(env)

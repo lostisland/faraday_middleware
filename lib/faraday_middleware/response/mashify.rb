@@ -25,7 +25,7 @@ module FaradayMiddleware
       when Hash
         mash_class.new(body)
       when Array
-        body.map { |item| item.is_a?(Hash) ? mash_class.new(item) : item }
+        body.map { |item| parse(item) }
       else
         body
       end
