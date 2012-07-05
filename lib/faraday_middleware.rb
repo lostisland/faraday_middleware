@@ -4,6 +4,7 @@ module FaradayMiddleware
   autoload :OAuth,           'faraday_middleware/request/oauth'
   autoload :OAuth2,          'faraday_middleware/request/oauth2'
   autoload :EncodeJson,      'faraday_middleware/request/encode_json'
+  autoload :Signature,       'faraday_middleware/request/signature'
   autoload :Mashify,         'faraday_middleware/response/mashify'
   autoload :Rashify,         'faraday_middleware/response/rashify'
   autoload :ParseJson,       'faraday_middleware/response/parse_json'
