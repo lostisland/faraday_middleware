@@ -18,9 +18,10 @@ module FaradayMiddleware
 
   if Faraday.respond_to? :register_middleware
     Faraday.register_middleware :request,
-      :oauth    => lambda { OAuth },
-      :oauth2   => lambda { OAuth2 },
-      :json     => lambda { EncodeJson }
+      :oauth     => lambda { OAuth },
+      :oauth2    => lambda { OAuth2 },
+      :json      => lambda { EncodeJson },
+      :signature => lambda { Signature }
 
     Faraday.register_middleware :response,
       :mashify  => lambda { Mashify },
