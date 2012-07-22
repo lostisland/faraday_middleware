@@ -141,6 +141,13 @@ describe FaradayMiddleware::FollowRedirects do
           stub.get('/found')      { [200, {'Content-Type' => 'text/plain'}, ''] }
         end.get('/').env[:request_headers][:cookies].should == cookies
       end
+
+      it "not set cookies header on request when response has no cookies" do
+        conn = connection(:cookies => :all) do |stub|
+          stub.get('/')           { [301, {'Location' => '/found'}, ''] }
+          stub.get('/found')      { [200, {'Content-Type' => 'text/plain'}, ''] }
+        end.get('/').env[:request_headers].has_key?('Cookies').should == false
+      end
     end
 
     context "is an array of cookie names" do
