@@ -10,6 +10,7 @@ module FaradayMiddleware
   autoload :ParseXml,        'faraday_middleware/response/parse_xml'
   autoload :ParseMarshal,    'faraday_middleware/response/parse_marshal'
   autoload :ParseYaml,       'faraday_middleware/response/parse_yaml'
+  autoload :ParseDates,      'faraday_middleware/response/parse_dates'
   autoload :Caching,         'faraday_middleware/response/caching'
   autoload :Chunked,         'faraday_middleware/response/chunked'
   autoload :RackCompatible,  'faraday_middleware/rack_compatible'
@@ -30,6 +31,7 @@ module FaradayMiddleware
       :xml      => lambda { ParseXml },
       :marshal  => lambda { ParseMarshal },
       :yaml     => lambda { ParseYaml },
+      :dates    => lambda { ParseDates },
       :caching  => lambda { Caching },
       :follow_redirects => lambda { FollowRedirects },
       :chunked => lambda { Chunked }
