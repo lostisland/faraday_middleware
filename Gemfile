@@ -2,7 +2,7 @@ source 'http://rubygems.org'
 
 platforms :mri_19 do
   gem 'simplecov'
-  gem 'cane', '>= 0.3'
+  gem 'cane', '~> 1.3'
 end
 
 gem 'json', :platforms => [:ruby_18, :jruby]
