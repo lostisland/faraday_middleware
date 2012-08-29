@@ -22,24 +22,17 @@ module FaradayMiddleware
       finalize_response(env, rack_response)
     end
 
+    private
+
     NonPrefixedHeaders = %w[CONTENT_LENGTH CONTENT_TYPE]
 
     # faraday to rack-compatible
     def prepare_env(env)
       headers_to_rack(env)
-
-      url = env[:url]
-      env['rack.url_scheme'] = url.scheme
-      env['PATH_INFO'] = url.path
-      env['SERVER_PORT'] = url.respond_to?(:inferred_port) ? url.inferred_port : url.port
-      env['QUERY_STRING'] = url.query
-      env['REQUEST_METHOD'] = env[:method].to_s.upcase
-
-      env['rack.errors'] ||= StringIO.new
-
-      env
+      env_to_rack(env)
     end
 
+    # convert faraday headers to rack env values.
     def headers_to_rack(env)
       env[:request_headers].each do |name, value|
         name = name.upcase.tr('-', '_')
@@ -48,8 +41,29 @@ module FaradayMiddleware
       end
     end
 
+    # convert faraday env to rack env.
+    def env_to_rack(env)
+      url = env[:url]
+      env['rack.url_scheme'] = url.scheme
+      env['PATH_INFO'] = url.path
+      env['SERVER_PORT'] = port_for_url(url)
+      env['QUERY_STRING'] = url.query
+      env['REQUEST_METHOD'] = upcase_request_method(env[:method])
+
+      env['rack.errors'] ||= StringIO.new
+
+      env
+    end
+
     # rack to faraday-compatible
     def restore_env(env)
+      restore_headers(env)
+      env[:method] = symbol_request_method(env['REQUEST_METHOD'])
+      env
+    end
+
+    # convert rack env headers to faraday headers.
+    def restore_headers(env)
       headers = env[:request_headers]
       headers.clear
 
@@ -60,9 +74,6 @@ module FaradayMiddleware
           headers[name] = value
         end
       end
-
-      env[:method] = env['REQUEST_METHOD'].downcase.to_sym
-      env
     end
 
     def finalize_response(env, rack_response)
@@ -76,6 +87,20 @@ module FaradayMiddleware
 
       env[:response] ||= Faraday::Response.new(env)
       env[:response]
+    end
+
+    def port_for_url(url)
+      url.respond_to?(:inferred_port) ? url.inferred_port : url.port
+    end
+
+    # Upper-case string request method as used by HTTP / Rack.
+    def upcase_request_method(request_method)
+      request_method.to_s.upcase
+    end
+
+    # Symbol request method as used by Faraday.
+    def symbol_request_method(request_method)
+      request_method.downcase.to_sym
     end
   end
 end

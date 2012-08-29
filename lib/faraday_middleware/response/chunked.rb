@@ -2,6 +2,12 @@ require 'faraday_middleware/response_middleware'
 
 module FaradayMiddleware
   # Public: Parse a Transfer-Encoding: Chunked response to just the original data
+  #
+  # Examples
+  #
+  #   connection = Faraday.new(url) do |conn|
+  #     conn.response :chunked
+  #   end
   class Chunked < FaradayMiddleware::ResponseMiddleware
     TRANSFER_ENCODING = 'transfer-encoding'.freeze
 
@@ -22,6 +28,7 @@ module FaradayMiddleware
       super and chunked_encoding?(env[:response_headers])
     end
 
+    # Whether the transfer-encoding header indicates the response is chunked.
     def chunked_encoding?(headers)
       encoding = headers[TRANSFER_ENCODING] and encoding.split(',').include?('chunked')
     end
