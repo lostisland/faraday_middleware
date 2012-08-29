@@ -16,11 +16,13 @@ module FaradayMiddleware
   autoload :RackCompatible,  'faraday_middleware/rack_compatible'
   autoload :FollowRedirects, 'faraday_middleware/response/follow_redirects'
   autoload :Instrumentation, 'faraday_middleware/instrumentation'
+  autoload :MethodOverride,  'faraday_middleware/method_override'
 
   if Faraday.respond_to? :register_middleware
     Faraday.register_middleware :request,
       :oauth    => lambda { OAuth },
       :oauth2   => lambda { OAuth2 },
+      :method_override => lambda { MethodOverride },
       :json     => lambda { EncodeJson }
 
     Faraday.register_middleware :response,

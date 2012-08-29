@@ -28,6 +28,7 @@ require 'faraday_middleware'
 connection = Faraday.new 'http://example.com/api' do |conn|
   conn.request :oauth2, 'TOKEN'
   conn.request :json
+  conn.request :method_override, :patch, :put, :delete
 
   conn.response :xml,  :content_type => /\bxml$/
   conn.response :json, :content_type => /\bjson$/
