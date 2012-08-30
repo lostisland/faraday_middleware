@@ -84,8 +84,8 @@ describe FaradayMiddleware::MethodOverride do
     let(:options) { [{ :hello => 'world' }] }
     let(:request_method) { :get }
 
-    it "raises KeyError" do
-      expect { env }.to raise_error(KeyError, "key not found: :rewrite")
+    it "raises key error" do
+      expect { env }.to raise_error(IndexError, /key not found/)
     end
   end
 
