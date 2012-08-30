@@ -14,10 +14,12 @@ task :enable_coverage do
   ENV['COVERAGE'] = 'yes'
 end
 
+desc %(Run Test::Unit tests)
 task :test do
   sh 'ruby', '-Ilib', 'spec/caching_test.rb'
 end
 
+desc %(Check code quality metrics with Cane)
 task :quality do
   sh 'cane',
     '--abc-max=10',
