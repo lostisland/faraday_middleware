@@ -3,8 +3,6 @@ require 'faraday_middleware/request/method_override'
 
 describe FaradayMiddleware::MethodOverride do
 
-  HEADER = "X-Http-Method-Override"
-
   subject do
     FaradayMiddleware::MethodOverride.new(app, *options)
   end
@@ -21,7 +19,7 @@ describe FaradayMiddleware::MethodOverride do
   # for the given request method.
   def method_and_header_for(method)
     request = subject.call(env_for_method(method))
-    [request[:method], request[:request_headers][HEADER]]
+    [request[:method], request[:request_headers]["X-Http-Method-Override"]]
   end
 
   # A simple test, before getting into more complicated declarative tests.

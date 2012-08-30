@@ -11,6 +11,8 @@ module FaradayMiddleware
   # See: http://rack.rubyforge.org/doc/classes/Rack/MethodOverride.html
   class MethodOverride < Faraday::Middleware
 
+    HEADER = "X-Http-Method-Override"
+
     def initialize(app, *methods)
       super(app)
       @methods = methods.map { |m| normalize(m) }
