@@ -1,42 +1,51 @@
 require 'faraday'
 
 module FaradayMiddleware
-
-  # Rewrites poorly supported HTTP request methods to a custom
-  # X-Http-Method-Override header and sends the request as POST.
+  # Public: Writes the original HTTP method to "X-Http-Method-Override" header
+  # and sends the request as POST.
   #
-  # This is supported by default in Rack / Rails apps via the
-  # Rack::MethodOverride module.
+  # This can be used to work around technical issues with making non-POST
+  # requests, e.g. faulty HTTP client or server router.
   #
-  # See: http://rack.rubyforge.org/doc/classes/Rack/MethodOverride.html
+  # This header is recognized in Rack apps by default, courtesy of the
+  # Rack::MethodOverride module. See
+  # http://rack.rubyforge.org/doc/classes/Rack/MethodOverride.html
   class MethodOverride < Faraday::Middleware
 
-    HEADER = "X-Http-Method-Override"
+    HEADER = "X-Http-Method-Override".freeze
 
-    def initialize(app, *methods)
+    # Public: Initialize the middleware.
+    #
+    # app     - the Faraday app to wrap
+    # options - (optional)
+    #           :rewrite - Array of HTTP methods to rewrite
+    #                      (default: all but GET and POST)
+    def initialize(app, options = nil)
       super(app)
-      @methods = methods.map { |m| normalize(m) }
+      @methods = options && options.fetch(:rewrite).map { |method|
+        method = method.downcase if method.respond_to? :downcase
+        method.to_sym
+      }
     end
 
     def call(env)
-      method = normalize(env[:method])
-      rewrite_env(env, method) if @methods.include?(method)
+      method = env[:method]
+      rewrite_request(env, method) if rewrite_request?(method)
       @app.call(env)
     end
 
-    private
+    def rewrite_request?(method)
+      if @methods.nil? or @methods.empty?
+        method != :get and method != :post
+      else
+        @methods.include? method
+      end
+    end
 
-    # Move the real request method to a header, send the request as HTTP POST.
-    def rewrite_env(env, method)
-      env[:request_headers][HEADER] = method
+    # Internal: Write the original HTTP method to header, change method to POST.
+    def rewrite_request(env, original_method)
+      env[:request_headers][HEADER] = original_method.to_s.upcase
       env[:method] = :post
     end
-
-    # Normalize an HTTP method (String or Symbol) to an upper-case string.
-    def normalize(method)
-      method.to_s.upcase
-    end
-
   end
-
 end
