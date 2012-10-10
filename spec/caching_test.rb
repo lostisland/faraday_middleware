@@ -152,4 +152,4 @@ class HttpCachingTest < Test::Unit::TestCase
     assert_equal 'request:2', post('/').body
     assert_equal 'request:3', post('/').body
   end
-end unless defined? RUBY_ENGINE and "rbx" == RUBY_ENGINE  # rbx bug #1522
+end unless defined? RUBY_ENGINE and "rbx" == RUBY_ENGINE # rbx bug #1522

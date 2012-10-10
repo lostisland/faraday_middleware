@@ -4,17 +4,17 @@ require 'faraday_middleware/response/parse_yaml'
 describe FaradayMiddleware::ParseYaml, :type => :response do
   context "no type matching" do
     it "doesn't change nil body" do
-      process(nil).body.should be_nil
+      expect(process(nil).body).to be_nil
     end
 
     it "returns false for empty body" do
-      process('').body.should be_false
+      expect(process('').body).to be_false
     end
 
     it "parses yaml body" do
       response = process('a: 1')
-      response.body.should eql('a' => 1)
-      response.env[:raw_body].should be_nil
+      expect(response.body).to eq('a' => 1)
+      expect(response.env[:raw_body]).to be_nil
     end
   end
 
@@ -23,13 +23,13 @@ describe FaradayMiddleware::ParseYaml, :type => :response do
 
     it "parses yaml body" do
       response = process('a: 1')
-      response.body.should eql('a' => 1)
-      response.env[:raw_body].should eql('a: 1')
+      expect(response.body).to eq('a' => 1)
+      expect(response.env[:raw_body]).to eq('a: 1')
     end
 
     it "can opt out of preserving raw" do
       response = process('a: 1', nil, :preserve_raw => false)
-      response.env[:raw_body].should be_nil
+      expect(response.env[:raw_body]).to be_nil
     end
   end
 
@@ -38,16 +38,16 @@ describe FaradayMiddleware::ParseYaml, :type => :response do
 
     it "parses json body of correct type" do
       response = process('a: 1', 'application/x-yaml')
-      response.body.should eql('a' => 1)
+      expect(response.body).to eq('a' => 1)
     end
 
     it "ignores json body of incorrect type" do
       response = process('a: 1', 'text/yaml-xml')
-      response.body.should eql('a: 1')
+      expect(response.body).to eq('a: 1')
     end
   end
 
   it "chokes on invalid yaml" do
-    expect { process('{!') }.to raise_error(Faraday::Error::ParsingError)
+    expect{ process('{!') }.to raise_error(Faraday::Error::ParsingError)
   end
 end

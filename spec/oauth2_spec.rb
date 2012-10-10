@@ -31,17 +31,17 @@ describe FaradayMiddleware::OAuth2 do
 
     it "doesn't add params" do
       request = perform(:q => 'hello')
-      query_params(request).should eq('q' => 'hello')
+      expect(query_params(request)).to eq('q' => 'hello')
     end
 
     it "doesn't add headers" do
-      auth_header(perform).should be_nil
+      expect(auth_header(perform)).to be_nil
     end
 
     it "creates header for explicit token" do
       request = perform(:q => 'hello', :access_token => 'abc123')
-      query_params(request).should eq('q' => 'hello', 'access_token' => 'abc123')
-      auth_header(request).should eq(%(Token token="abc123"))
+      expect(query_params(request)).to eq('q' => 'hello', 'access_token' => 'abc123')
+      expect(auth_header(request)).to eq(%(Token token="abc123"))
     end
   end
 
@@ -49,23 +49,23 @@ describe FaradayMiddleware::OAuth2 do
     let(:options) { 'XYZ' }
 
     it "adds token param" do
-      query_params(perform(:q => 'hello')).should eq('q' => 'hello', 'access_token' => 'XYZ')
+      expect(query_params(perform(:q => 'hello'))).to eq('q' => 'hello', 'access_token' => 'XYZ')
     end
 
     it "adds token header" do
-      auth_header(perform).should eq(%(Token token="XYZ"))
+      expect(auth_header(perform)).to eq(%(Token token="XYZ"))
     end
 
     it "overrides default with explicit token" do
       request = perform(:q => 'hello', :access_token => 'abc123')
-      query_params(request).should eq('q' => 'hello', 'access_token' => 'abc123')
-      auth_header(request).should eq(%(Token token="abc123"))
+      expect(query_params(request)).to eq('q' => 'hello', 'access_token' => 'abc123')
+      expect(auth_header(request)).to eq(%(Token token="abc123"))
     end
 
     it "clears default with empty explicit token" do
       request = perform(:q => 'hello', :access_token => nil)
-      query_params(request).should eq('q' => 'hello', 'access_token' => nil)
-      auth_header(request).should be_nil
+      expect(query_params(request)).to eq('q' => 'hello', 'access_token' => nil)
+      expect(auth_header(request)).to be_nil
     end
   end
 
@@ -74,11 +74,11 @@ describe FaradayMiddleware::OAuth2 do
     subject { perform({:q => 'hello'}, 'Authorization' => 'custom') }
 
     it "adds token param" do
-      query_params(subject).should eq('q' => 'hello', 'access_token' => 'XYZ')
+      expect(query_params(subject)).to eq('q' => 'hello', 'access_token' => 'XYZ')
     end
 
     it "doesn't override existing header" do
-      auth_header(subject).should eq('custom')
+      expect(auth_header(subject)).to eq('custom')
     end
   end
 
@@ -86,13 +86,13 @@ describe FaradayMiddleware::OAuth2 do
     let(:options) { ['XYZ', {:param_name => :oauth}] }
 
     it "adds token param" do
-      query_params(perform).should eq('oauth' => 'XYZ')
+      expect(query_params(perform)).to eq('oauth' => 'XYZ')
     end
 
     it "overrides default with explicit token" do
       request = perform(:oauth => 'abc123')
-      query_params(request).should eq('oauth' => 'abc123')
-      auth_header(request).should eq(%(Token token="abc123"))
+      expect(query_params(request)).to eq('oauth' => 'abc123')
+      expect(auth_header(request)).to eq(%(Token token="abc123"))
     end
   end
 
@@ -100,11 +100,11 @@ describe FaradayMiddleware::OAuth2 do
     let(:options) { [{:param_name => :oauth}] }
 
     it "doesn't add param" do
-      query_params(perform).should be_empty
+      expect(query_params(perform)).to be_empty
     end
 
     it "overrides default with explicit token" do
-      query_params(perform(:oauth => 'abc123')).should eq('oauth' => 'abc123')
+      expect(query_params(perform(:oauth => 'abc123'))).to eq('oauth' => 'abc123')
     end
   end
 
@@ -112,7 +112,7 @@ describe FaradayMiddleware::OAuth2 do
     let(:options) { ['XYZ', {:param_name => nil}] }
 
     it "raises error" do
-      expect { make_app }.to raise_error(ArgumentError, ":param_name can't be blank")
+      expect{ make_app }.to raise_error(ArgumentError, ":param_name can't be blank")
     end
   end
 end

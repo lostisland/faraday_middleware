@@ -17,11 +17,11 @@ describe FaradayMiddleware::EncodeJson do
     let(:result) { process(nil) }
 
     it "doesn't change body" do
-      result_body.should be_nil
+      expect(result_body).to be_nil
     end
 
     it "doesn't add content type" do
-      result_type.should be_nil
+      expect(result_type).to be_nil
     end
   end
 
@@ -29,11 +29,11 @@ describe FaradayMiddleware::EncodeJson do
     let(:result) { process('') }
 
     it "doesn't change body" do
-      result_body.should be_empty
+      expect(result_body).to be_empty
     end
 
     it "doesn't add content type" do
-      result_type.should be_nil
+      expect(result_type).to be_nil
     end
   end
 
@@ -41,11 +41,11 @@ describe FaradayMiddleware::EncodeJson do
     let(:result) { process('{"a":1}') }
 
     it "doesn't change body" do
-      result_body.should eql('{"a":1}')
+      expect(result_body).to eq('{"a":1}')
     end
 
     it "adds content type" do
-      result_type.should eql('application/json')
+      expect(result_type).to eq('application/json')
     end
   end
 
@@ -53,11 +53,11 @@ describe FaradayMiddleware::EncodeJson do
     let(:result) { process({:a => 1}) }
 
     it "encodes body" do
-      result_body.should eql('{"a":1}')
+      expect(result_body).to eq('{"a":1}')
     end
 
     it "adds content type" do
-      result_type.should eql('application/json')
+      expect(result_type).to eq('application/json')
     end
   end
 
@@ -65,7 +65,7 @@ describe FaradayMiddleware::EncodeJson do
     let(:result) { process({}) }
 
     it "encodes body" do
-      result_body.should eql('{}')
+      expect(result_body).to eq('{}')
     end
   end
 
@@ -73,11 +73,11 @@ describe FaradayMiddleware::EncodeJson do
     let(:result) { process({:a => 1}, 'application/json; charset=utf-8') }
 
     it "encodes body" do
-      result_body.should eql('{"a":1}')
+      expect(result_body).to eq('{"a":1}')
     end
 
     it "doesn't change content type" do
-      result_type.should eql('application/json; charset=utf-8')
+      expect(result_type).to eq('application/json; charset=utf-8')
     end
   end
 
@@ -85,11 +85,11 @@ describe FaradayMiddleware::EncodeJson do
     let(:result) { process({:a => 1}, 'application/xml; charset=utf-8') }
 
     it "doesn't change body" do
-      result_body.should eql({:a => 1})
+      expect(result_body).to eq({:a => 1})
     end
 
     it "doesn't change content type" do
-      result_type.should eql('application/xml; charset=utf-8')
+      expect(result_type).to eq('application/xml; charset=utf-8')
     end
   end
 end

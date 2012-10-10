@@ -4,17 +4,17 @@ require 'faraday_middleware/response/parse_json'
 describe FaradayMiddleware::ParseJson, :type => :response do
   context "no type matching" do
     it "doesn't change nil body" do
-      process(nil).body.should be_nil
+      expect(process(nil).body).to be_nil
     end
 
     it "nullifies empty body" do
-      process('').body.should be_nil
+      expect(process('').body).to be_nil
     end
 
     it "parses json body" do
       response = process('{"a":1}')
-      response.body.should eql('a' => 1)
-      response.env[:raw_body].should be_nil
+      expect(response.body).to eq('a' => 1)
+      expect(response.env[:raw_body]).to be_nil
     end
   end
 
@@ -23,13 +23,13 @@ describe FaradayMiddleware::ParseJson, :type => :response do
 
     it "parses json body" do
       response = process('{"a":1}')
-      response.body.should eql('a' => 1)
-      response.env[:raw_body].should eql('{"a":1}')
+      expect(response.body).to eq('a' => 1)
+      expect(response.env[:raw_body]).to eq('{"a":1}')
     end
 
     it "can opt out of preserving raw" do
       response = process('{"a":1}', nil, :preserve_raw => false)
-      response.env[:raw_body].should be_nil
+      expect(response.env[:raw_body]).to be_nil
     end
   end
 
@@ -38,12 +38,12 @@ describe FaradayMiddleware::ParseJson, :type => :response do
 
     it "parses json body of correct type" do
       response = process('{"a":1}', 'application/x-json')
-      response.body.should eql('a' => 1)
+      expect(response.body).to eq('a' => 1)
     end
 
     it "ignores json body of incorrect type" do
       response = process('{"a":1}', 'text/json-xml')
-      response.body.should eql('{"a":1}')
+      expect(response.body).to eq('{"a":1}')
     end
   end
 
@@ -51,18 +51,18 @@ describe FaradayMiddleware::ParseJson, :type => :response do
     let(:options) { {:content_type => %w[a/b c/d]} }
 
     it "parses json body of correct type" do
-      process('{"a":1}', 'a/b').body.should be_a(Hash)
-      process('{"a":1}', 'c/d').body.should be_a(Hash)
+      expect(process('{"a":1}', 'a/b').body).to be_a(Hash)
+      expect(process('{"a":1}', 'c/d').body).to be_a(Hash)
     end
 
     it "ignores json body of incorrect type" do
-      process('{"a":1}', 'a/d').body.should_not be_a(Hash)
+      expect(process('{"a":1}', 'a/d').body).not_to be_a(Hash)
     end
   end
 
   it "chokes on invalid json" do
     ['{!', '"a"', 'true', 'null', '1'].each do |data|
-      expect { process(data) }.to raise_error(Faraday::Error::ParsingError)
+      expect{ process(data) }.to raise_error(Faraday::Error::ParsingError)
     end
   end
 
@@ -76,37 +76,37 @@ describe FaradayMiddleware::ParseJson, :type => :response do
 
     it "ignores completely incompatible type" do
       response = process('{"a":1}', 'application/xml')
-      response.body.should eql('{"a":1}')
+      expect(response.body).to eq('{"a":1}')
     end
 
     it "ignores compatible type with bad data" do
       response = process('var a = 1', 'text/javascript')
-      response.body.should eql('var a = 1')
-      response['content-type'].should eql('text/javascript')
+      expect(response.body).to eq('var a = 1')
+      expect(response['content-type']).to eq('text/javascript')
     end
 
     it "corrects compatible type and data" do
       response = process('{"a":1}', 'text/javascript')
-      response.body.should be_a(Hash)
-      response['content-type'].should eql('application/json')
+      expect(response.body).to be_a(Hash)
+      expect(response['content-type']).to eq('application/json')
     end
 
     it "corrects compatible type even when data starts with whitespace" do
       response = process(%( \r\n\t{"a":1}), 'text/javascript')
-      response.body.should be_a(Hash)
-      response['content-type'].should eql('application/json')
+      expect(response.body).to be_a(Hash)
+      expect(response['content-type']).to eq('application/json')
     end
   end
 
   context "HEAD responses" do
-    it "should nullify the body if it's only one space" do
+    it "nullifies the body if it's only one space" do
       response = process(' ')
-      response.body.should be_nil
+      expect(response.body).to be_nil
     end
 
-    it "should nullify the body if it's two spaces" do
+    it "nullifies the body if it's two spaces" do
       response = process(' ')
-      response.body.should be_nil
+      expect(response.body).to be_nil
     end
   end
 end

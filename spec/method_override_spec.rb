@@ -14,21 +14,21 @@ describe FaradayMiddleware::MethodOverride do
 
   shared_examples "overrides method" do |method|
     it "sets physical method to POST" do
-      env[:method].should eq(:post)
+      expect(env[:method]).to eq(:post)
     end
 
     it "sets header to #{method}" do
-      env[:request_headers]['X-Http-Method-Override'].should eq(method)
+      expect(env[:request_headers]['X-Http-Method-Override']).to eq(method)
     end
   end
 
   shared_examples "doesn't override method" do |method|
     it "keeps original method" do
-      env[:method].should eq(method)
+      expect(env[:method]).to eq(method)
     end
 
     it "doesn't set header value" do
-      env[:request_headers].should_not have_key('X-Http-Method-Override')
+      expect(env[:request_headers]).not_to have_key('X-Http-Method-Override')
     end
 
   end
@@ -85,7 +85,7 @@ describe FaradayMiddleware::MethodOverride do
     let(:request_method) { :get }
 
     it "raises key error" do
-      expect { env }.to raise_error(IndexError, /key not found/)
+      expect{ env }.to raise_error(IndexError, /key not found/)
     end
   end
 

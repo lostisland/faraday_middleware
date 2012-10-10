@@ -7,17 +7,17 @@ describe FaradayMiddleware::ParseXml, :type => :response do
 
   context "no type matching" do
     it "doesn't change nil body" do
-      process(nil).body.should be_nil
+      expect(process(nil).body).to be_nil
     end
 
     it "turns empty body into empty hash" do
-      process('').body.should be_eql({})
+      expect(process('').body).to be_eql({})
     end
 
     it "parses xml body" do
       response = process(xml)
-      response.body.should eql(user)
-      response.env[:raw_body].should be_nil
+      expect(response.body).to eq(user)
+      expect(response.env[:raw_body]).to be_nil
     end
   end
 
@@ -26,13 +26,13 @@ describe FaradayMiddleware::ParseXml, :type => :response do
 
     it "parses xml body" do
       response = process(xml)
-      response.body.should eql(user)
-      response.env[:raw_body].should eql(xml)
+      expect(response.body).to eq(user)
+      expect(response.env[:raw_body]).to eq(xml)
     end
 
     it "can opt out of preserving raw" do
       response = process(xml, nil, :preserve_raw => false)
-      response.env[:raw_body].should be_nil
+      expect(response.env[:raw_body]).to be_nil
     end
   end
 
@@ -41,12 +41,12 @@ describe FaradayMiddleware::ParseXml, :type => :response do
 
     it "parses xml body of correct type" do
       response = process(xml, 'application/xml')
-      response.body.should eql(user)
+      expect(response.body).to eq(user)
     end
 
     it "ignores xml body of incorrect type" do
       response = process(xml, 'text/html')
-      response.body.should eql(xml)
+      expect(response.body).to eq(xml)
     end
   end
 
@@ -54,18 +54,18 @@ describe FaradayMiddleware::ParseXml, :type => :response do
     let(:options) { {:content_type => %w[a/b c/d]} }
 
     it "parses xml body of correct type" do
-      process(xml, 'a/b').body.should be_a(Hash)
-      process(xml, 'c/d').body.should be_a(Hash)
+      expect(process(xml, 'a/b').body).to be_a(Hash)
+      expect(process(xml, 'c/d').body).to be_a(Hash)
     end
 
     it "ignores xml body of incorrect type" do
-      process(xml, 'a/d').body.should_not be_a(Hash)
+      expect(process(xml, 'a/d').body).not_to be_a(Hash)
     end
   end
 
   it "chokes on invalid xml" do
     ['{!', '"a"', 'true', 'null', '1'].each do |data|
-      expect { process(data) }.to raise_error(Faraday::Error::ParsingError)
+      expect{ process(data) }.to raise_error(Faraday::Error::ParsingError)
     end
   end
 end
