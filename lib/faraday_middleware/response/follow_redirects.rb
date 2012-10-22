@@ -34,7 +34,7 @@ module FaradayMiddleware
   # words, it doesn't support parallelism.
   class FollowRedirects < Faraday::Middleware
     # HTTP methods for which 30x redirects can be followed
-    ALLOWED_METHODS = Set.new [:get, :post, :put, :patch, :delete]
+    ALLOWED_METHODS = Set.new [:head, :options, :get, :post, :put, :patch, :delete]
     # HTTP redirect status codes that this middleware implements
     REDIRECT_CODES  = Set.new [301, 302, 303, 307]
     # Keys in env hash which will get cleared between requests
@@ -68,6 +68,9 @@ module FaradayMiddleware
     private
 
     def transform_into_get?(response)
+      return false if [:head, :options].include? response.env[:method]
+      # Never convert head or options to a get. That would just be silly.
+
       !@replay_request_codes.include? response.status
     end
 
