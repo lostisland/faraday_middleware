@@ -16,12 +16,18 @@ describe FaradayMiddleware::FollowRedirects do
       end.get('/permanent').body).to eq 'fin'
     end
 
-    [:head, :options].each do |method|
-      it "returning the response headers for a #{method.to_s.upcase} request" do
-        expect(connection do |stub|
-          stub.new_stub(method, '/permanent') { [status_code, {'Location' => '/found'}, ''] }
-        end.run_request(method, '/permanent', nil, nil).headers['Location']).to eq('/found')
-      end
+    it "follows the redirection for a HEAD request" do
+      expect(connection do |stub|
+               stub.head('/permanent') { [status_code, {'Location' => '/found'}, ''] }
+               stub.head('/found') { [200, {'Content-Type' => 'text/plain'}, ''] }
+             end.head('/permanent').status).to eq 200
+    end
+
+    it "follows the redirection for a OPTIONS request" do
+      expect(connection do |stub|
+               stub.new_stub(:options, '/permanent') { [status_code, {'Location' => '/found'}, ''] }
+               stub.new_stub(:options, '/found') { [200, {'Content-Type' => 'text/plain'}, ''] }
+             end.run_request(:options, '/permanent', nil, nil).status).to eq 200
     end
   end
 
