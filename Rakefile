@@ -22,8 +22,8 @@ end
 desc %(Check code quality metrics with Cane)
 task :quality do
   sh 'cane',
-    '--abc-max=10',
-    '--style-measure=100',
+    '--abc-max=15',
+    '--style-measure=110',
     '--gte=coverage/covered_percent,99',
-    '--max-violations=2'
+    '--max-violations=0'
 end
