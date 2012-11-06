@@ -5,6 +5,7 @@ module FaradayMiddleware
   autoload :OAuth2,          'faraday_middleware/request/oauth2'
   autoload :EncodeJson,      'faraday_middleware/request/encode_json'
   autoload :MethodOverride,  'faraday_middleware/request/method_override'
+  autoload :Modelify,        'faraday_middleware/response/modelify'
   autoload :Mashify,         'faraday_middleware/response/mashify'
   autoload :Rashify,         'faraday_middleware/response/rashify'
   autoload :ParseJson,       'faraday_middleware/response/parse_json'
@@ -26,17 +27,18 @@ module FaradayMiddleware
       :method_override => lambda { MethodOverride }
 
     Faraday.register_middleware :response,
-      :mashify  => lambda { Mashify },
-      :rashify  => lambda { Rashify },
-      :json     => lambda { ParseJson },
-      :json_fix => lambda { ParseJson::MimeTypeFix },
-      :xml      => lambda { ParseXml },
-      :marshal  => lambda { ParseMarshal },
-      :yaml     => lambda { ParseYaml },
-      :dates    => lambda { ParseDates },
-      :caching  => lambda { Caching },
+      :modelify         => lambda { Modelify },
+      :mashify          => lambda { Mashify },
+      :rashify          => lambda { Rashify },
+      :json             => lambda { ParseJson },
+      :json_fix         => lambda { ParseJson::MimeTypeFix },
+      :xml              => lambda { ParseXml },
+      :marshal          => lambda { ParseMarshal },
+      :yaml             => lambda { ParseYaml },
+      :dates            => lambda { ParseDates },
+      :caching          => lambda { Caching },
       :follow_redirects => lambda { FollowRedirects },
-      :chunked => lambda { Chunked }
+      :chunked          => lambda { Chunked }
 
     Faraday.register_middleware \
       :instrumentation  => lambda { Instrumentation }
