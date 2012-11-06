@@ -42,5 +42,3 @@ class FaradayMiddleware::Modelify < Faraday::Response::Middleware
     end
   end
 end
-
-Faraday.register_middleware :response, modelify: FaradayMiddleware::Modelify
