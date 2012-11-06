@@ -8,7 +8,7 @@ describe FaradayMiddleware::Modelify do
   context "when used" do
     let(:modelify) do
       described_class.new(nil, {
-        models: {
+        :models => {
           Website => %w(site sites),
           Contact => %w(person people)
         }
@@ -17,9 +17,9 @@ describe FaradayMiddleware::Modelify do
 
     it "creates a Contact and a Website" do
       data = modelify.on_complete({
-        body: {
-          "person" => { name: "Andrew", age: 28 },
-          "site" => { name: "Google", url: "google.com" }
+        :body => {
+          "person" => { :name => "Andrew", :age => 28 },
+          "site" => { :name => "Google", :url => "google.com" }
         }
       })
 
@@ -29,14 +29,14 @@ describe FaradayMiddleware::Modelify do
 
     it "creates Contacts and Websites" do
       data = modelify.on_complete({
-        body: {
+        :body => {
           "people" => [
-            { name: "Andrew", age: 28 },
-            { name: "Ashley", age: 26 }
+            { :name => "Andrew", :age => 28 },
+            { :name => "Ashley", :age => 26 }
           ],
           "sites" => [
-            { name: "Google", url: "google.com" },
-            { name: "Bing", url: "bing.com" }
+            { :name => "Google", :url => "google.com" },
+            { :name => "Bing", :url => "bing.com" }
           ]
         }
       })
@@ -52,11 +52,11 @@ describe FaradayMiddleware::Modelify do
 
     it "passes through unknown keys" do
       data = modelify.on_complete({
-        body: {
+        :body => {
           "address" => {
-            street: "Kinzie",
-            city: "Chicago",
-            state: "Il"
+            :street => "Kinzie",
+            :city => "Chicago",
+            :state => "Il"
           }
         }
       })
