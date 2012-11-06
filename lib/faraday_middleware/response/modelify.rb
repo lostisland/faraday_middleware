@@ -1,17 +1,19 @@
+# Initialize this middelware with an options hash with the models key being a
+# hash whose keys are the class you wish to instantiate and the values an
+# array of possible key names in the decoded JSON.
+#
+#  Faraday.new url do |conn|
+#    conn.response :modelify, models: {
+#      Website => %w(website websites),
+#      Contact => %w(contact contacts)
+#    }
+#    conn.response :json, content_type: /\bjson$/
+#    conn.adapter Faraday.default_adapter
+#  end
+#
 class FaradayMiddleware::Modelify < Faraday::Response::Middleware
-  # Initialize this middelware with an options hash with the models key being a
-  # hash whose keys are the class you wish to instantiate and the values an
-  # array of possible key names in the decoded JSON.
-  #
-  #  Faraday.new url do |conn|
-  #    conn.response :modelify, models: {
-  #      Website => %w(website websites),
-  #      Contact => %w(contact contacts)
-  #    }
-  #    conn.response :json, content_type: /\bjson$/
-  #    conn.adapter Faraday.default_adapter
-  #  end
-  #
+  # options:
+  #   models: hash of class to an array of JSON key names
   def initialize(app, opts = {})
     super(app)
 
