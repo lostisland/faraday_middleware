@@ -7,6 +7,7 @@ describe FaradayMiddleware::MultipartRelated do
   before do
     @conn = Faraday.new do |b|
       b.request :multipart_related
+      b.request :url_encoded
       b.adapter :test do |stub|
         stub.post('/echo') do |env|
           posted_as = env[:request_headers]['Content-Type']
