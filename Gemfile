@@ -15,4 +15,6 @@ group :test do
   gem 'simplecov'
 end
 
+gem 'faraday', :git => 'git://github.com/lostisland/faraday.git'
+
 gemspec
