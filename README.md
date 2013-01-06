@@ -50,5 +50,5 @@ end
 ```
 
 
-  [faraday]: https://github.com/technoweenie/faraday#readme
-  [docs]: https://github.com/pengwynn/faraday_middleware/wiki
+  [faraday]: https://github.com/lostisland/faraday#readme
+  [docs]: https://github.com/lostisland/faraday_middleware/wiki
