@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.description = %q{Various middleware for Faraday}
   spec.email = ['sferik@gmail.com', 'wynn.netherland@gmail.com']
   spec.files = `git ls-files`.split("\n")
-  spec.homepage = 'https://github.com/pengwynn/faraday_middleware'
+  spec.homepage = 'https://github.com/lostisland/faraday_middleware'
   spec.licenses = ['MIT']
   spec.name = 'faraday_middleware'
   spec.require_paths = ['lib']
