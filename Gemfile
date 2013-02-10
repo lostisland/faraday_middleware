@@ -1,7 +1,7 @@
 source :rubygems
 
 gem 'jruby-openssl', :platforms => :jruby
-gem 'json', :platforms => :ruby_18
+gem 'json', :platforms => [:jruby, :ruby_18]
 gem 'multi_xml', '>= 0.5.3'
 gem 'hashie', '>= 1.2'
 gem 'rack-cache', '>= 1.1'
