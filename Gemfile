@@ -8,6 +8,7 @@ gem 'rack-cache', '>= 1.1'
 gem 'rake', '>= 0.9'
 gem 'rash', '>= 0.3'
 gem 'simple_oauth', '>= 0.1'
+gem 'unicode_utils'
 
 group :test do
   gem 'cane', '>= 2.2.2', :platforms => :mri_19

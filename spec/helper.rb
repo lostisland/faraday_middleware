@@ -39,8 +39,33 @@ module ResponseMiddlewareExampleGroup
   end
 end
 
+module ResponseNormalization
+  def normalization_test_txt
+    @normalization_test_txt ||= File.join File.dirname(__FILE__), 'data', 'NormalizationTest.txt'
+  end
+
+  def test_data
+    File.open(normalization_test_txt, "r:utf-8:-") do |input|
+      input.each_line do |line|
+        line = $1.strip if line =~ /^([^#]*)#/
+
+        next if line.empty? || line =~ /^@Part/
+
+        columns = line.split(';').map do |column|
+          str = String.new.force_encoding(Encoding::UTF_8)
+          column.split(' ').reduce(str) { |a, c| a << c.strip.to_i(16); a }
+        end
+
+        yield *columns if block_given?
+      end
+    end
+  end
+end
+
 RSpec.configure do |config|
   config.include ResponseMiddlewareExampleGroup, :type => :response
+  config.include ResponseNormalization, :test_date => :normalization
+
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
