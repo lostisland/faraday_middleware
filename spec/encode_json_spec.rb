@@ -5,13 +5,13 @@ describe FaradayMiddleware::EncodeJson do
   let(:middleware) { described_class.new(lambda{|env| env}) }
 
   def process(body, content_type = nil)
-    env = {:body => body, :request_headers => Faraday::Utils::Headers.new}
-    env[:request_headers]['content-type'] = content_type if content_type
+    env = Faraday::Env.new.merge(:body => body, :request_headers => Faraday::Utils::Headers.new)
+    env.request_headers['content-type'] = content_type if content_type
     middleware.call(env)
   end
 
-  def result_body() result[:body] end
-  def result_type() result[:request_headers]['content-type'] end
+  def result_body() result.body end
+  def result_type() result.request_headers['content-type'] end
 
   context "no body" do
     let(:result) { process(nil) }

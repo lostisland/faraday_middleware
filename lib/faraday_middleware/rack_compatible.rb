@@ -28,12 +28,12 @@ module FaradayMiddleware
     def prepare_env(env)
       headers_to_rack(env)
 
-      url = env[:url]
+      url = env.url
       env['rack.url_scheme'] = url.scheme
       env['PATH_INFO'] = url.path
       env['SERVER_PORT'] = url.respond_to?(:inferred_port) ? url.inferred_port : url.port
       env['QUERY_STRING'] = url.query
-      env['REQUEST_METHOD'] = env[:method].to_s.upcase
+      env['REQUEST_METHOD'] = env.method.to_s.upcase
 
       env['rack.errors'] ||= StringIO.new
 
@@ -41,7 +41,7 @@ module FaradayMiddleware
     end
 
     def headers_to_rack(env)
-      env[:request_headers].each do |name, value|
+      env.request_headers.each do |name, value|
         name = name.upcase.tr('-', '_')
         name = "HTTP_#{name}" unless NonPrefixedHeaders.include? name
         env[name] = value
@@ -50,7 +50,7 @@ module FaradayMiddleware
 
     # rack to faraday-compatible
     def restore_env(env)
-      headers = env[:request_headers]
+      headers = env.request_headers
       headers.clear
 
       env.each do |name, value|
@@ -61,7 +61,7 @@ module FaradayMiddleware
         end
       end
 
-      env[:method] = env['REQUEST_METHOD'].downcase.to_sym
+      env.method = env['REQUEST_METHOD'].downcase.to_sym
       env
     end
 
@@ -74,8 +74,8 @@ module FaradayMiddleware
                  :body => body,
                  :response_headers => headers
 
-      env[:response] ||= Faraday::Response.new(env)
-      env[:response]
+      env.response ||= Faraday::Response.new(env)
+      env.response
     end
   end
 end

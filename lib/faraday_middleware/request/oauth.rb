@@ -38,23 +38,23 @@ module FaradayMiddleware
     end
 
     def call(env)
-      env[:request_headers][AUTH_HEADER] ||= oauth_header(env).to_s if sign_request?(env)
+      env.request_headers[AUTH_HEADER] ||= oauth_header(env).to_s if sign_request?(env)
       @app.call(env)
     end
 
     def oauth_header(env)
-      SimpleOAuth::Header.new env[:method],
-                              env[:url].to_s,
+      SimpleOAuth::Header.new env.method,
+                              env.url.to_s,
                               signature_params(body_params(env)),
                               oauth_options(env)
     end
 
     def sign_request?(env)
-      !!env[:request].fetch(:oauth, true)
+      !!env.request.fetch(:oauth, true)
     end
 
     def oauth_options(env)
-      if extra = env[:request][:oauth] and extra.is_a? Hash and !extra.empty?
+      if extra = env.request[:oauth] and extra.is_a? Hash and !extra.empty?
         @options.merge extra
       else
         @options
@@ -63,17 +63,17 @@ module FaradayMiddleware
 
     def body_params(env)
       if include_body_params?(env)
-        if env[:body].respond_to?(:to_str)
-          parse_nested_query env[:body]
+        if env.body.respond_to?(:to_str)
+          parse_nested_query env.body
         else
-          env[:body]
+          env.body
         end
       end || {}
     end
 
     def include_body_params?(env)
       # see RFC 5489, section 3.4.1.3.1 for details
-      !(type = env[:request_headers][CONTENT_TYPE]) or type == TYPE_URLENCODED
+      !(type = env.request_headers[CONTENT_TYPE]) or type == TYPE_URLENCODED
     end
 
     def signature_params(params)

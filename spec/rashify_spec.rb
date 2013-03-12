@@ -7,40 +7,40 @@ describe FaradayMiddleware::Rashify do
     let(:rashify) { described_class.new }
 
     it "creates a Hashie::Rash from the body" do
-      env = { :body => { "name" => "Erik Michaels-Ober", "username" => "sferik" } }
+      env = Faraday::Env.new.merge(:body => { "name" => "Erik Michaels-Ober", "username" => "sferik" })
       me  = rashify.on_complete(env)
       expect(me.class).to eq(Hashie::Rash)
     end
 
     it "handles strings" do
-      env = { :body => "Most amazing string EVER" }
+      env = Faraday::Env.new.merge(:body => "Most amazing string EVER")
       me  = rashify.on_complete(env)
       expect(me).to eq("Most amazing string EVER")
     end
 
     it "handles hashes and decamelcase the keys" do
-      env = { :body => { "name" => "Erik Michaels-Ober", "userName" => "sferik" } }
+      env = Faraday::Env.new.merge(:body => { "name" => "Erik Michaels-Ober", "userName" => "sferik" })
       me  = rashify.on_complete(env)
       expect(me.name).to eq('Erik Michaels-Ober')
       expect(me.user_name).to eq('sferik')
     end
 
     it "handles arrays" do
-      env = { :body => [123, 456] }
+      env = Faraday::Env.new.merge(:body => [123, 456])
       values = rashify.on_complete(env)
       expect(values.first).to eq(123)
       expect(values.last).to eq(456)
     end
 
     it "handles arrays of hashes" do
-      env = { :body => [{ "username" => "sferik" }, { "username" => "pengwynn" }] }
+      env = Faraday::Env.new.merge(:body => [{ "username" => "sferik" }, { "username" => "pengwynn" }])
       us  = rashify.on_complete(env)
       expect(us.first.username).to eq('sferik')
       expect(us.last.username).to eq('pengwynn')
     end
 
     it "handles mixed arrays" do
-      env = { :body => [123, { "username" => "sferik" }, 456] }
+      env = Faraday::Env.new.merge(:body => [123, { "username" => "sferik" }, 456])
       values = rashify.on_complete(env)
       expect(values.first).to eq(123)
       expect(values.last).to eq(456)

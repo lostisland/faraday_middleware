@@ -1,6 +1,7 @@
 require 'helper'
 require 'faraday_middleware/response/follow_redirects'
 require 'faraday'
+require 'faraday/adapter/test'
 
 # expose a method in Test adapter that should have been public
 Faraday::Adapter::Test::Stubs.class_eval { public :new_stub }
@@ -39,7 +40,7 @@ describe FaradayMiddleware::FollowRedirects do
             [status_code, {'Location' => '/found'}, 'elsewhere']
           }
           stub.get('/found') { |env|
-            body = env[:body] and body.empty? && (body = nil)
+            body = env.body and body.empty? && (body = nil)
             [200, {'Content-Type' => 'text/plain'}, body.inspect]
           }
         end.run_request(method, '/redirect', 'request data', nil).body).to eq('nil')
@@ -54,7 +55,7 @@ describe FaradayMiddleware::FollowRedirects do
           [status_code, {'Location' => '/found'}, '']
         }
         stub.get('/found') { |env|
-          [200, {'Content-Type' => 'text/plain'}, env[:request_headers]['X-Test-Value']]
+          [200, {'Content-Type' => 'text/plain'}, env.request_headers['X-Test-Value']]
         }
       end
 
@@ -81,7 +82,7 @@ describe FaradayMiddleware::FollowRedirects do
             [status_code, {'Location' => '/found'}, '']
           }
           stub.new_stub(method, '/found') { |env|
-            [200, {'Content-Type' => 'text/plain'}, env[:body]]
+            [200, {'Content-Type' => 'text/plain'}, env.body]
           }
         end
 
@@ -145,14 +146,14 @@ describe FaradayMiddleware::FollowRedirects do
         expect(connection(:cookies => :all) do |stub|
           stub.get('/')           { [301, {'Location' => '/found', 'Cookies' => cookies }, ''] }
           stub.get('/found')      { [200, {'Content-Type' => 'text/plain'}, ''] }
-        end.get('/').env[:request_headers][:cookies]).to eq(cookies)
+        end.get('/').env.request_headers[:cookies]).to eq(cookies)
       end
 
       it "not set cookies header on request when response has no cookies" do
         expect(connection(:cookies => :all) do |stub|
           stub.get('/')           { [301, {'Location' => '/found'}, ''] }
           stub.get('/found')      { [200, {'Content-Type' => 'text/plain'}, ''] }
-        end.get('/').env[:request_headers].has_key?('Cookies')).to eq(false)
+        end.get('/').env.request_headers.has_key?('Cookies')).to eq(false)
       end
     end
 
@@ -161,7 +162,7 @@ describe FaradayMiddleware::FollowRedirects do
         expect(connection(:cookies => ['cookie2']) do |stub|
           stub.get('/')           { [301, {'Location' => '/found', 'Cookies' => cookies }, ''] }
           stub.get('/found')      { [200, {'Content-Type' => 'text/plain'}, ''] }
-        end.get('/').env[:request_headers][:cookies]).to eq('cookie2=1234567')
+        end.get('/').env.request_headers[:cookies]).to eq('cookie2=1234567')
       end
     end
   end
@@ -197,7 +198,7 @@ describe FaradayMiddleware::FollowRedirects do
   # checks env hash in request phase for basic validity
   class Lint < Struct.new(:app)
     def call(env)
-      if env[:status] or env[:response] or env[:response_headers]
+      if env.status or env.response or env.response_headers
         raise "invalid request: #{env.inspect}"
       end
       app.call(env)
