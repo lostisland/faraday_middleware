@@ -13,7 +13,7 @@ module FaradayMiddleware
 
     def call(env)
       response = @app.call(env)
-      parse_dates! response.env[:body]
+      parse_dates! response.env.body
       response
     end
 

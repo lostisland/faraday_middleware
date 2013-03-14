@@ -30,11 +30,11 @@ module FaradayMiddleware
     def_delegators :'Faraday::Utils', :parse_query, :build_query
 
     def call(env)
-      params = { param_name => @token }.update query_params(env[:url])
+      params = { param_name => @token }.update query_params(env.url)
 
       if token = params[param_name] and !token.empty?
-        env[:url].query = build_query params
-        env[:request_headers][AUTH_HEADER] ||= %(Token token="#{token}")
+        env.url.query = build_query params
+        env.request_headers[AUTH_HEADER] ||= %(Token token="#{token}")
       end
 
       @app.call env

@@ -5,7 +5,7 @@ require 'forwardable'
 
 describe FaradayMiddleware::OAuth do
   def auth_header(env)
-    env[:request_headers]['Authorization']
+    env.request_headers['Authorization']
   end
 
   def auth_values(env)
@@ -16,14 +16,14 @@ describe FaradayMiddleware::OAuth do
   end
 
   def perform(oauth_options = {}, headers = {}, params = {})
-    env = {
+    env = Faraday::Env.new.merge(
       :url => URI('http://example.com/'),
       :request_headers => Faraday::Utils::Headers.new.update(headers),
       :request => {},
       :body => params
-    }
+    )
     unless oauth_options.is_a? Hash and oauth_options.empty?
-      env[:request][:oauth] = oauth_options
+      env.request[:oauth] = oauth_options
     end
     app = make_app
     app.call(env)

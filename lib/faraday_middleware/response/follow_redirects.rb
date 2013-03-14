@@ -68,14 +68,14 @@ module FaradayMiddleware
     private
 
     def transform_into_get?(response)
-      return false if [:head, :options].include? response.env[:method]
+      return false if [:head, :options].include? response.env.method
       # Never convert head or options to a get. That would just be silly.
 
       !@replay_request_codes.include? response.status
     end
 
     def perform_with_redirection(env, follows)
-      request_body = env[:body]
+      request_body = env.body
       response = @app.call(env)
 
       response.on_complete do |env|
@@ -89,17 +89,17 @@ module FaradayMiddleware
     end
 
     def update_env(env, request_body, response)
-      env[:url] += response['location']
+      env.url += response['location']
       if @options[:cookies]
         cookies = keep_cookies(env)
-        env[:request_headers][:cookies] = cookies unless cookies.nil?
+        env.request_headers[:cookies] = cookies unless cookies.nil?
       end
 
       if transform_into_get?(response)
-        env[:method] = :get
-        env[:body] = nil
+        env.method = :get
+        env.body = nil
       else
-        env[:body] = request_body
+        env.body = request_body
       end
 
       ENV_TO_CLEAR.each {|key| env.delete key }
@@ -108,7 +108,7 @@ module FaradayMiddleware
     end
 
     def follow_redirect?(env, response)
-      ALLOWED_METHODS.include? env[:method] and
+      ALLOWED_METHODS.include? env.method and
         REDIRECT_CODES.include? response.status
     end
 
@@ -118,7 +118,7 @@ module FaradayMiddleware
 
     def keep_cookies(env)
       cookies = @options.fetch(:cookies, [])
-      response_cookies = env[:response_headers][:cookies]
+      response_cookies = env.response_headers[:cookies]
       cookies == :all ? response_cookies : selected_request_cookies(response_cookies)
     end
 

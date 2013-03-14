@@ -6,18 +6,18 @@ require 'faraday/utils'
 describe FaradayMiddleware::OAuth2 do
 
   def query_params(env)
-    Faraday::Utils.parse_query env[:url].query
+    Faraday::Utils.parse_query(env.url.query)
   end
 
   def auth_header(env)
-    env[:request_headers]['Authorization']
+    env.request_headers['Authorization']
   end
 
   def perform(params = {}, headers = {})
-    env = {
+    env = Faraday::Env.new.merge(
       :url => URI('http://example.com/?' + Faraday::Utils.build_query(params)),
       :request_headers => Faraday::Utils::Headers.new.update(headers)
-    }
+    )
     app = make_app
     app.call(env)
   end

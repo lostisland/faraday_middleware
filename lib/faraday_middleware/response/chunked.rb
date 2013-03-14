@@ -19,7 +19,7 @@ module FaradayMiddleware
     end
 
     def parse_response?(env)
-      super and chunked_encoding?(env[:response_headers])
+      super and chunked_encoding?(env.response_headers)
     end
 
     def chunked_encoding?(headers)
