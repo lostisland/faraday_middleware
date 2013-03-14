@@ -26,9 +26,9 @@ class CachingTest < Test::Unit::TestCase
   class Lint < Struct.new(:app)
     def call(env)
       app.call(env).on_complete do
-        raise "no headers" unless env[:response_headers].is_a? Hash
-        raise "no response" unless env[:response].is_a? Faraday::Response
-        raise "env not identical" unless env[:response].env.object_id == env.object_id
+        raise "no headers" unless env.response_headers.is_a? Hash
+        raise "no response" unless env.response.is_a? Faraday::Response
+        raise "env not identical" unless env.response.env.object_id == env.object_id
       end
     end
   end
@@ -66,8 +66,8 @@ class CachingTest < Test::Unit::TestCase
   def test_response_has_request_params
     get('/') # make cache
     response = get('/')
-    assert_equal :get, response.env[:method]
-    assert_equal '/', response.env[:url].request_uri
+    assert_equal :get, response.env.method
+    assert_equal '/', response.env.url.request_uri
   end
 
   def test_cache_query_params
@@ -134,14 +134,14 @@ class HttpCachingTest < Test::Unit::TestCase
   def test_cache_get
     response = get('/', :user_agent => 'test')
     assert_equal 'request:1', response.body
-    assert_equal :get, response.env[:method]
+    assert_equal :get, response.env.method
     assert_equal 200, response.status
 
     response = get('/', :user_agent => 'test')
     assert_equal 'request:1', response.body
     assert_equal 'text/plain', response['content-type']
-    assert_equal :get, response.env[:method]
-    assert response.env[:request].respond_to?(:fetch)
+    assert_equal :get, response.env.method
+    assert response.env.request.respond_to?(:fetch)
     assert_equal 200, response.status
 
     assert_equal 'request:2', post('/').body

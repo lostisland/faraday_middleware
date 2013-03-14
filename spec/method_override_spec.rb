@@ -7,28 +7,26 @@ describe FaradayMiddleware::MethodOverride do
   let(:env) { middleware.call request_env(request_method) }
 
   def request_env(method)
-    { :method => method,
-      :request_headers => Faraday::Utils::Headers.new
-    }
+    Faraday::Env.new.merge(:method => method, :request_headers => Faraday::Utils::Headers.new)
   end
 
   shared_examples "overrides method" do |method|
     it "sets physical method to POST" do
-      expect(env[:method]).to eq(:post)
+      expect(env.method).to eq(:post)
     end
 
     it "sets header to #{method}" do
-      expect(env[:request_headers]['X-Http-Method-Override']).to eq(method)
+      expect(env.request_headers['X-Http-Method-Override']).to eq(method)
     end
   end
 
   shared_examples "doesn't override method" do |method|
     it "keeps original method" do
-      expect(env[:method]).to eq(method)
+      expect(env.method).to eq(method)
     end
 
     it "doesn't set header value" do
-      expect(env[:request_headers]).not_to have_key('X-Http-Method-Override')
+      expect(env.request_headers).not_to have_key('X-Http-Method-Override')
     end
 
   end

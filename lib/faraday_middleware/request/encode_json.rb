@@ -18,7 +18,7 @@ module FaradayMiddleware
 
     def call(env)
       match_content_type(env) do |data|
-        env[:body] = encode data
+        env.body = encode data
       end
       @app.call env
     end
@@ -29,8 +29,8 @@ module FaradayMiddleware
 
     def match_content_type(env)
       if process_request?(env)
-        env[:request_headers][CONTENT_TYPE] ||= MIME_TYPE
-        yield env[:body] unless env[:body].respond_to?(:to_str)
+        env.request_headers[CONTENT_TYPE] ||= MIME_TYPE
+        yield env.body unless env.body.respond_to?(:to_str)
       end
     end
 
@@ -40,11 +40,11 @@ module FaradayMiddleware
     end
 
     def has_body?(env)
-      body = env[:body] and !(body.respond_to?(:to_str) and body.empty?)
+      body = env.body and !(body.respond_to?(:to_str) and body.empty?)
     end
 
     def request_type(env)
-      type = env[:request_headers][CONTENT_TYPE].to_s
+      type = env.request_headers[CONTENT_TYPE].to_s
       type = type.split(';', 2).first if type.index(';')
       type
     end

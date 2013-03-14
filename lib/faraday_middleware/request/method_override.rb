@@ -29,7 +29,7 @@ module FaradayMiddleware
     end
 
     def call(env)
-      method = env[:method]
+      method = env.method
       rewrite_request(env, method) if rewrite_request?(method)
       @app.call(env)
     end
@@ -44,8 +44,8 @@ module FaradayMiddleware
 
     # Internal: Write the original HTTP method to header, change method to POST.
     def rewrite_request(env, original_method)
-      env[:request_headers][HEADER] = original_method.to_s.upcase
-      env[:method] = :post
+      env.request_headers[HEADER] = original_method.to_s.upcase
+      env.method = :post
     end
   end
 end

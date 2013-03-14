@@ -28,8 +28,8 @@ module FaradayMiddleware
     end
 
     def call(env)
-      if :get == env[:method]
-        if env[:parallel_manager]
+      if :get == env.method
+        if env.parallel_manager
           # callback mode
           cache_on_complete(env)
         else
@@ -43,7 +43,7 @@ module FaradayMiddleware
     end
 
     def cache_key(env)
-      url = env[:url].dup
+      url = env.url.dup
       if url.query && params_to_ignore.any?
         params = parse_query url.query
         params.reject! {|k,| params_to_ignore.include? k }
@@ -69,8 +69,8 @@ module FaradayMiddleware
 
     def finalize_response(response, env)
       response = response.dup if response.frozen?
-      env[:response] = response
-      unless env[:response_headers]
+      env.response = response
+      unless env.response_headers
         env.update response.env
         # FIXME: omg hax
         response.instance_variable_set('@env', env)
