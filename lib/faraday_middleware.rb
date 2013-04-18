@@ -18,14 +18,14 @@ module FaradayMiddleware
   autoload :FollowRedirects, 'faraday_middleware/response/follow_redirects'
   autoload :Instrumentation, 'faraday_middleware/instrumentation'
 
-  Faraday::Request.register_middleware {
+  Faraday::Request.register_middleware({
     :oauth    => OAuth,
     :oauth2   => OAuth2,
     :json     => EncodeJson,
     :method_override => MethodOverride
-  }
+  })
 
-  Faraday::Response.register_middleware {
+  Faraday::Response.register_middleware({
     :mashify  => Mashify,
     :rashify  => Rashify,
     :json     => ParseJson,
@@ -37,10 +37,10 @@ module FaradayMiddleware
     :caching  => Caching,
     :follow_redirects => FollowRedirects,
     :chunked  => Chunked
-  }
+  })
 
-  Faraday::Middleware.register_middleware {
+  Faraday::Middleware.register_middleware({
     :instrumentation => Instrumentation
-  }
+  })
 end
 require 'faraday_middleware/backwards_compatibility'
