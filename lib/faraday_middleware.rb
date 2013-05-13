@@ -18,29 +18,38 @@ module FaradayMiddleware
   autoload :Instrumentation, 'faraday_middleware/instrumentation'
   autoload :Gzip, 'faraday_middleware/gzip'
 
-  if Faraday.respond_to? :register_middleware
-    Faraday.register_middleware :request,
-      :oauth    => lambda { OAuth },
-      :oauth2   => lambda { OAuth2 },
-      :json     => lambda { EncodeJson },
-      :method_override => lambda { MethodOverride }
 
-    Faraday.register_middleware :response,
-      :mashify  => lambda { Mashify },
-      :rashify  => lambda { Rashify },
-      :json     => lambda { ParseJson },
-      :json_fix => lambda { ParseJson::MimeTypeFix },
-      :xml      => lambda { ParseXml },
-      :marshal  => lambda { ParseMarshal },
-      :yaml     => lambda { ParseYaml },
-      :dates    => lambda { ParseDates },
-      :caching  => lambda { Caching },
-      :follow_redirects => lambda { FollowRedirects },
-      :chunked => lambda { Chunked }
+  middleware = {
+      :request => {
+          :oauth    => lambda { OAuth },
+          :oauth2   => lambda { OAuth2 },
+          :json     => lambda { EncodeJson },
+          :method_override => lambda { MethodOverride }
+      },
+      :response => {
+          :mashify  => lambda { Mashify },
+          :rashify  => lambda { Rashify },
+          :json     => lambda { ParseJson },
+          :json_fix => lambda { ParseJson::MimeTypeFix },
+          :xml      => lambda { ParseXml },
+          :marshal  => lambda { ParseMarshal },
+          :yaml     => lambda { ParseYaml },
+          :dates    => lambda { ParseDates },
+          :caching  => lambda { Caching },
+          :follow_redirects => lambda { FollowRedirects },
+          :chunked => lambda { Chunked }
+      },
+      :both => {
+        :instrumentation  => lambda { Instrumentation }
+        :gzip => lambda { Gzip }
+      }
+  }
 
-    Faraday.register_middleware \
-      :instrumentation  => lambda { Instrumentation },
-      :gzip => lambda { Gzip }
+
+  if Faraday::Middleware.respond_to? :register_middleware
+    Faraday::Request.register_middleware middleware[:request]
+    Faraday::Response.register_middleware middleware[:response]
+    Faraday::Middleware.register_middleware middleware[:both]
   end
 end
 
