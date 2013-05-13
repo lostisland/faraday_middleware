@@ -14,7 +14,6 @@ module FaradayMiddleware
   autoload :ParseDates,      'faraday_middleware/response/parse_dates'
   autoload :Caching,         'faraday_middleware/response/caching'
   autoload :Chunked,         'faraday_middleware/response/chunked'
-  autoload :RackCompatible,  'faraday_middleware/rack_compatible'
   autoload :FollowRedirects, 'faraday_middleware/response/follow_redirects'
   autoload :Instrumentation, 'faraday_middleware/instrumentation'
 
