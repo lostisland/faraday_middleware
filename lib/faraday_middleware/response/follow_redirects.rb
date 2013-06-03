@@ -68,9 +68,8 @@ module FaradayMiddleware
     private
 
     def transform_into_get?(response)
+      return false if @options[:no_method_change]
       return false if [:head, :options].include? response.env[:method]
-      # Never convert head or options to a get. That would just be silly.
-
       !@replay_request_codes.include? response.status
     end
 

@@ -137,7 +137,6 @@ describe FaradayMiddleware::FollowRedirects do
   end
 
   context "when cookies option" do
-
     let(:cookies) { 'cookie1=abcdefg; cookie2=1234567; cookie3=awesome' }
 
     context "is :all" do
@@ -191,6 +190,14 @@ describe FaradayMiddleware::FollowRedirects do
 
   context "for an HTTP 307 response" do
     it_behaves_like 'a successful redirection', 307
+    it_behaves_like 'a replayed redirection', 307
+  end
+
+  context "with no_method_change option" do
+    let(:middleware_options) { { :no_method_change => true } }
+    it_behaves_like 'a replayed redirection', 301
+    it_behaves_like 'a replayed redirection', 302
+    it_behaves_like 'a replayed redirection', 303
     it_behaves_like 'a replayed redirection', 307
   end
 
