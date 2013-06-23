@@ -6,11 +6,11 @@ require 'faraday/utils'
 describe FaradayMiddleware::OAuth2 do
 
   def query_params(env)
-    Faraday::Utils.parse_query env[:url].query
+    Faraday::Utils.parse_query env.url.query
   end
 
   def auth_header(env)
-    env[:request_headers]['Authorization']
+    env.request_headers['Authorization']
   end
 
   def perform(params = {}, headers = {})

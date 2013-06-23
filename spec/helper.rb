@@ -17,6 +17,9 @@ if ENV['COVERAGE']
 end
 
 require 'rspec'
+require 'faraday'
+require 'faraday/adapter/test'
+require 'faraday_middleware/backwards_compatibility'
 
 module ResponseMiddlewareExampleGroup
   def self.included(base)
@@ -30,11 +33,10 @@ module ResponseMiddlewareExampleGroup
   end
 
   def process(body, content_type = nil, options = {})
-    env = {
+    env = Faraday::Env.from \
       :body => body, :request => options,
       :response_headers => Faraday::Utils::Headers.new(headers)
-    }
-    env[:response_headers]['content-type'] = content_type if content_type
+    env.response_headers['content-type'] = content_type if content_type
     middleware.call(env)
   end
 end
