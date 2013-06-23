@@ -166,32 +166,45 @@ describe FaradayMiddleware::FollowRedirects do
     end
   end
 
-  context "for an HTTP 301 response" do
-    it_behaves_like 'a successful redirection', 301
-    it_behaves_like 'a forced GET redirection', 301
-  end
+  [301, 302].each do |code|
+    context "for an HTTP #{code} response" do
+      it_behaves_like 'a successful redirection', code
 
-  context "for an HTTP 302 response" do
-    it_behaves_like 'a successful redirection', 302
+      context "by default" do
+        it_behaves_like 'a forced GET redirection', code
+      end
 
-    context "by default" do
-      it_behaves_like 'a forced GET redirection', 302
-    end
-
-    context "with standards compliancy enabled" do
-      let(:middleware_options) { { :standards_compliant => true } }
-      it_behaves_like 'a replayed redirection', 302
+      context "with standards compliancy enabled" do
+        let(:middleware_options) { { :standards_compliant => true } }
+        it_behaves_like 'a replayed redirection', code
+      end
     end
   end
 
   context "for an HTTP 303 response" do
-    it_behaves_like 'a successful redirection', 303
-    it_behaves_like 'a forced GET redirection', 303
+    context "by default" do
+      it_behaves_like 'a successful redirection', 303
+      it_behaves_like 'a forced GET redirection', 303
+    end
+
+    context "with standards compliancy enabled" do
+      let(:middleware_options) { { :standards_compliant => true } }
+      it_behaves_like 'a successful redirection', 303
+      it_behaves_like 'a forced GET redirection', 303
+    end
   end
 
   context "for an HTTP 307 response" do
-    it_behaves_like 'a successful redirection', 307
-    it_behaves_like 'a replayed redirection', 307
+    context "by default" do
+      it_behaves_like 'a successful redirection', 307
+      it_behaves_like 'a replayed redirection', 307
+    end
+
+    context "with standards compliancy enabled" do
+      let(:middleware_options) { { :standards_compliant => true } }
+      it_behaves_like 'a successful redirection', 307
+      it_behaves_like 'a replayed redirection', 307
+    end
   end
 
   # checks env hash in request phase for basic validity

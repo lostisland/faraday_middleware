@@ -12,26 +12,15 @@ module FaradayMiddleware
     end
   end
 
-  # Public: Follow HTTP 301, 302, 303, and 307 redirects for GET, PATCH, POST,
-  # PUT, and DELETE requests.
+  # Public: Follow HTTP 301, 302, 303, and 307 redirects.
   #
-  # This middleware does not follow the HTTP specification for HTTP 302, by
-  # default, in that it follows the improper implementation used by most major
-  # web browsers which forces the redirected request to become a GET request
-  # regardless of the original request method.
+  # For HTTP 301, 302, and 303, the original GET, POST, PUT, DELETE, or PATCH
+  # request gets converted into a GET. With `:standards_compliant => true`,
+  # however, the HTTP method after 301/302 remains unchanged. This allows you
+  # to opt into HTTP/1.1 compliance and act unlike the major web browsers.
   #
-  # For HTTP 301, 302, and 303, the original request is transformed into a
-  # GET request to the response Location, by default. However, with standards
-  # compliance enabled, a 302 will instead act in accordance with the HTTP
-  # specification, which will replay the original request to the received
-  # Location, just as with a 307.
-  #
-  # For HTTP 307, the original request is replayed to the response Location,
-  # including original HTTP request method (GET, POST, PUT, DELETE, PATCH),
-  # original headers, and original body.
-  #
-  # This middleware currently only works with synchronous requests; in other
-  # words, it doesn't support parallelism.
+  # This middleware currently only works with synchronous requests; i.e. it
+  # doesn't support parallelism.
   class FollowRedirects < Faraday::Middleware
     # HTTP methods for which 30x redirects can be followed
     ALLOWED_METHODS = Set.new [:head, :options, :get, :post, :put, :patch, :delete]
@@ -46,19 +35,20 @@ module FaradayMiddleware
     # Public: Initialize the middleware.
     #
     # options - An options Hash (default: {}):
-    #           limit - A Numeric redirect limit (default: 3)
-    #           standards_compliant - A Boolean indicating whether to respect
-    #                                 the HTTP spec when following 302
-    #                                 (default: false)
-    #          cookie - Use either an array of strings
-    #                  (e.g. ['cookie1', 'cookie2']) to choose kept cookies
-    #                  or :all to keep all cookies.
+    #           :limit               - A Numeric redirect limit (default: 3)
+    #           :standards_compliant - A Boolean indicating whether to respect
+    #                                  the HTTP spec when following 301/302
+    #                                  (default: false)
+    #           :cookies             - An Array of Strings (e.g.
+    #                                  ['cookie1', 'cookie2']) to choose
+    #                                  cookies to be kept, or :all to keep
+    #                                  all cookies (default: []).
     def initialize(app, options = {})
       super(app)
       @options = options
 
-      @replay_request_codes = Set.new [307]
-      @replay_request_codes << 302 if standards_compliant?
+      @convert_to_get = Set.new [303]
+      @convert_to_get << 301 << 302 unless standards_compliant?
     end
 
     def call(env)
@@ -67,11 +57,9 @@ module FaradayMiddleware
 
     private
 
-    def transform_into_get?(response)
-      return false if [:head, :options].include? response.env[:method]
-      # Never convert head or options to a get. That would just be silly.
-
-      !@replay_request_codes.include? response.status
+    def convert_to_get?(response)
+      ![:head, :options].include?(response.env[:method]) &&
+        @convert_to_get.include?(response.status)
     end
 
     def perform_with_redirection(env, follows)
@@ -95,7 +83,7 @@ module FaradayMiddleware
         env[:request_headers][:cookies] = cookies unless cookies.nil?
       end
 
-      if transform_into_get?(response)
+      if convert_to_get?(response)
         env[:method] = :get
         env[:body] = nil
       else
