@@ -41,7 +41,7 @@ describe FaradayMiddleware::OAuth2 do
     it "creates header for explicit token" do
       request = perform(:q => 'hello', :access_token => 'abc123')
       expect(query_params(request)).to eq('q' => 'hello', 'access_token' => 'abc123')
-      expect(auth_header(request)).to eq(%(Token token="abc123"))
+      expect(auth_header(request)).to eq(%(Bearer abc123))
     end
   end
 
@@ -53,13 +53,13 @@ describe FaradayMiddleware::OAuth2 do
     end
 
     it "adds token header" do
-      expect(auth_header(perform)).to eq(%(Token token="XYZ"))
+      expect(auth_header(perform)).to eq(%(Bearer XYZ))
     end
 
     it "overrides default with explicit token" do
       request = perform(:q => 'hello', :access_token => 'abc123')
       expect(query_params(request)).to eq('q' => 'hello', 'access_token' => 'abc123')
-      expect(auth_header(request)).to eq(%(Token token="abc123"))
+      expect(auth_header(request)).to eq(%(Bearer abc123))
     end
 
     it "clears default with empty explicit token" do
@@ -92,7 +92,7 @@ describe FaradayMiddleware::OAuth2 do
     it "overrides default with explicit token" do
       request = perform(:oauth => 'abc123')
       expect(query_params(request)).to eq('oauth' => 'abc123')
-      expect(auth_header(request)).to eq(%(Token token="abc123"))
+      expect(auth_header(request)).to eq(%(Bearer abc123))
     end
   end
 
