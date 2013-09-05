@@ -15,6 +15,11 @@ describe FaradayMiddleware::ParseDates, :type => :response do
     expect(process({"x" => "2012-02-01T13:14:15Z"}).body["x"].to_s).to eq(parsed)
   end
 
+  it "parses dates with milliseconds" do
+    date_str = "2012-02-01T13:14:15.123Z"
+    expect(process({"x" => date_str}).body["x"]).to eq(Time.parse(date_str))
+  end
+
   it "parses nested dates in hash" do
     expect(process({"x" => {"y" => "2012-02-01T13:14:15Z"}}).body["x"]["y"].to_s).to eq(parsed)
   end
