@@ -1,7 +1,7 @@
 if defined? RUBY_ENGINE and 'ruby' == RUBY_ENGINE and RUBY_VERSION.index('1.9') == 0
-  task :default => [:enable_coverage, :spec, :test, :quality]
+  task :default => [:enable_coverage, :spec, :quality]
 else
-  task :default => [:spec, :test]
+  task :default => [:spec]
 end
 
 require 'bundler'
@@ -12,11 +12,6 @@ RSpec::Core::RakeTask.new(:spec)
 
 task :enable_coverage do
   ENV['COVERAGE'] = 'yes'
-end
-
-desc %(Run Test::Unit tests)
-task :test do
-  sh 'ruby', '-Ilib', 'spec/caching_test.rb'
 end
 
 desc %(Check code quality metrics with Cane)
