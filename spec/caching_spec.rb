@@ -56,6 +56,21 @@ describe FaradayMiddleware::Caching, :type => :response do
     expect(post('/').body).to eq('request:3')
   end
 
+  describe '#cache_key' do
+    let(:options) { { :ignore_params => %w(utm_source) } }
+    let(:app) { FaradayMiddleware::Caching.new(lambda { |env| }, @cache, options) }
+
+    it 'filters out ignored parameters' do
+      url = URI('http://example.com/?utm_source=test')
+      expect(app.cache_key(:url => url)).to eq('/?')
+    end
+
+    it 'passes through parameters that are not ignored' do
+      url = URI('http://example.com/?utm_source=test&foo=bar')
+      expect(app.cache_key(:url => url)).to eq('/?foo=bar')
+    end
+  end
+
   class TestCache < Hash
     def read(key)
       if cached = self[key]
