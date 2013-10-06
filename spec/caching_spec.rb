@@ -16,7 +16,7 @@ describe FaradayMiddleware::Caching do
 
     @conn = Faraday.new do |b|
       b.use CachingLint
-      b.use FaradayMiddleware::Caching, @cache
+      b.use FaradayMiddleware::Caching, @cache, options
       b.adapter :test do |stub|
         stub.get('/', &response)
         stub.get('/?foo=bar', &response)
@@ -25,6 +25,8 @@ describe FaradayMiddleware::Caching do
       end
     end
   end
+
+  let(:options) { {} }
 
   extend Forwardable
   def_delegators :@conn, :get, :post
@@ -54,6 +56,18 @@ describe FaradayMiddleware::Caching do
     expect(post('/').body).to eq('request:1')
     expect(post('/').body).to eq('request:2')
     expect(post('/').body).to eq('request:3')
+  end
+
+  context ":ignore_params" do
+    let(:options) { {:ignore_params => %w[ utm_source utm_term ]} }
+
+    it "strips ignored parameters from cache_key" do
+      expect(get('/').body).to eq('request:1')
+      expect(get('/?utm_source=a').body).to eq('request:1')
+      expect(get('/?utm_source=a&utm_term=b').body).to eq('request:1')
+      expect(get('/?utm_source=a&utm_term=b&foo=bar').body).to eq('request:2')
+      expect(get('/?foo=bar').body).to eq('request:2')
+    end
   end
 
   class TestCache < Hash
