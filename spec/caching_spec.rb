@@ -71,6 +71,38 @@ describe FaradayMiddleware::Caching, :type => :response do
     end
   end
 
+  context 'parallel requests' do
+    before do
+      @cache = TestCache.new
+      request_count = 0
+      response = lambda { |env|
+        [200, {'Content-Type' => 'text/plain'}, "request:#{request_count+=1}"]
+      }
+      @manager = ParallelManager.new
+      @conn = Faraday.new :parallel_manager => @manager do |b|
+        b.use CachingLint
+        b.use FaradayMiddleware::Caching, @cache
+        b.adapter :parallel do |stub|
+          stub.get('/', &response)
+        end
+      end
+    end
+
+    extend Forwardable
+    def_delegators :@conn, :get, :post
+
+    it 'caches parallel requests' do
+      @conn.in_parallel do
+        3.times { @conn.get('/') }
+      end
+
+      responses = @manager.run!
+      responses.each do |response|
+        expect(response.body).to eq('request:1')
+      end
+    end
+  end
+
   class TestCache < Hash
     def read(key)
       if cached = self[key]
@@ -95,6 +127,47 @@ describe FaradayMiddleware::Caching, :type => :response do
         raise "env not identical" unless env[:response].env.object_id == env.object_id
       end
     end
+  end
+
+  class ParallelManager
+    def initialize
+      @queue = []
+    end
+
+    def add(env, &block)
+      @queue << { :env => env, :block => block }
+    end
+
+    def run ; end # noop
+
+    def run!
+      @queue.map do |q|
+        status, headers, body = q[:block].call(q[:env])
+        Faraday::Response.new(:status => status, :headers => headers, :body => body)
+      end
+    end
+  end
+
+  class Faraday::Adapter
+    class Parallel < Faraday::Adapter
+      self.supports_parallel = true
+
+      def initialize(*args)
+        super
+        yield self if block_given?
+      end
+
+      def get(path, &block)
+        @response_callback = block
+      end
+
+      def call(env)
+        env[:parallel_manager].add(env, &@response_callback)
+        @app.call(env)
+      end
+    end
+
+    register_middleware :parallel => :Parallel
   end
 
   # RackCompatible + Rack::Cache
