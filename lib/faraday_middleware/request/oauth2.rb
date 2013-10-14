@@ -32,7 +32,7 @@ module FaradayMiddleware
     def call(env)
       params = { param_name => @token }.update query_params(env[:url])
 
-      if token = params[param_name] and !token.empty?
+      if token = params[param_name] and !token.to_s.empty?
         env[:url].query = build_query params
         env[:request_headers][AUTH_HEADER] ||= %(Token token="#{token}")
       end
