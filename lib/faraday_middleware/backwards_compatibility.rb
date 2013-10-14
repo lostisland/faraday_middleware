@@ -13,3 +13,11 @@ Faraday::Response.class_eval do
   autoload :ParseMarshal, 'faraday_middleware/response/parse_marshal'
   autoload :ParseYaml,    'faraday_middleware/response/parse_yaml'
 end
+
+class Faraday::RequestOptions
+  attr_accessor :preserve_raw
+end
+
+class Faraday::Env
+  attr_accessor :raw_body
+end

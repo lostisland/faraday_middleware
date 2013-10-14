@@ -24,12 +24,12 @@ describe FaradayMiddleware::ParseJson, :type => :response do
     it "parses json body" do
       response = process('{"a":1}')
       expect(response.body).to eq('a' => 1)
-      expect(response.env[:raw_body]).to eq('{"a":1}')
+      expect(response.env.raw_body).to eq('{"a":1}')
     end
 
     it "can opt out of preserving raw" do
       response = process('{"a":1}', nil, :preserve_raw => false)
-      expect(response.env[:raw_body]).to be_nil
+      expect(response.env.raw_body).to be_nil
     end
   end
 
