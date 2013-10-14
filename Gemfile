@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'faraday', :git => 'https://github.com/lostisland/faraday'
 gem 'jruby-openssl', :platforms => :jruby
 gem 'json', :platforms => [:jruby, :ruby_18]
 gem 'multi_xml', '>= 0.5.3'
