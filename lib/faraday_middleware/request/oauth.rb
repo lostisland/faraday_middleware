@@ -72,7 +72,7 @@ module FaradayMiddleware
     end
 
     def include_body_params?(env)
-      # see RFC 5489, section 3.4.1.3.1 for details
+      # see RFC 5849, section 3.4.1.3.1 for details
       !(type = env[:request_headers][CONTENT_TYPE]) or type == TYPE_URLENCODED
     end
 
