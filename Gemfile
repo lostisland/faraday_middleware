@@ -15,4 +15,10 @@ group :test do
   gem 'simplecov'
 end
 
+platforms :rbx do
+  gem 'rubysl-base64', '~> 2.0'
+  gem 'rubysl-json', '~> 2.0'
+  gem 'rubysl-singleton', '~> 2.0'
+end
+
 gemspec
