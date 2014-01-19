@@ -35,8 +35,8 @@ module FaradayMiddleware
     end
 
     def process_response(env)
-      env[:raw_body] = env[:body] if preserve_raw?(env)
-      env[:body] = parse(env[:body])
+      env.raw_body = env.body if preserve_raw?(env)
+      env.body = parse(env.body)
     end
 
     # Parse the response body.
@@ -56,7 +56,7 @@ module FaradayMiddleware
     end
 
     def response_type(env)
-      type = env[:response_headers][CONTENT_TYPE].to_s
+      type = env.response_headers[CONTENT_TYPE].to_s
       type = type.split(';', 2).first if type.index(';')
       type
     end
@@ -68,11 +68,13 @@ module FaradayMiddleware
     end
 
     def parse_response?(env)
-      env[:body].respond_to? :to_str
+      env.body.respond_to? :to_str
     end
 
     def preserve_raw?(env)
-      env[:request].fetch(:preserve_raw, @options[:preserve_raw])
+      env.request.preserve_raw.nil? ?
+        @options[:preserve_raw] :
+        env.request.preserve_raw
     end
   end
 end

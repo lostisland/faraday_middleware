@@ -17,6 +17,9 @@ if ENV['COVERAGE']
 end
 
 require 'rspec'
+require 'faraday'
+require 'faraday/adapter/test'
+require 'faraday_middleware/backwards_compatibility'
 
 module ResponseMiddlewareExampleGroup
   def self.included(base)

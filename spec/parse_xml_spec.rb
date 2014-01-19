@@ -27,12 +27,12 @@ describe FaradayMiddleware::ParseXml, :type => :response do
     it "parses xml body" do
       response = process(xml)
       expect(response.body).to eq(user)
-      expect(response.env[:raw_body]).to eq(xml)
+      expect(response.env.raw_body).to eq(xml)
     end
 
     it "can opt out of preserving raw" do
       response = process(xml, nil, :preserve_raw => false)
-      expect(response.env[:raw_body]).to be_nil
+      expect(response.env.raw_body).to be_nil
     end
   end
 

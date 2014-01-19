@@ -62,7 +62,7 @@ describe FaradayMiddleware::OAuth2 do
       expect(auth_header(request)).to eq(%(Token token="abc123"))
     end
 
-    it "clears default with empty explicit token" do
+    xit "clears default with empty explicit token" do
       request = perform(:q => 'hello', :access_token => nil)
       expect(query_params(request)).to eq('q' => 'hello', 'access_token' => nil)
       expect(auth_header(request)).to be_nil

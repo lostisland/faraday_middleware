@@ -14,40 +14,40 @@ describe FaradayMiddleware::Mashify do
     let(:mashify) { described_class.new }
 
     it "creates a Hashie::Mash from the body" do
-      env = { :body => { "name" => "Erik Michaels-Ober", "username" => "sferik" } }
+      env = env_from_body("name" => "Erik Michaels-Ober", "username" => "sferik")
       me  = mashify.on_complete(env)
       expect(me.class).to eq(Hashie::Mash)
     end
 
     it "handles strings" do
-      env = { :body => "Most amazing string EVER" }
+      env = env_from_body("Most amazing string EVER")
       me  = mashify.on_complete(env)
       expect(me).to eq("Most amazing string EVER")
     end
 
     it "handles arrays" do
-      env = { :body => [123, 456] }
+      env = env_from_body([123, 456])
       values = mashify.on_complete(env)
       expect(values.first).to eq(123)
       expect(values.last).to eq(456)
     end
 
     it "handles arrays of hashes" do
-      env = { :body => [{ "username" => "sferik" }, { "username" => "pengwynn" }] }
+      env = env_from_body([{ "username" => "sferik" }, { "username" => "pengwynn" }])
       us  = mashify.on_complete(env)
       expect(us.first.username).to eq('sferik')
       expect(us.last.username).to eq('pengwynn')
     end
 
     it "handles nested arrays of hashes" do
-      env = { :body => [[{ "username" => "sferik" }, { "username" => "pengwynn" }]] }
+      env = env_from_body([[{ "username" => "sferik" }, { "username" => "pengwynn" }]])
       us  = mashify.on_complete(env)
       expect(us.first.first.username).to eq('sferik')
       expect(us.first.last.username).to eq('pengwynn')
     end
 
     it "handles mixed arrays" do
-      env = { :body => [123, { "username" => "sferik" }, 456] }
+      env = env_from_body([123, { "username" => "sferik" }, 456])
       values = mashify.on_complete(env)
       expect(values.first).to eq(123)
       expect(values.last).to eq(456)
@@ -58,7 +58,7 @@ describe FaradayMiddleware::Mashify do
       class MyMash < ::Hashie::Mash; end
       described_class.mash_class = MyMash
 
-      env = { :body => { "name" => "Erik Michaels-Ober", "username" => "sferik" } }
+      env = env_from_body("name" => "Erik Michaels-Ober", "username" => "sferik")
       me  = mashify.on_complete(env)
 
       expect(me.class).to eq(MyMash)
@@ -68,10 +68,14 @@ describe FaradayMiddleware::Mashify do
       class MyMash < ::Hashie::Mash; end
       mashify = described_class.new(nil, :mash_class => MyMash)
 
-      env = { :body => { "name" => "Erik Michaels-Ober", "username" => "sferik" } }
+      env = env_from_body("name" => "Erik Michaels-Ober", "username" => "sferik")
       me  = mashify.on_complete(env)
 
       expect(me.class).to eq(MyMash)
+    end
+
+    def env_from_body(body)
+      Faraday::Env.new(:get, body)
     end
   end
 
