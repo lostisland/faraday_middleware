@@ -27,3 +27,6 @@ pkg
 
 # Rubinius
 *.rbc
+
+# RubyMine
+.idea
