@@ -166,7 +166,7 @@ describe FaradayMiddleware::FollowRedirects do
     end
   end
 
-  context "when clear_authorization_header option is enabled" do
+  context "when clear_authorization_header option" do
     context "is false" do
       it "redirects with the original authorization headers" do
         conn = connection(:clear_authorization_header => false) do |stub|
@@ -188,7 +188,7 @@ describe FaradayMiddleware::FollowRedirects do
 
     context "is true" do
       it "redirects without original authorization headers" do
-        conn = connection(:clear_authorization_header => false) do |stub|
+        conn = connection(:clear_authorization_header => true) do |stub|
           stub.get('/redirect') {
             [301, {'Location' => '/found'}, '']
           }
