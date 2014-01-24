@@ -166,6 +166,46 @@ describe FaradayMiddleware::FollowRedirects do
     end
   end
 
+  context "when clear_authorization_header option" do
+    context "is false" do
+      it "redirects with the original authorization headers" do
+        conn = connection(:clear_authorization_header => false) do |stub|
+          stub.get('/redirect') {
+            [301, {'Location' => '/found'}, '']
+          }
+          stub.get('/found') { |env|
+            [200, {'Content-Type' => 'text/plain'}, env[:request_headers]['Authorization']]
+          }
+        end
+
+        response = conn.get('/redirect') { |req|
+          req.headers['Authorization'] = 'success'
+        }
+
+        expect(response.body).to eq('success')
+      end
+    end
+
+    context "is true" do
+      it "redirects without original authorization headers" do
+        conn = connection(:clear_authorization_header => true) do |stub|
+          stub.get('/redirect') {
+            [301, {'Location' => '/found'}, '']
+          }
+          stub.get('/found') { |env|
+            [200, {'Content-Type' => 'text/plain'}, env[:request_headers]['Authorization']]
+          }
+        end
+
+        response = conn.get('/redirect') { |req|
+          req.headers['Authorization'] = 'failed'
+        }
+
+        expect(response.body).to be_nil
+      end
+    end
+  end
+
   [301, 302].each do |code|
     context "for an HTTP #{code} response" do
       it_behaves_like 'a successful redirection', code

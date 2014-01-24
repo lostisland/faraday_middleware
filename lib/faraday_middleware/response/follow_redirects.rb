@@ -32,17 +32,22 @@ module FaradayMiddleware
     # Default value for max redirects followed
     FOLLOW_LIMIT = 3
 
+    AUTH_HEADER = 'Authorization'.freeze
+
     # Public: Initialize the middleware.
     #
     # options - An options Hash (default: {}):
-    #           :limit               - A Numeric redirect limit (default: 3)
-    #           :standards_compliant - A Boolean indicating whether to respect
+    #     :limit                      - A Numeric redirect limit (default: 3)
+    #     :standards_compliant        - A Boolean indicating whether to respect
     #                                  the HTTP spec when following 301/302
     #                                  (default: false)
-    #           :cookies             - An Array of Strings (e.g.
+    #     :cookies                    - An Array of Strings (e.g.
     #                                  ['cookie1', 'cookie2']) to choose
     #                                  cookies to be kept, or :all to keep
     #                                  all cookies (default: []).
+    #     :clear_authorization_header - A Boolean indicating whether the request
+    #                                 Authorization header should be cleared on
+    #                                 redirects (default: false)
     def initialize(app, options = {})
       super(app)
       @options = options
@@ -90,6 +95,8 @@ module FaradayMiddleware
         env[:body] = request_body
       end
 
+      env[:request_headers].delete(AUTH_HEADER) if clear_authorization_header?
+
       ENV_TO_CLEAR.each {|key| env.delete key }
 
       env
@@ -125,6 +132,10 @@ module FaradayMiddleware
 
     def standards_compliant?
       @options.fetch(:standards_compliant, false)
+    end
+
+    def clear_authorization_header?
+      @options.fetch(:clear_authorization_header, false)
     end
   end
 end
