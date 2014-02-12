@@ -15,9 +15,4 @@ group :test do
   gem 'simplecov'
 end
 
-platforms :rbx do
-  gem 'rubinius-coverage', '~> 2.0'
-  gem 'rubysl', '~> 2.0'
-end
-
 gemspec
