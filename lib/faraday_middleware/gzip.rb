@@ -21,9 +21,7 @@ module FaradayMiddleware
         if %w[gzip deflate].include?(encoding)
           case encoding
           when 'gzip'
-            args = [StringIO.new(env[:body])]
-            args.push(:encoding => 'ASCII-8BIT') if '1.9'.respond_to?(:force_encoding)
-            env[:body] = Zlib::GzipReader.new(*args).read
+            env[:body] = uncompress_gzip(StringIO.new(env[:body]))
           when 'deflate'
             env[:body] = Zlib::Inflate.inflate(env[:body])
           end
@@ -33,5 +31,14 @@ module FaradayMiddleware
       end
     end
 
+    private
+    def uncompress_gzip(body)
+      gzip_reader = if '1.9'.respond_to?(:force_encoding)
+        Zlib::GzipReader.new(body, :encoding => 'ASCII-8BIT')
+      else
+        Zlib::GzipReader.new(body)
+      end
+      gzip_reader.read
+    end
   end
 end
