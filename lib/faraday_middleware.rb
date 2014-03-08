@@ -17,6 +17,7 @@ module FaradayMiddleware
   autoload :RackCompatible,  'faraday_middleware/rack_compatible'
   autoload :FollowRedirects, 'faraday_middleware/response/follow_redirects'
   autoload :Instrumentation, 'faraday_middleware/instrumentation'
+  autoload :Gzip, 'faraday_middleware/gzip'
 
   if Faraday.respond_to? :register_middleware
     Faraday.register_middleware :request,
@@ -39,7 +40,8 @@ module FaradayMiddleware
       :chunked => lambda { Chunked }
 
     Faraday.register_middleware \
-      :instrumentation  => lambda { Instrumentation }
+      :instrumentation  => lambda { Instrumentation },
+      :gzip => lambda { Gzip }
   end
 end
 
