@@ -1,44 +1,54 @@
 require 'faraday'
 
 module FaradayMiddleware
-  # A middleware that ensures that the client requests are sent with the
-  # headers that encourage servers to send compressed data, and then uncompresses it.
-  # The Content-Length will reflect the actual body length.
+  # Middleware to automatically decompress response bodies. If the
+  # "Accept-Encoding" header wasn't set in the request, this sets it to
+  # "gzip,deflate" and appropriately handles the compressed response from the
+  # server. This resembles what Ruby 1.9+ does internally in Net::HTTP#get.
+  #
+  # This middleware is NOT necessary when these adapters are used:
+  # - net_http on Ruby 1.9+
+  # - net_http_persistent on Ruby 2.0+
+  # - em_http
   class Gzip < Faraday::Middleware
     dependency 'zlib'
 
     ACCEPT_ENCODING = 'Accept-Encoding'.freeze
-    ENCODINGS = 'gzip,deflate'.freeze
-
-    def initialize(app, options = nil)
-      @app = app
-    end
+    CONTENT_ENCODING = 'Content-Encoding'.freeze
+    CONTENT_LENGTH = 'Content-Length'.freeze
+    SUPPORTED_ENCODINGS = 'gzip,deflate'.freeze
+    RUBY_ENCODING = '1.9'.respond_to?(:force_encoding)
 
     def call(env)
-      (env[:request_headers] ||= {})[ACCEPT_ENCODING] = ENCODINGS
+      env[:request_headers][ACCEPT_ENCODING] ||= SUPPORTED_ENCODINGS
       @app.call(env).on_complete do |env|
-        encoding = env[:response_headers]['content-encoding'].to_s.downcase
-        if %w[gzip deflate].include?(encoding)
-          case encoding
-          when 'gzip'
-            env[:body] = uncompress_gzip(env[:body])
-          when 'deflate'
-            env[:body] = Zlib::Inflate.inflate(env[:body])
-          end
-          env[:response_headers].delete('content-encoding')
-          env[:response_headers]['content-length'] = env[:body].length
+        case env[:response_headers][CONTENT_ENCODING]
+        when 'gzip'
+          reset_body(env, &method(:uncompress_gzip))
+        when 'deflate'
+          reset_body(env, &method(:inflate))
         end
       end
     end
 
+    def reset_body(env)
+      env[:body] = yield(env[:body])
+      env[:response_headers].delete(CONTENT_ENCODING)
+      env[:response_headers][CONTENT_LENGTH] = env[:body].length
+    end
+
     def uncompress_gzip(body)
       io = StringIO.new(body)
-      gzip_reader = if '1.9'.respond_to?(:force_encoding)
+      gzip_reader = if RUBY_ENCODING
         Zlib::GzipReader.new(io, :encoding => 'ASCII-8BIT')
       else
         Zlib::GzipReader.new(io)
       end
       gzip_reader.read
+    end
+
+    def inflate(body)
+      Zlib::Inflate.inflate(body)
     end
   end
 end

@@ -1,23 +1,43 @@
 require 'helper'
 require 'faraday_middleware/gzip'
 
-describe FaradayMiddleware::Gzip do
+describe FaradayMiddleware::Gzip, :type => :response do
+
+  let(:middleware) {
+    described_class.new(lambda { |env|
+      Faraday::Response.new(env)
+    })
+  }
 
   context 'request' do
-    let(:middleware) { described_class.new(lambda {|env| Faraday::Response.new(env)}) }
+    it 'sets the Accept-Encoding request header' do
+      env = process('').env
+      expect(env[:request_headers][:accept_encoding]).to eq('gzip,deflate')
+    end
 
-    it 'sets the Accept-Encoding header' do
-      headers = Faraday::Utils::Headers.new
-      env = {:body => nil, :request_headers => headers, :response_headers => Faraday::Utils::Headers.new}
-      expect { middleware.call(env) }.to change {
-        headers['Accept-Encoding']
-      }.to('gzip,deflate')
+    it 'doesnt overwrite existing Accept-Encoding request header' do
+      env = process('') { |env|
+        env[:request_headers][:accept_encoding] = 'zopfli'
+      }.env
+      expect(env[:request_headers][:accept_encoding]).to eq('zopfli')
     end
   end
 
-  context 'response', :type => :response do
+  context 'response' do
     let(:uncompressed_body) {
       "<html><head><title>Rspec</title></head><body>Hello, spec!</body></html>"
+    }
+    let(:gzipped_body) {
+      io = StringIO.new
+      gz = Zlib::GzipWriter.new(io)
+      gz.write(uncompressed_body)
+      gz.close
+      res = io.string
+      res.force_encoding('BINARY') if res.respond_to?(:force_encoding)
+      res
+    }
+    let(:deflated_body) {
+      Zlib::Deflate.deflate(uncompressed_body)
     }
 
     shared_examples 'compressed response' do
@@ -35,22 +55,14 @@ describe FaradayMiddleware::Gzip do
     end
 
     context 'gzipped response' do
-      let(:body) do
-        f = StringIO.new
-        gz = Zlib::GzipWriter.new(f)
-        gz.write(uncompressed_body)
-        gz.close
-        res = f.string
-        res.force_encoding('BINARY') if res.respond_to?(:force_encoding)
-        res
-      end
+      let(:body) { gzipped_body }
       let(:headers) { {'Content-Encoding' => 'gzip', 'Content-Length' => body.length} }
 
       it_behaves_like 'compressed response'
     end
 
     context 'deflated response' do
-      let(:body) { Zlib::Deflate.deflate(uncompressed_body) }
+      let(:body) { deflated_body }
       let(:headers) { {'Content-Encoding' => 'deflate', 'Content-Length' => body.length} }
 
       it_behaves_like 'compressed response'
