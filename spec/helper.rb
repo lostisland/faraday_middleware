@@ -32,9 +32,11 @@ module ResponseMiddlewareExampleGroup
   def process(body, content_type = nil, options = {})
     env = {
       :body => body, :request => options,
+      :request_headers => Faraday::Utils::Headers.new,
       :response_headers => Faraday::Utils::Headers.new(headers)
     }
     env[:response_headers]['content-type'] = content_type if content_type
+    yield(env) if block_given?
     middleware.call(env)
   end
 end
