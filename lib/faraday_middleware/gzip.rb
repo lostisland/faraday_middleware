@@ -31,7 +31,6 @@ module FaradayMiddleware
       end
     end
 
-    private
     def uncompress_gzip(body)
       io = StringIO.new(body)
       gzip_reader = if '1.9'.respond_to?(:force_encoding)
