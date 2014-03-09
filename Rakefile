@@ -1,4 +1,7 @@
-if defined? RUBY_ENGINE and 'ruby' == RUBY_ENGINE and RUBY_VERSION.index('1.9') == 0
+ruby_19 = RUBY_VERSION > '1.9'
+ruby_mri = !defined?(RUBY_ENGINE) || 'ruby' == RUBY_ENGINE
+
+if ruby_19 && ruby_mri
   task :default => [:enable_coverage, :spec, :quality]
 else
   task :default => [:spec]
