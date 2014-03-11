@@ -14,6 +14,11 @@ describe FaradayMiddleware::FollowRedirects do
         stub.get('/permanent') { [status_code, {'Location' => '/found'}, ''] }
         stub.get('/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
       end.get('/permanent').body).to eq 'fin'
+
+      expect(connection do |stub|
+        stub.get('/permanent') { [status_code, {'Location' => '/found?action_type_map=["og.likes"]'}, ''] }
+        stub.get('/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
+      end.get('/permanent').body).to eq 'fin'
     end
 
     it "follows the redirection for a HEAD request" do
@@ -21,11 +26,21 @@ describe FaradayMiddleware::FollowRedirects do
                stub.head('/permanent') { [status_code, {'Location' => '/found'}, ''] }
                stub.head('/found') { [200, {'Content-Type' => 'text/plain'}, ''] }
              end.head('/permanent').status).to eq 200
+
+      expect(connection do |stub|
+               stub.head('/permanent') { [status_code, {'Location' => '/found?action_type_map=["og.likes"]'}, ''] }
+               stub.head('/found') { [200, {'Content-Type' => 'text/plain'}, ''] }
+             end.head('/permanent').status).to eq 200
     end
 
     it "follows the redirection for a OPTIONS request" do
       expect(connection do |stub|
                stub.new_stub(:options, '/permanent') { [status_code, {'Location' => '/found'}, ''] }
+               stub.new_stub(:options, '/found') { [200, {'Content-Type' => 'text/plain'}, ''] }
+             end.run_request(:options, '/permanent', nil, nil).status).to eq 200
+
+      expect(connection do |stub|
+               stub.new_stub(:options, '/permanent') { [status_code, {'Location' => '/found?action_type_map=["og.likes"]'}, ''] }
                stub.new_stub(:options, '/found') { [200, {'Content-Type' => 'text/plain'}, ''] }
              end.run_request(:options, '/permanent', nil, nil).status).to eq 200
     end

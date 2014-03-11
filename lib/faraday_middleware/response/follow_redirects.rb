@@ -77,7 +77,7 @@ module FaradayMiddleware
     end
 
     def update_env(env, request_body, response)
-      env[:url] += response['location']
+      env[:url] += URI.encode(response['location'])
       if @options[:cookies]
         cookies = keep_cookies(env)
         env[:request_headers][:cookies] = cookies unless cookies.nil?
