@@ -85,7 +85,7 @@ describe FaradayMiddleware::MethodOverride do
     let(:request_method) { :get }
 
     it "raises key error" do
-      expect{ env }.to raise_error(IndexError, /key not found/)
+      expect{ env }.to raise_error(IndexError, /key [\s\w]*not found/)
     end
   end
 
