@@ -40,7 +40,7 @@ module FaradayMiddleware
           :chunked => lambda { Chunked }
       },
       :both => {
-        :instrumentation  => lambda { Instrumentation }
+        :instrumentation  => lambda { Instrumentation },
         :gzip => lambda { Gzip }
       }
   }
