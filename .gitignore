@@ -23,7 +23,7 @@ tmp
 # Bundler
 *.gem
 .bundle
-Gemfile.lock
+Gemfile*.lock
 pkg
 *.gem
 
