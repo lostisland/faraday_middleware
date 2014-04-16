@@ -11,6 +11,8 @@ tmtags
 *.swp
 
 # General
+.ruby-version
+bin
 coverage
 rdoc
 doc
