@@ -12,6 +12,7 @@ rvm:
 gemfile:
   - Gemfile
   - Gemfile-0.7
+  - Gemfile-0.8
 matrix:
   allow_failures:
     - rvm: jruby-head
