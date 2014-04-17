@@ -64,7 +64,7 @@ describe FaradayMiddleware::OAuth2 do
 
     it "clears default with empty explicit token" do
       request = perform(:q => 'hello', :access_token => nil)
-      expect(query_params(request)).to eq('q' => 'hello', 'access_token' => nil)
+      expect(query_params(request).fetch('access_token')).to_not eq('XYZ')
       expect(auth_header(request)).to be_nil
     end
   end
