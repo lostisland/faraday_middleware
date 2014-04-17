@@ -75,4 +75,36 @@ module FaradayMiddleware
       env[:request].fetch(:preserve_raw, @options[:preserve_raw])
     end
   end
+
+  # DRAGONS
+  module OptionsExtension
+    attr_accessor :preserve_raw
+
+    def to_hash
+      super.update(:preserve_raw => preserve_raw)
+    end
+
+    def each
+      return to_enum(:each) unless block_given?
+      super
+      yield :preserve_raw, preserve_raw
+    end
+
+    def fetch(key, *args)
+      if :preserve_raw == key
+        value = __send__(key)
+        value.nil? ? args.fetch(0) : value
+      else
+        super
+      end
+    end
+  end
+
+  if defined?(Faraday::RequestOptions)
+    begin
+      Faraday::RequestOptions.from(:preserve_raw => true)
+    rescue NoMethodError
+      Faraday::RequestOptions.send(:include, OptionsExtension)
+    end
+  end
 end
