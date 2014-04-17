@@ -46,6 +46,7 @@ module ResponseMiddlewareExampleGroup
       :response_headers => Faraday::Utils::Headers.new(headers)
     }
     env[:response_headers]['content-type'] = content_type if content_type
+    yield(env) if block_given?
     middleware.call(faraday_env(env))
   end
 end
