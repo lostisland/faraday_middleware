@@ -19,7 +19,7 @@ describe FaradayMiddleware::OAuth2 do
       :request_headers => Faraday::Utils::Headers.new.update(headers)
     }
     app = make_app
-    app.call(env)
+    app.call(faraday_env(env))
   end
 
   def make_app

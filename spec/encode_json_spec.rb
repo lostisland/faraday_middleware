@@ -7,7 +7,7 @@ describe FaradayMiddleware::EncodeJson do
   def process(body, content_type = nil)
     env = {:body => body, :request_headers => Faraday::Utils::Headers.new}
     env[:request_headers]['content-type'] = content_type if content_type
-    middleware.call(env)
+    middleware.call(faraday_env(env))
   end
 
   def result_body() result[:body] end
