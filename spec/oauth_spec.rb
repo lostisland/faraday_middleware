@@ -26,7 +26,7 @@ describe FaradayMiddleware::OAuth do
       env[:request][:oauth] = oauth_options
     end
     app = make_app
-    app.call(env)
+    app.call(faraday_env(env))
   end
 
   def make_app

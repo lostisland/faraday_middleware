@@ -213,6 +213,9 @@ describe FaradayMiddleware::FollowRedirects do
       if env[:status] or env[:response] or env[:response_headers]
         raise "invalid request: #{env.inspect}"
       end
+      if defined?(Faraday::Env) && !env.is_a?(Faraday::Env)
+        raise "expected Faraday::Env, got #{env.class}"
+      end
       app.call(env)
     end
   end
