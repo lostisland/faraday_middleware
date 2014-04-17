@@ -5,7 +5,7 @@ if ENV['COVERAGE']
     def format(result)
       SimpleCov::Formatter::HTMLFormatter.new.format(result) unless ENV['CI']
       File.open('coverage/covered_percent', 'w') do |f|
-        f.puts result.source_files.covered_percent.to_i
+        f.printf "%.2f", result.source_files.covered_percent
       end
     end
   end
