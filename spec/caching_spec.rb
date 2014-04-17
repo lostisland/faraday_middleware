@@ -165,4 +165,4 @@ describe FaradayMiddleware::RackCompatible, 'caching' do
       response
     end
   end
-end unless defined? RUBY_ENGINE and "rbx" == RUBY_ENGINE # rbx bug #1522
+end
