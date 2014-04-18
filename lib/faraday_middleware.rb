@@ -18,14 +18,14 @@ module FaradayMiddleware
   autoload :FollowRedirects, 'faraday_middleware/response/follow_redirects'
   autoload :Instrumentation, 'faraday_middleware/instrumentation'
 
-  if Faraday.respond_to? :register_middleware
-    Faraday.register_middleware :request,
+  if Faraday::Middleware.respond_to? :register_middleware
+    Faraday::Request.register_middleware \
       :oauth    => lambda { OAuth },
       :oauth2   => lambda { OAuth2 },
       :json     => lambda { EncodeJson },
       :method_override => lambda { MethodOverride }
 
-    Faraday.register_middleware :response,
+    Faraday::Response.register_middleware \
       :mashify  => lambda { Mashify },
       :rashify  => lambda { Rashify },
       :json     => lambda { ParseJson },
@@ -38,7 +38,7 @@ module FaradayMiddleware
       :follow_redirects => lambda { FollowRedirects },
       :chunked => lambda { Chunked }
 
-    Faraday.register_middleware \
+    Faraday::Middleware.register_middleware \
       :instrumentation  => lambda { Instrumentation }
   end
 end
