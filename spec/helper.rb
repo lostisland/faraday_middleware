@@ -17,6 +17,17 @@ if ENV['COVERAGE']
 end
 
 require 'rspec'
+require 'faraday'
+
+module EnvCompatibility
+  def faraday_env(env)
+    if defined?(Faraday::Env)
+      Faraday::Env.from(env)
+    else
+      env
+    end
+  end
+end
 
 module ResponseMiddlewareExampleGroup
   def self.included(base)
@@ -37,11 +48,12 @@ module ResponseMiddlewareExampleGroup
     }
     env[:response_headers]['content-type'] = content_type if content_type
     yield(env) if block_given?
-    middleware.call(env)
+    middleware.call(faraday_env(env))
   end
 end
 
 RSpec.configure do |config|
+  config.include EnvCompatibility
   config.include ResponseMiddlewareExampleGroup, :type => :response
   config.expect_with :rspec do |c|
     c.syntax = :expect
