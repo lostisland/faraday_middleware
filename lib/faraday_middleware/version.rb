@@ -1,3 +1,3 @@
 module FaradayMiddleware
-  VERSION = "0.9.0" unless defined?(FaradayMiddleware::VERSION)
+  VERSION = "0.9.1" unless defined?(FaradayMiddleware::VERSION)
 end
