@@ -106,7 +106,7 @@ module FaradayMiddleware
 
     def keep_cookies(env)
       cookies = @options.fetch(:cookies, [])
-      response_cookies = env[:response_headers][:cookies]
+      response_cookies = override_existing_cookies(env[:response_headers][:cookies])
       cookies == :all ? response_cookies : selected_request_cookies(response_cookies)
     end
 
@@ -120,6 +120,28 @@ module FaradayMiddleware
           string = /#{cookie}=?[^;]*/.match(cookies)[0] + ';'
           cookie_string << string
         end
+      end
+    end
+
+    def override_existing_cookies new_cookies
+      @existing_cookies = if @existing_cookies
+        parsed_existing_cookies = parse_cookies_string @existing_cookies
+        parsed_new_cookies = parse_cookies_string new_cookies
+
+        cookies = []
+        parsed_existing_cookies.merge(parsed_new_cookies).each_pair do |name, value|
+          cookies << "#{name}=#{value}"
+        end
+        cookies.join "; "
+      else
+        new_cookies
+      end
+    end
+
+    def parse_cookies_string cookies
+      cookies.split("; ").each_with_object({}) do |cookie, parsed_cookies|
+        cookie_split = cookie.split "="
+        parsed_cookies[cookie_split[0]] = cookie_split[1]
       end
     end
 

@@ -8,7 +8,7 @@ describe FaradayMiddleware::ParseYaml, :type => :response do
     end
 
     it "returns false for empty body" do
-      expect(process('').body).to be_false
+      expect(process('').body).to eq(false)
     end
 
     it "parses yaml body" do
