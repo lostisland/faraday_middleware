@@ -139,10 +139,12 @@ module FaradayMiddleware
     end
 
     def parse_cookies_string cookies
-      cookies.split("; ").each_with_object({}) do |cookie, parsed_cookies|
+      parsed_cookies = {}
+      cookies.split("; ").each do |cookie|
         cookie_split = cookie.split "="
         parsed_cookies[cookie_split[0]] = cookie_split[1]
       end
+      parsed_cookies
     end
 
     def standards_compliant?
