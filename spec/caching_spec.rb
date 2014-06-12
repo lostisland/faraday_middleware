@@ -144,7 +144,7 @@ describe FaradayMiddleware::RackCompatible, 'caching' do
     expect(response.body).to eq('request:1')
     expect(response['content-type']).to eq('text/plain')
     expect(response.env[:method]).to eq(:get)
-    expect(response.env[:request].respond_to?(:fetch)).to be_true
+    expect(response.env[:request].respond_to?(:fetch)).to eq(true)
     expect(response.status). to eq(200)
 
     expect(post('/').body).to eq('request:2')

@@ -139,6 +139,8 @@ describe FaradayMiddleware::FollowRedirects do
   context "when cookies option" do
 
     let(:cookies) { 'cookie1=abcdefg; cookie2=1234567; cookie3=awesome' }
+    let(:more_cookies) { 'cookie4=cool; cookie5=great' }
+    let(:all_cookies) { "#{cookies}; #{more_cookies}" }
 
     context "is :all" do
       it "puts all cookies from the response into the next request" do
@@ -154,12 +156,28 @@ describe FaradayMiddleware::FollowRedirects do
           stub.get('/found')      { [200, {'Content-Type' => 'text/plain'}, ''] }
         end.get('/').env[:request_headers].has_key?('Cookies')).to eq(false)
       end
+
+      it "incrementally passes cookies from previous requests" do
+        expect(connection(:cookies => :all) do |stub|
+          stub.get('/')           { [301, {'Location' => '/passthru', 'Cookies' => cookies}, ''] }
+          stub.get('/passthru')   { [301, {'Location' => '/found', 'Cookies' => more_cookies}, ''] }
+          stub.get('/found')      { [200, {'Content-Type' => 'text/plain'}, ''] }
+        end.get('/').env[:request_headers][:cookies]).to eq(all_cookies)
+      end
     end
 
     context "is an array of cookie names" do
       it "puts selected cookies from the response into the next request" do
         expect(connection(:cookies => ['cookie2']) do |stub|
           stub.get('/')           { [301, {'Location' => '/found', 'Cookies' => cookies }, ''] }
+          stub.get('/found')      { [200, {'Content-Type' => 'text/plain'}, ''] }
+        end.get('/').env[:request_headers][:cookies]).to eq('cookie2=1234567')
+      end
+
+      it "incrementally passes the selected cookies from previous requests" do
+        expect(connection(:cookies => ['cookie2']) do |stub|
+          stub.get('/')           { [301, {'Location' => '/passthru', 'Cookies' => cookies}, ''] }
+          stub.get('/passthru')   { [301, {'Location' => '/found', 'Cookies' => more_cookies}, ''] }
           stub.get('/found')      { [200, {'Content-Type' => 'text/plain'}, ''] }
         end.get('/').env[:request_headers][:cookies]).to eq('cookie2=1234567')
       end
