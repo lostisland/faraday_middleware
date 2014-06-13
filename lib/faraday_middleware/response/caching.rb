@@ -7,6 +7,15 @@ module FaradayMiddleware
   # Public: Caches GET responses and pulls subsequent ones from the cache.
   class Caching < Faraday::Middleware
     attr_reader :cache
+    # Internal: List of status codes that can be cached:
+    # * 200 - 'OK'
+    # * 203 - 'Non-Authoritative Information'
+    # * 300 - 'Multiple Choices'
+    # * 301 - 'Moved Permanently'
+    # * 302 - 'Found'
+    # * 404 - 'Not Found'
+    # * 410 - 'Gone'
+    CACHEABLE_STATUS_CODES = [200, 203, 300, 301, 302, 404, 410]
 
     extend Forwardable
     def_delegators :'Faraday::Utils', :parse_query, :build_query
@@ -34,7 +43,14 @@ module FaradayMiddleware
           cache_on_complete(env)
         else
           # synchronous mode
-          response = cache.fetch(cache_key(env)) { @app.call(env) }
+          key = cache_key(env)
+          unless response = cache.read(key) and response
+            response = @app.call(env)
+
+            if CACHEABLE_STATUS_CODES.include?(response.status)
+              cache.write(key, response)
+            end
+          end
           finalize_response(response, env)
         end
       else
@@ -63,7 +79,9 @@ module FaradayMiddleware
         finalize_response(cached_response, env)
       else
         response = @app.call(env)
-        response.on_complete { cache.write(key, response) }
+        if CACHEABLE_STATUS_CODES.include?(response.status)
+          response.on_complete { cache.write(key, response) }
+        end
       end
     end
 

@@ -13,7 +13,9 @@ describe FaradayMiddleware::Caching do
     response = lambda { |env|
       [200, {'Content-Type' => 'text/plain'}, "request:#{request_count+=1}"]
     }
-
+    broken = lambda { |env|
+      [500, {'Content-Type' => 'text/plain'}, "request:#{request_count+=1}"]
+    }
     @conn = Faraday.new do |b|
       b.use CachingLint
       b.use FaradayMiddleware::Caching, @cache, options
@@ -22,6 +24,7 @@ describe FaradayMiddleware::Caching do
         stub.get('/?foo=bar', &response)
         stub.post('/', &response)
         stub.get('/other', &response)
+        stub.get('/broken', &broken)
       end
     end
   end
@@ -56,6 +59,11 @@ describe FaradayMiddleware::Caching do
     expect(post('/').body).to eq('request:1')
     expect(post('/').body).to eq('request:2')
     expect(post('/').body).to eq('request:3')
+  end
+
+  it 'does not cache responses with invalid status code' do
+    expect(get('/broken').body).to eq('request:1')
+    expect(get('/broken').body).to eq('request:2')
   end
 
   context ":ignore_params" do
