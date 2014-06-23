@@ -11,7 +11,7 @@ gem 'simple_oauth', '>= 0.1'
 
 group :test do
   gem 'cane', '>= 2.2.2', :platforms => [:mri_19, :mri_20, :mri_21]
-  gem 'rspec', '>= 2.11'
+  gem 'rspec', '>= 3'
   gem 'simplecov'
 end
 
