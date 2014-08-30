@@ -21,12 +21,12 @@ module FaradayMiddleware
 
     def call(env)
       env[:request_headers][ACCEPT_ENCODING] ||= SUPPORTED_ENCODINGS
-      @app.call(env).on_complete do |env|
-        case env[:response_headers][CONTENT_ENCODING]
+      @app.call(env).on_complete do |response_env|
+        case response_env[:response_headers][CONTENT_ENCODING]
         when 'gzip'
-          reset_body(env, &method(:uncompress_gzip))
+          reset_body(response_env, &method(:uncompress_gzip))
         when 'deflate'
-          reset_body(env, &method(:inflate))
+          reset_body(response_env, &method(:inflate))
         end
       end
     end

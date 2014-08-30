@@ -66,11 +66,11 @@ module FaradayMiddleware
       request_body = env[:body]
       response = @app.call(env)
 
-      response.on_complete do |env|
-        if follow_redirect?(env, response)
+      response.on_complete do |response_env|
+        if follow_redirect?(response_env, response)
           raise RedirectLimitReached, response if follows.zero?
-          env = update_env(env, request_body, response)
-          response = perform_with_redirection(env, follows - 1)
+          new_request_env = update_env(response_env, request_body, response)
+          response = perform_with_redirection(new_request_env, follows - 1)
         end
       end
       response
