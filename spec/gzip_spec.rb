@@ -16,8 +16,8 @@ describe FaradayMiddleware::Gzip, :type => :response do
     end
 
     it 'doesnt overwrite existing Accept-Encoding request header' do
-      env = process('') { |env|
-        env[:request_headers][:accept_encoding] = 'zopfli'
+      env = process('') { |e|
+        e[:request_headers][:accept_encoding] = 'zopfli'
       }.env
       expect(env[:request_headers][:accept_encoding]).to eq('zopfli')
     end
