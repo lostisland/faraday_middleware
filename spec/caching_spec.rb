@@ -104,7 +104,7 @@ describe FaradayMiddleware::RackCompatible, 'caching' do
   CACHE_DIR = File.expand_path('../../tmp/cache', __FILE__)
 
   before do
-    rm_r CACHE_DIR if File.exists? CACHE_DIR
+    rm_r CACHE_DIR if File.exist? CACHE_DIR
     # force reinitializing cache dirs
     Rack::Cache::Storage.instance.clear
 
