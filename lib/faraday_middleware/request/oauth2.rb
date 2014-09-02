@@ -35,7 +35,7 @@ module FaradayMiddleware
 
       if token.respond_to?(:empty?) && !token.empty?
         env[:url].query = build_query params
-        env[:request_headers][AUTH_HEADER] ||= %(Token token="#{token}")
+        env[:request_headers][AUTH_HEADER] ||= %(Bearer #{token})
       end
 
       @app.call env
