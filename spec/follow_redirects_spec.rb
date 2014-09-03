@@ -10,24 +10,30 @@ describe FaradayMiddleware::FollowRedirects do
 
   shared_examples_for "a successful redirection" do |status_code|
     it "follows the redirection for a GET request" do
-      expect(connection do |stub|
-        stub.get('/permanent') { [status_code, {'Location' => '/found'}, ''] }
-        stub.get('/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
-      end.get('/permanent').body).to eq 'fin'
+      ['/found', '/found?action_type_map=["og.likes"]'].each do |location|
+        expect(connection do |stub|
+          stub.get('/permanent') { [status_code, {'Location' => location}, ''] }
+          stub.get(location) { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
+        end.get('/permanent').body).to eq 'fin'
+      end
     end
 
     it "follows the redirection for a HEAD request" do
-      expect(connection do |stub|
-               stub.head('/permanent') { [status_code, {'Location' => '/found'}, ''] }
-               stub.head('/found') { [200, {'Content-Type' => 'text/plain'}, ''] }
-             end.head('/permanent').status).to eq 200
+      ['/found', '/found?action_type_map=["og.likes"]'].each do |location|
+        expect(connection do |stub|
+          stub.head('/permanent') { [status_code, {'Location' => location}, ''] }
+          stub.head(location) { [200, {'Content-Type' => 'text/plain'}, ''] }
+        end.head('/permanent').status).to eq 200
+      end
     end
 
     it "follows the redirection for a OPTIONS request" do
-      expect(connection do |stub|
-               stub.new_stub(:options, '/permanent') { [status_code, {'Location' => '/found'}, ''] }
-               stub.new_stub(:options, '/found') { [200, {'Content-Type' => 'text/plain'}, ''] }
-             end.run_request(:options, '/permanent', nil, nil).status).to eq 200
+      ['/found', '/found?action_type_map=["og.likes"]'].each do |location|
+        expect(connection do |stub|
+          stub.new_stub(:options, '/permanent') { [status_code, {'Location' => location}, ''] }
+          stub.new_stub(:options, location) { [200, {'Content-Type' => 'text/plain'}, ''] }
+        end.run_request(:options, '/permanent', nil, nil).status).to eq 200
+      end
     end
   end
 
