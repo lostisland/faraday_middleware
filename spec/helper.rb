@@ -17,6 +17,7 @@ if ENV['COVERAGE']
 end
 
 require 'rspec'
+require 'webmock/rspec'
 require 'faraday'
 
 module EnvCompatibility
