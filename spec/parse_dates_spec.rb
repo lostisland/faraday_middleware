@@ -45,6 +45,6 @@ describe FaradayMiddleware::ParseDates, :type => :response do
   it "parses dates in the .NET DateTime Wire Format" do
     # http://msdn.microsoft.com/en-us/library/bb412170(v=vs.110).aspx
     # Scroll down to 'DateTime Wire Format'
-    expect(process({"x" => "/Date(1409326098000)/"}).body["x"].to_s).to eq "2014-08-29 15:28:18 UTC"
+    expect(process({"x" => "/Date(1328102055000)/"}).body["x"].to_s).to eq(parsed)
   end
 end
