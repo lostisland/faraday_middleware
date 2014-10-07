@@ -21,6 +21,15 @@ module FaradayMiddleware
   #
   # This middleware currently only works with synchronous requests; i.e. it
   # doesn't support parallelism.
+  #
+  # If you wish to persist cookies across redirects, you could use
+  # the faraday-cookie_jar gem:
+  #
+  #   Faraday.new(:url => url) do |faraday|
+  #     faraday.use FaradayMiddleware::FollowRedirects
+  #     faraday.use :cookie_jar
+  #     faraday.adapter Faraday.default_adapter
+  #   end
   class FollowRedirects < Faraday::Middleware
     # HTTP methods for which 30x redirects can be followed
     ALLOWED_METHODS = Set.new [:head, :options, :get, :post, :put, :patch, :delete]
@@ -39,10 +48,6 @@ module FaradayMiddleware
     #           :standards_compliant - A Boolean indicating whether to respect
     #                                  the HTTP spec when following 301/302
     #                                  (default: false)
-    #           :cookies             - An Array of Strings (e.g.
-    #                                  ['cookie1', 'cookie2']) to choose
-    #                                  cookies to be kept, or :all to keep
-    #                                  all cookies (default: []).
     def initialize(app, options = {})
       super(app)
       @options = options
@@ -78,10 +83,6 @@ module FaradayMiddleware
 
     def update_env(env, request_body, response)
       env[:url] += response['location']
-      if @options[:cookies]
-        cookies = keep_cookies(env)
-        env[:request_headers][:cookies] = cookies unless cookies.nil?
-      end
 
       if convert_to_get?(response)
         env[:method] = :get
@@ -102,25 +103,6 @@ module FaradayMiddleware
 
     def follow_limit
       @options.fetch(:limit, FOLLOW_LIMIT)
-    end
-
-    def keep_cookies(env)
-      cookies = @options.fetch(:cookies, [])
-      response_cookies = env[:response_headers][:cookies]
-      cookies == :all ? response_cookies : selected_request_cookies(response_cookies)
-    end
-
-    def selected_request_cookies(cookies)
-      selected_cookies(cookies)[0...-1]
-    end
-
-    def selected_cookies(cookies)
-      "".tap do |cookie_string|
-        @options[:cookies].each do |cookie|
-          string = /#{cookie}=?[^;]*/.match(cookies)[0] + ';'
-          cookie_string << string
-        end
-      end
     end
 
     def standards_compliant?
