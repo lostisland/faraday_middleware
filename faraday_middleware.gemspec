@@ -9,15 +9,12 @@ Gem::Specification.new do |spec|
   spec.authors = ["Erik Michaels-Ober", "Wynn Netherland"]
   spec.description = %q{Various middleware for Faraday}
   spec.email = ['sferik@gmail.com', 'wynn.netherland@gmail.com']
-  spec.files = %w(CHANGELOG.md CONTRIBUTING.md LICENSE.md README.md Rakefile faraday_middleware.gemspec)
-  spec.files += Dir.glob("lib/**/*.rb")
-  spec.files += Dir.glob("spec/**/*")
+  spec.files = %w(CHANGELOG.md CONTRIBUTING.md LICENSE.md README.md faraday_middleware.gemspec) + Dir['lib/**/*.rb']
   spec.homepage = 'https://github.com/lostisland/faraday_middleware'
   spec.licenses = ['MIT']
   spec.name = 'faraday_middleware'
   spec.require_paths = ['lib']
   spec.required_rubygems_version = '>= 1.3.5'
   spec.summary = spec.description
-  spec.test_files += Dir.glob("spec/**/*")
   spec.version = FaradayMiddleware::VERSION
 end
