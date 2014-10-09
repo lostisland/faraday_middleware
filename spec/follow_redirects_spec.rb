@@ -143,9 +143,9 @@ describe FaradayMiddleware::FollowRedirects do
     context "is :all" do
       it "puts all cookies from the response into the next request" do
         expect(connection(:cookies => :all) do |stub|
-          stub.get('/')           { [301, {'Location' => '/found', 'Cookies' => cookies }, ''] }
+          stub.get('/')           { [301, {'Location' => '/found', 'Set-Cookie' => cookies }, ''] }
           stub.get('/found')      { [200, {'Content-Type' => 'text/plain'}, ''] }
-        end.get('/').env[:request_headers][:cookies]).to eq(cookies)
+        end.get('/').env[:request_headers]['Cookie']).to eq(cookies)
       end
 
       it "not set cookies header on request when response has no cookies" do
@@ -159,9 +159,9 @@ describe FaradayMiddleware::FollowRedirects do
     context "is an array of cookie names" do
       it "puts selected cookies from the response into the next request" do
         expect(connection(:cookies => ['cookie2']) do |stub|
-          stub.get('/')           { [301, {'Location' => '/found', 'Cookies' => cookies }, ''] }
+          stub.get('/')           { [301, {'Location' => '/found', 'Set-Cookie' => cookies }, ''] }
           stub.get('/found')      { [200, {'Content-Type' => 'text/plain'}, ''] }
-        end.get('/').env[:request_headers][:cookies]).to eq('cookie2=1234567')
+        end.get('/').env[:request_headers]['Cookie']).to eq('cookie2=1234567')
       end
     end
   end
