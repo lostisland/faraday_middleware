@@ -80,7 +80,7 @@ module FaradayMiddleware
       env[:url] += response['location']
       if @options[:cookies]
         cookies = keep_cookies(env)
-        env[:request_headers][:cookies] = cookies unless cookies.nil?
+        env[:request_headers]["Cookie"] = cookies unless cookies.nil?
       end
 
       if convert_to_get?(response)
@@ -106,7 +106,7 @@ module FaradayMiddleware
 
     def keep_cookies(env)
       cookies = @options.fetch(:cookies, [])
-      response_cookies = env[:response_headers][:cookies]
+      response_cookies = env[:response_headers]["set-cookie"]
       cookies == :all ? response_cookies : selected_request_cookies(response_cookies)
     end
 
