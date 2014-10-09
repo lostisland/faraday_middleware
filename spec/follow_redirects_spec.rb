@@ -136,36 +136,6 @@ describe FaradayMiddleware::FollowRedirects do
     expect{ conn.get('/') }.to raise_error(FaradayMiddleware::RedirectLimitReached)
   end
 
-  context "when cookies option" do
-
-    let(:cookies) { 'cookie1=abcdefg; cookie2=1234567; cookie3=awesome' }
-
-    context "is :all" do
-      it "puts all cookies from the response into the next request" do
-        expect(connection(:cookies => :all) do |stub|
-          stub.get('/')           { [301, {'Location' => '/found', 'Cookies' => cookies }, ''] }
-          stub.get('/found')      { [200, {'Content-Type' => 'text/plain'}, ''] }
-        end.get('/').env[:request_headers][:cookies]).to eq(cookies)
-      end
-
-      it "not set cookies header on request when response has no cookies" do
-        expect(connection(:cookies => :all) do |stub|
-          stub.get('/')           { [301, {'Location' => '/found'}, ''] }
-          stub.get('/found')      { [200, {'Content-Type' => 'text/plain'}, ''] }
-        end.get('/').env[:request_headers].has_key?('Cookies')).to eq(false)
-      end
-    end
-
-    context "is an array of cookie names" do
-      it "puts selected cookies from the response into the next request" do
-        expect(connection(:cookies => ['cookie2']) do |stub|
-          stub.get('/')           { [301, {'Location' => '/found', 'Cookies' => cookies }, ''] }
-          stub.get('/found')      { [200, {'Content-Type' => 'text/plain'}, ''] }
-        end.get('/').env[:request_headers][:cookies]).to eq('cookie2=1234567')
-      end
-    end
-  end
-
   [301, 302].each do |code|
     context "for an HTTP #{code} response" do
       it_behaves_like 'a successful redirection', code
