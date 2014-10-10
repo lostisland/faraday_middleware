@@ -1,7 +1,7 @@
 require 'faraday'
 
 module FaradayMiddleware
-  # Public: Instruments requests using Active Support.
+  # Public: Instruments requests using Active Support or a given instrumenter.
   #
   # Measures time spent only for synchronous requests.
   #
@@ -14,17 +14,20 @@ module FaradayMiddleware
   #     $stderr.puts '[%s] %s %s (%.3f s)' % [url.host, http_method, url.request_uri, duration]
   #   end
   class Instrumentation < Faraday::Middleware
-    dependency 'active_support/notifications'
-
     def initialize(app, options = {})
       super(app)
+      @instrumenter = options.fetch(:instrumenter) { ActiveSupport::Notifications }
       @name = options.fetch(:name, 'request.faraday')
     end
 
     def call(env)
-      ActiveSupport::Notifications.instrument(@name, env) do
+      instrumenter.instrument(name, env) do
         @app.call(env)
       end
     end
+
+    private
+
+    attr_reader :instrumenter, :name
   end
 end
