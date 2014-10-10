@@ -29,6 +29,16 @@ describe FaradayMiddleware::FollowRedirects do
                stub.new_stub(:options, '/found') { [200, {'Content-Type' => 'text/plain'}, ''] }
              end.run_request(:options, '/permanent', nil, nil).status).to eq 200
     end
+
+    it "tolerates invalid characters in redirect location" do
+      unescaped_location = '/found?action_type_map=["og.likes!%20you"]'
+      escaped_location = '/found?action_type_map=[%22og.likes!%20you%22]'
+
+      expect(connection { |stub|
+        stub.get('/') { [status_code, {'Location' => unescaped_location}, ''] }
+        stub.get(escaped_location) { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
+      }.get('/').body).to eq('fin')
+    end
   end
 
   shared_examples_for "a forced GET redirection" do |status_code|

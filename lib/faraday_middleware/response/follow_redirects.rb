@@ -41,6 +41,10 @@ module FaradayMiddleware
     # Default value for max redirects followed
     FOLLOW_LIMIT = 3
 
+    # Regex that matches characters that need to be escaped in URLs, sans
+    # the "%" character which we assume already represents an escaped sequence.
+    URI_UNSAFE = /[^\-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]%]/
+
     # Public: Initialize the middleware.
     #
     # options - An options Hash (default: {}):
@@ -82,7 +86,7 @@ module FaradayMiddleware
     end
 
     def update_env(env, request_body, response)
-      env[:url] += response['location']
+      env[:url] += safe_escape(response['location'])
 
       if convert_to_get?(response)
         env[:method] = :get
@@ -107,6 +111,16 @@ module FaradayMiddleware
 
     def standards_compliant?
       @options.fetch(:standards_compliant, false)
+    end
+
+    # Internal: escapes unsafe characters from an URL which might be a path
+    # component only or a fully qualified URI so that it can be joined onto an
+    # URI:HTTP using the `+` operator. Doesn't escape "%" characters so to not
+    # risk double-escaping.
+    def safe_escape(uri)
+      uri.to_s.gsub(URI_UNSAFE) { |match|
+        '%' + match.unpack('H2' * match.bytesize).join('%').upcase
+      }
     end
   end
 end
