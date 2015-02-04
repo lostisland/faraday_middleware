@@ -22,7 +22,7 @@ module FaradayMiddleware
     end
 
     def call(env)
-      ActiveSupport::Notifications.instrument(@name, env) do
+      ::ActiveSupport::Notifications.instrument(@name, env) do
         @app.call(env)
       end
     end
