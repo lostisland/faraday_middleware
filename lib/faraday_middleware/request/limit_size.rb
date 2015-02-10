@@ -37,7 +37,7 @@ module FaradayMiddleware
       options.fetch(:max_query_length, 1024 * 10)
     end
 
-    QueryTooLong = Class.new(Faraday::Error)
+    QueryTooLong = Class.new(StandardError)
   end
 
 end
