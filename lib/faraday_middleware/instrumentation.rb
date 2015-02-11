@@ -22,9 +22,17 @@ module FaradayMiddleware
     end
 
     def call(env)
-      ::ActiveSupport::Notifications.instrument(@name, env) do
-        @app.call(env)
-      end
+      instrumenter.start(@name, env)
+
+      response = @app.call(env)
+      response.on_complete {|env| instrumenter.finish(@name, env) }
+      response
+    end
+
+    private
+
+    def instrumenter
+      ::ActiveSupport::Notifications.instrumenter
     end
   end
 end

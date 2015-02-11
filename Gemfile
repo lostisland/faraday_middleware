@@ -14,6 +14,7 @@ group :test do
   gem 'rspec', '>= 3'
   gem 'simplecov'
   gem 'webmock'
+  gem 'activesupport', '~> 4.2.0', :platforms => [:mri_19, :mri_20, :mri_21]
 end
 
 gemspec
