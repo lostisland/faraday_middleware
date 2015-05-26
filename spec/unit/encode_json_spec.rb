@@ -46,7 +46,7 @@ describe FaradayMiddleware::EncodeJson do
     end
 
     it "adds content type" do
-      expect(result_type).to eq('application/json')
+      expect(result_type).to eq('application/json; charset=utf-8')
     end
   end
 
@@ -58,7 +58,7 @@ describe FaradayMiddleware::EncodeJson do
     end
 
     it "adds content type" do
-      expect(result_type).to eq('application/json')
+      expect(result_type).to eq('application/json; charset=utf-8')
     end
   end
 
@@ -126,7 +126,7 @@ describe FaradayMiddleware::EncodeJson do
     end
   end
 
-  context "non-utf-8 in string body" do
+  context "non-unicode in string body" do
     let(:result) { process('{"a":"ä"}'.encode('iso-8859-15')) }
 
     it "doesn't change body" do
@@ -142,7 +142,7 @@ describe FaradayMiddleware::EncodeJson do
     end
   end
 
-  context "non-utf-8 in object body" do
+  context "non-unicode in object body" do
     let(:result) { process({:a => "ä".encode('iso-8859-15')}) }
 
     it "encodes body" do
@@ -157,4 +157,37 @@ describe FaradayMiddleware::EncodeJson do
       expect(result_length).to eq(10)
     end
   end
+
+  context "non-utf-8 in string body" do
+    let(:result) { process('{"a":"ä"}'.encode('utf-16BE')) }
+
+    it "doesn't change body" do
+      expect(result_body).to eq('{"a":"ä"}')
+    end
+
+    it "adds content type" do
+      expect(result_type).to eq('application/json; charset=utf-8')
+    end
+
+    it "adds content length" do
+      expect(result_length).to eq(10)
+    end
+  end
+
+  context "non-utf-8 in object body" do
+    let(:result) { process({:a => "ä".encode('utf-16le')}) }
+
+    it "encodes body" do
+      expect(result_body).to eq('{"a":"ä"}')
+    end
+
+    it "adds content type" do
+      expect(result_type).to eq('application/json; charset=utf-8')
+    end
+
+    it "adds content length" do
+      expect(result_length).to eq(10)
+    end
+  end
+
 end
