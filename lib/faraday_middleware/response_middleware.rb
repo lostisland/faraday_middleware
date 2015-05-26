@@ -36,16 +36,16 @@ module FaradayMiddleware
 
     def process_response(env)
       env[:raw_body] = env[:body] if preserve_raw?(env)
-      env[:body] = parse(env[:body], env)
+      env[:body] = parse(env[:body])
     end
 
     # Parse the response body.
     #
     # Instead of overriding this method, consider using `define_parser`.
-    def parse(body, env)
+    def parse(body)
       if self.class.parser
         begin
-          self.class.parser.call(body, env)
+          self.class.parser.call(body)
         rescue StandardError, SyntaxError => err
           raise err if err.is_a? SyntaxError and err.class.name != 'Psych::SyntaxError'
           raise Faraday::Error::ParsingError, err
