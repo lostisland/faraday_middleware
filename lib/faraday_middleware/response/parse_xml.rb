@@ -5,7 +5,7 @@ module FaradayMiddleware
   class ParseXml < ResponseMiddleware
     dependency 'multi_xml'
 
-    define_parser do |body|
+    define_parser do |body, env|
       ::MultiXml.parse(body)
     end
   end

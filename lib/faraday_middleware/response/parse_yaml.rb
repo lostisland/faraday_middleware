@@ -10,7 +10,7 @@ module FaradayMiddleware
   # supports it:
   #
   #     class SafeYaml < FaradayMiddleware::ParseYaml
-  #       define_parser do |body|
+  #       define_parser do |body, env|
   #         YAML.safe_load(body)
   #       end
   #     end
@@ -22,7 +22,7 @@ module FaradayMiddleware
   class ParseYaml < ResponseMiddleware
     dependency 'yaml'
 
-    define_parser do |body|
+    define_parser do |body, env|
       ::YAML.load body
     end
   end

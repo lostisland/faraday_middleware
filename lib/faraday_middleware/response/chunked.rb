@@ -5,7 +5,7 @@ module FaradayMiddleware
   class Chunked < FaradayMiddleware::ResponseMiddleware
     TRANSFER_ENCODING = 'transfer-encoding'.freeze
 
-    define_parser do |raw_body|
+    define_parser do |raw_body, env|
       decoded_body = []
       until raw_body.empty?
         chunk_len, raw_body = raw_body.split("\r\n", 2)

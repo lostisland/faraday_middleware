@@ -7,7 +7,7 @@ module FaradayMiddleware
       require 'json' unless defined?(::JSON)
     end
 
-    define_parser do |body|
+    define_parser do |body, env|
       ::JSON.parse body unless body.strip.empty?
     end
 
