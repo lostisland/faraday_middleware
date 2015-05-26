@@ -8,6 +8,13 @@ module FaradayMiddleware
     end
 
     define_parser do |body, env|
+      # Body is a string, that's good. Now JSON.parse seems to accept strings
+      # even when they're not encoded in UTF-8, which is technically a violation
+      # of the spec, but it's useful. So let's not enforce UTF-8, unless an
+      # appropritate flag is set.
+      if strict_encoding?(env) and body.encoding != Encoding::UTF_8
+        raise "JSON specs require UTF-8 encoded JSON strings."
+      end
       ::JSON.parse body unless body.strip.empty?
     end
 
