@@ -25,12 +25,16 @@ module FaradayMiddleware
         # XXX Is :to_str really a good indicator for Strings? Taken from old
         # code.
         if body.respond_to?(:to_str)
-          # If the body is a string, we assume it's already JSON. But then it
-          # must be forcibly converted to UTF-8.
+          # If the body is a string, we assume it's already JSON. Any non-
+          # unicode encoding must be forcibly converted to unicode; we'll
+          # assume UTF-8 is best.
+          # In fact, ruby/faraday/middleware seems to convert non-utf-8 unicode
+          # to UTF-8 at some point anyway, so we'll forcibly re-encode
+          # everything to utf-8.
           body.encode!('UTF-8')
         else
           # If body isn't a string yet, we need to encode it. We also know it's
-          # then going to be UTF-8, because JSON says so.
+          # then going to be UTF-8, because JSON defaults to that.
           body = encode(body)
         end
 
@@ -38,17 +42,11 @@ module FaradayMiddleware
 
         # We'll add a content length, because otherwise we're relying on every
         # component down the line properly interpreting UTF-8 - that can fail.
-        content_length = body.bytesize
-        env[:request_headers][CONTENT_LENGTH] ||= content_length
+        env[:request_headers][CONTENT_LENGTH] ||= env[:body].bytesize
 
-        # For backwards compatibility, we'll send a bad (non-UTF-8) content type
-        # header only if there are no unicode characters. We can detect that if
-        # the character and byte sizes are identical (then it's all ASCII).
-        type = MIME_TYPE
-        if body.size != content_length
-          type = MIME_TYPE_UTF8
-        end
-        env[:request_headers][CONTENT_TYPE] ||= type
+        # Always base the encoding we're sending in the content type header on
+        # the string encoding.
+        env[:request_headers][CONTENT_TYPE] ||= MIME_TYPE_UTF8
       end
       @app.call env
     end
