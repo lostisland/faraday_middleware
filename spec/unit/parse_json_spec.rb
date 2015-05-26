@@ -60,23 +60,9 @@ describe FaradayMiddleware::ParseJson, :type => :response do
     end
   end
 
-  context "with lax encoding" do
-    let(:options) { {:strict_encoding => false} }
-
-    it "chokes on invalid json" do
-      ['{!', '"a"', 'true', 'null', '1'].each do |data|
-        expect{ process(data) }.to raise_error(Faraday::Error::ParsingError)
-      end
-    end
-  end
-
-  context "with strict encoding" do
-    let(:options) { {:strict_encoding => true} }
-
-    it "chokes on invalid json" do
-      ['{!', '"a"', 'true', 'null', '1', '{"a":"ä"}'.encode('iso-8859-15')].each do |data|
-        expect{ process(data) }.to raise_error(Faraday::Error::ParsingError)
-      end
+  it "chokes on invalid json" do
+    ['{!', '"a"', 'true', 'null', '1'].each do |data|
+      expect{ process(data) }.to raise_error(Faraday::Error::ParsingError)
     end
   end
 
