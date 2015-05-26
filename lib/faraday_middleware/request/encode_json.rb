@@ -9,29 +9,52 @@ module FaradayMiddleware
   #
   # Doesn't try to encode bodies that already are in string form.
   class EncodeJson < Faraday::Middleware
-    CONTENT_TYPE = 'Content-Type'.freeze
-    MIME_TYPE    = 'application/json'.freeze
+    CONTENT_TYPE   = 'Content-Type'.freeze
+    CONTENT_LENGTH = 'Content-Length'.freeze
+    MIME_TYPE      = 'application/json'.freeze
+    MIME_TYPE_UTF8 = 'application/json; charset=utf-8'.freeze
 
     dependency do
       require 'json' unless defined?(::JSON)
     end
 
     def call(env)
-      match_content_type(env) do |data|
-        env[:body] = encode data
+      if process_request?(env)
+        body = env[:body]
+
+        # XXX Is :to_str really a good indicator for Strings? Taken from old
+        # code.
+        if body.respond_to?(:to_str)
+          # If the body is a string, we assume it's already JSON. But then it
+          # must be forcibly converted to UTF-8.
+          body.encode!('UTF-8')
+        else
+          # If body isn't a string yet, we need to encode it. We also know it's
+          # then going to be UTF-8, because JSON says so.
+          body = encode(body)
+        end
+
+        env[:body] = body
+
+        # We'll add a content length, because otherwise we're relying on every
+        # component down the line properly interpreting UTF-8 - that can fail.
+        content_length = body.bytesize
+        env[:request_headers][CONTENT_LENGTH] ||= content_length
+
+        # For backwards compatibility, we'll send a bad (non-UTF-8) content type
+        # header only if there are no unicode characters. We can detect that if
+        # the character and byte sizes are identical (then it's all ASCII).
+        type = MIME_TYPE
+        if body.size != content_length
+          type = MIME_TYPE_UTF8
+        end
+        env[:request_headers][CONTENT_TYPE] ||= type
       end
       @app.call env
     end
 
     def encode(data)
       ::JSON.dump data
-    end
-
-    def match_content_type(env)
-      if process_request?(env)
-        env[:request_headers][CONTENT_TYPE] ||= MIME_TYPE
-        yield env[:body] unless env[:body].respond_to?(:to_str)
-      end
     end
 
     def process_request?(env)
