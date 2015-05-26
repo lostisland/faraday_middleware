@@ -45,7 +45,7 @@ module FaradayMiddleware
     def parse(body, env)
       if self.class.parser
         begin
-          self.class.parser.call(body, env)
+          self.instance_exec body, env, &self.class.parser
         rescue StandardError, SyntaxError => err
           raise err if err.is_a? SyntaxError and err.class.name != 'Psych::SyntaxError'
           raise Faraday::Error::ParsingError, err
@@ -74,24 +74,30 @@ module FaradayMiddleware
     def preserve_raw?(env)
       env[:request].fetch(:preserve_raw, @options[:preserve_raw])
     end
+
+    def strict_encoding?(env)
+      env[:request].fetch(:strict_encoding, @options[:strict_encoding])
+    end
   end
 
   # DRAGONS
   module OptionsExtension
-    attr_accessor :preserve_raw
+    attr_accessor :preserve_raw, :strict_encoding
 
     def to_hash
       super.update(:preserve_raw => preserve_raw)
+      super.update(:strict_encoding => strict_encoding)
     end
 
     def each
       return to_enum(:each) unless block_given?
       super
       yield :preserve_raw, preserve_raw
+      yield :strict_encoding, preserve_raw
     end
 
     def fetch(key, *args)
-      if :preserve_raw == key
+      if :preserve_raw == key || :strict_encoding == key
         value = __send__(key)
         value.nil? ? args.fetch(0) : value
       else
@@ -103,6 +109,7 @@ module FaradayMiddleware
   if defined?(Faraday::RequestOptions)
     begin
       Faraday::RequestOptions.from(:preserve_raw => true)
+      Faraday::RequestOptions.from(:strict_encoding => false)
     rescue NoMethodError
       Faraday::RequestOptions.send(:include, OptionsExtension)
     end
