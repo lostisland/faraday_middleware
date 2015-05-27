@@ -10,7 +10,7 @@ gem 'rash', '>= 0.3'
 gem 'simple_oauth', '>= 0.1', '< 0.3'
 
 group :test do
-  gem 'cane', '>= 2.2.2', :platforms => [:mri_19, :mri_20, :mri_21]
+  gem 'cane', '>= 2.2.2', :platforms => [:mri_19, :mri_20, :mri_21, :mri_22]
   gem 'rspec', '>= 3'
   gem 'simplecov'
   gem 'webmock'
