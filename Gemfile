@@ -11,6 +11,7 @@ gem 'simple_oauth', '>= 0.1', '< 0.3'
 
 group :test do
   gem 'cane', '>= 2.2.2', :platforms => [:mri_19, :mri_20, :mri_21]
+  gem 'parallel', '< 1.3.4', :platforms => [:mri_19, :mri_20, :mri_21]
   gem 'rspec', '>= 3'
   gem 'simplecov'
   gem 'webmock'
