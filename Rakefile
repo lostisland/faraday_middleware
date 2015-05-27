@@ -3,7 +3,8 @@ ruby_mri = !defined?(RUBY_ENGINE) || 'ruby' == RUBY_ENGINE
 default_gemfile = ENV['BUNDLE_GEMFILE'] =~ /Gemfile$/
 
 if ruby_19 && ruby_mri && default_gemfile
-  task :default => [:enable_coverage, :spec, :quality]
+  task :default => [:enable_coverage, :spec]
+  task :default => :quality if RUBY_VERSION < '2.2'
 else
   task :default => [:spec]
 end
