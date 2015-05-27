@@ -16,4 +16,8 @@ group :test do
   gem 'webmock'
 end
 
+platforms :ruby_18 do
+  gem 'iconv'
+end
+
 gemspec
