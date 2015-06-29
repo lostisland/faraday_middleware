@@ -9,8 +9,8 @@ module FaradayMiddleware
   #
   # Doesn't try to encode bodies that already are in string form.
   class EncodeJson < Faraday::Middleware
-    CONTENT_TYPE = 'Content-Type'.freeze
-    MIME_TYPE    = 'application/json'.freeze
+    CONTENT_TYPE    = 'Content-Type'.freeze
+    MIME_TYPE       = 'application/json'.freeze
     MIME_TYPE_REGEX = /^application\/(vnd\..+\+)?json$/
 
     dependency do
