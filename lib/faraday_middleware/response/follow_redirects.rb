@@ -61,7 +61,7 @@ module FaradayMiddleware
     end
 
     def call(env)
-      perform_with_redirection(env, follow_limit)
+      perform_with_redirection(env, follow_limit, [])
     end
 
     private
@@ -71,21 +71,26 @@ module FaradayMiddleware
         @convert_to_get.include?(response.status)
     end
 
-    def perform_with_redirection(env, follows)
+    def perform_with_redirection(env, follows, redirect_chain)
       request_body = env[:body]
       response = @app.call(env)
 
       response.on_complete do |response_env|
+        redirect_chain << response
+
         if follow_redirect?(response_env, response)
           raise RedirectLimitReached, response if follows.zero?
           new_request_env = update_env(response_env, request_body, response)
-          response = perform_with_redirection(new_request_env, follows - 1)
+          response = perform_with_redirection(new_request_env, follows - 1, redirect_chain)
         end
       end
+
+      response.env[:redirect_chain] = redirect_chain
       response
     end
 
     def update_env(env, request_body, response)
+      env = env.dup
       env[:url] += safe_escape(response['location'])
 
       if convert_to_get?(response)
