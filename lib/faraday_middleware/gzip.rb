@@ -48,7 +48,17 @@ module FaradayMiddleware
     end
 
     def inflate(body)
+      # Inflate as a DEFLATE (RFC 1950+RFC 1951) stream
       Zlib::Inflate.inflate(body)
+    rescue Zlib::DataError
+      begin
+        # Fall back to inflating as a "raw" deflate stream which
+        # Microsoft servers return
+        inflate = Zlib::Inflate.new(-Zlib::MAX_WBITS)
+        inflate.inflate(body)
+      ensure
+        inflate.close
+      end
     end
   end
 end
