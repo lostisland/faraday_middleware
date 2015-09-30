@@ -39,6 +39,12 @@ describe FaradayMiddleware::Gzip, :type => :response do
     let(:deflated_body) {
       Zlib::Deflate.deflate(uncompressed_body)
     }
+    let(:raw_deflated_body) {
+      z = Zlib::Deflate.new(Zlib::DEFAULT_COMPRESSION, -Zlib::MAX_WBITS)
+      compressed_body = z.deflate(uncompressed_body, Zlib::FINISH)
+      z.close
+      compressed_body
+    }
 
     shared_examples 'compressed response' do
       it 'uncompresses the body' do
@@ -63,6 +69,13 @@ describe FaradayMiddleware::Gzip, :type => :response do
 
     context 'deflated response' do
       let(:body) { deflated_body }
+      let(:headers) { {'Content-Encoding' => 'deflate', 'Content-Length' => body.length} }
+
+      it_behaves_like 'compressed response'
+    end
+
+    context 'raw deflated response' do
+      let(:body) { raw_deflated_body }
       let(:headers) { {'Content-Encoding' => 'deflate', 'Content-Length' => body.length} }
 
       it_behaves_like 'compressed response'
