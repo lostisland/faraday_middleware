@@ -46,7 +46,7 @@ module FaradayMiddleware
     def request_type(env)
       type = env[:request_headers][CONTENT_TYPE].to_s
       type = type.split(';', 2).first if type.index(';')
-      type
+      type.gsub(/vnd\.\w+\+/,'')
     end
   end
 end
