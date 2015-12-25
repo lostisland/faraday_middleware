@@ -4,6 +4,7 @@ module FaradayMiddleware
   autoload :OAuth,           'faraday_middleware/request/oauth'
   autoload :OAuth2,          'faraday_middleware/request/oauth2'
   autoload :EncodeJson,      'faraday_middleware/request/encode_json'
+  autoload :EncodeXml,       'faraday_middleware/request/encode_xml'
   autoload :MethodOverride,  'faraday_middleware/request/method_override'
   autoload :Mashify,         'faraday_middleware/response/mashify'
   autoload :Rashify,         'faraday_middleware/response/rashify'
@@ -24,6 +25,7 @@ module FaradayMiddleware
       :oauth    => lambda { OAuth },
       :oauth2   => lambda { OAuth2 },
       :json     => lambda { EncodeJson },
+      :xml      => lambda { EncodeXml },
       :method_override => lambda { MethodOverride }
 
     Faraday::Response.register_middleware \
