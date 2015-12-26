@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'faraday', '~> 0.7.4'
 gem 'hashie', '>= 1.2'
 gem 'jruby-openssl', :platforms => :jruby
 gem 'json', :platforms => [:jruby, :rbx, :ruby_18]
@@ -8,8 +9,7 @@ gem 'rake', '>= 0.9'
 gem 'rash', '>= 0.3'
 gem 'simple_oauth', '>= 0.1', '< 0.3'
 
-# ruby 1.8.7 compatible
-gem 'addressable', '< 2.4.0'
+# ruby 1.9.2 compatible
 gem 'gyoku', '<= 1.2.3'
 gem 'rack-cache', '< 1.3'
 

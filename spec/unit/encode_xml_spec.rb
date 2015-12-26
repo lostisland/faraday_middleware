@@ -5,7 +5,7 @@ describe FaradayMiddleware::EncodeXml do
   let(:middleware) { described_class.new(lambda{ |env| env }) }
 
   def process(body, content_type = nil)
-    env = { body: body, request_headers: Faraday::Utils::Headers.new }
+    env = { :body => body, :request_headers => Faraday::Utils::Headers.new }
     env[:request_headers]['content-type'] = content_type if content_type
     middleware.call(faraday_env(env))
   end
@@ -50,7 +50,7 @@ describe FaradayMiddleware::EncodeXml do
   end
 
   context "object body" do
-    let(:result) { process({a: 1}) }
+    let(:result) { process({:a => 1}) }
 
     it "encodes body" do
       expect(result_body).to eq('<a>1</a>')
@@ -62,7 +62,7 @@ describe FaradayMiddleware::EncodeXml do
   end
 
   context "nested object body" do
-    let(:result) { process({a: { b: 1 }}) }
+    let(:result) { process({:a => { :b => 1 }}) }
 
     it "encodes body" do
       expect(result_body).to eq('<a><b>1</b></a>')
@@ -82,7 +82,7 @@ describe FaradayMiddleware::EncodeXml do
   end
 
   context "object body with xml type" do
-    let(:result) { process({a: 1}, 'application/xml; charset=utf-8') }
+    let(:result) { process({:a => 1}, 'application/xml; charset=utf-8') }
 
     it "encodes body" do
       expect(result_body).to eq('<a>1</a>')
@@ -94,10 +94,10 @@ describe FaradayMiddleware::EncodeXml do
   end
 
   context "object body with incompatible type" do
-    let(:result) { process({a: 1}, 'application/json; charset=utf-8') }
+    let(:result) { process({:a => 1}, 'application/json; charset=utf-8') }
 
     it "doesn't change body" do
-      expect(result_body).to eq({a: 1})
+      expect(result_body).to eq({:a => 1})
     end
 
     it "doesn't change content type" do

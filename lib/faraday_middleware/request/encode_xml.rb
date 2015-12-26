@@ -24,7 +24,7 @@ module FaradayMiddleware
     end
 
     def encode(data)
-      ::Gyoku.xml(data, key_converter: :none)
+      ::Gyoku.xml(data, :key_converter => :none)
     end
 
     def match_content_type(env)
