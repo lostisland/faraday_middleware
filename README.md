@@ -15,7 +15,7 @@ Some dependent libraries are needed only when using specific middleware:
 * FaradayMiddleware::ParseXml: "multi_xml"
 * FaradayMiddleware::OAuth: "simple_oauth"
 * FaradayMiddleware::Mashify: "hashie"
-* FaradayMiddleware::Rashify: "rash"
+* FaradayMiddleware::Rashify: "hashie"
 * FaradayMiddleware::Instrumentation: "activesupport"
 
 Examples
