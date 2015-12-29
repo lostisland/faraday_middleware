@@ -6,8 +6,8 @@ describe FaradayMiddleware::Rashify do
     it "creates a Hashie::Rash from the body" do
       body = { "name" => "Erik Michaels-Ober", "username" => "sferik" }
       me = process(body).body
-      expect(me.name).to eq("Erik Michaels-Ober")
-      expect(me.username).to eq("sferik")
+      expect(me['name']).to eq("Erik Michaels-Ober")
+      expect(me['username']).to eq("sferik")
     end
 
     it "handles strings" do
@@ -19,8 +19,8 @@ describe FaradayMiddleware::Rashify do
     it "handles hashes and decamelcase the keys" do
       body = { "name" => "Erik Michaels-Ober", "userName" => "sferik" }
       me = process(body).body
-      expect(me.name).to eq('Erik Michaels-Ober')
-      expect(me.user_name).to eq('sferik')
+      expect(me['name']).to eq('Erik Michaels-Ober')
+      expect(me['userName']).to eq('sferik')
     end
 
     it "handles arrays" do
@@ -32,8 +32,8 @@ describe FaradayMiddleware::Rashify do
     it "handles arrays of hashes" do
       body = [{ "username" => "sferik" }, { "username" => "pengwynn" }]
       us = process(body).body
-      expect(us.first.username).to eq('sferik')
-      expect(us.last.username).to eq('pengwynn')
+      expect(us.first['username']).to eq('sferik')
+      expect(us.last['username']).to eq('pengwynn')
     end
 
     it "handles mixed arrays" do
@@ -41,7 +41,7 @@ describe FaradayMiddleware::Rashify do
       values = process(body).body
       expect(values.first).to eq(123)
       expect(values.last).to eq(456)
-      expect(values[1].username).to eq('sferik')
+      expect(values[1]['username']).to eq('sferik')
     end
   end
 end
