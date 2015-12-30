@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'faraday', '~> 0.8.8'
 gem 'hashie', '>= 1.2'
 gem 'jruby-openssl', :platforms => :jruby
 gem 'json', :platforms => [:jruby, :rbx, :ruby_18]
