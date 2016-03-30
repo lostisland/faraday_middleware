@@ -12,11 +12,12 @@ module FaradayMiddleware
   # - em_http
   class Gzip < Faraday::Middleware
     dependency 'zlib'
+    dependency 'brotli'
 
     ACCEPT_ENCODING = 'Accept-Encoding'.freeze
     CONTENT_ENCODING = 'Content-Encoding'.freeze
     CONTENT_LENGTH = 'Content-Length'.freeze
-    SUPPORTED_ENCODINGS = 'gzip,deflate'.freeze
+    SUPPORTED_ENCODINGS = 'gzip,deflate,br'.freeze
     RUBY_ENCODING = '1.9'.respond_to?(:force_encoding)
 
     def call(env)
@@ -27,6 +28,8 @@ module FaradayMiddleware
           reset_body(response_env, &method(:uncompress_gzip))
         when 'deflate'
           reset_body(response_env, &method(:inflate))
+        when 'br'
+          reset_body(response_env, &method(:brotli_inflate))
         end
       end
     end
@@ -59,6 +62,10 @@ module FaradayMiddleware
       ensure
         inflate.close
       end
+    end
+
+    def brotli_inflate(body)
+      Brotli.inflate(body)
     end
   end
 end
