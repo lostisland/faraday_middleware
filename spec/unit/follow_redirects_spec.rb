@@ -187,6 +187,21 @@ describe FaradayMiddleware::FollowRedirects do
     end
   end
 
+  context "with a callback" do
+    it "calls the callback" do
+      from, to = nil, nil
+      callback = lambda { |old, new| from, to = old[:url].path, new[:url].path }
+
+      conn = connection(:callback => callback) do |stub|
+        stub.get('/redirect') { [301, {'Location' => '/found'}, ''] }
+        stub.get('/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
+      end
+      conn.get('/redirect')
+
+      expect([from, to]).to eq ['/redirect', '/found']
+    end
+  end
+
   # checks env hash in request phase for basic validity
   class Lint < Struct.new(:app)
     def call(env)
