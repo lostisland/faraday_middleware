@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'hashie', '>= 1.2'
 gem 'jruby-openssl', :platforms => :jruby
-gem 'json', :platforms => [:jruby, :rbx, :ruby_18]
+gem 'json', '< 2'
 gem 'multi_xml', '>= 0.5.3'
 gem 'rack-cache', '>= 1.1'
 gem 'rake', '>= 0.9'
