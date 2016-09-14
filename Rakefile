@@ -2,9 +2,23 @@ ruby_19 = RUBY_VERSION > '1.9'
 ruby_mri = !defined?(RUBY_ENGINE) || 'ruby' == RUBY_ENGINE
 default_gemfile = ENV['BUNDLE_GEMFILE'] =~ /Gemfile$/
 
+begin
+  require 'cane/rake_task'
+rescue LoadError
+  warn "warning: cane not available; skipping quality checks."
+else
+  desc %(Check code quality metrics with Cane)
+  Cane::RakeTask.new(:quality) do |cane|
+    cane.abc_max = 15
+    cane.style_measure = 110
+    cane.max_violations = 0
+    cane.add_threshold 'coverage/covered_percent', :>=, 98.5
+  end
+end
+
 if ruby_19 && ruby_mri && default_gemfile
   task :default => [:enable_coverage, :spec]
-  task :default => :quality if RUBY_VERSION < '2.2'
+  task :default => :quality if defined?(Cane)
 else
   task :default => [:spec]
 end
@@ -17,13 +31,4 @@ RSpec::Core::RakeTask.new(:spec)
 
 task :enable_coverage do
   ENV['COVERAGE'] = 'yes'
-end
-
-desc %(Check code quality metrics with Cane)
-task :quality do
-  sh 'cane',
-    '--abc-max=15',
-    '--style-measure=110',
-    '--gte=coverage/covered_percent,98.5',
-    '--max-violations=0'
 end
