@@ -26,6 +26,7 @@ tmp
 Gemfile*.lock
 pkg
 *.gem
+vendor/bundle
 
 # Rubinius
 *.rbc
