@@ -52,6 +52,8 @@ module FaradayMiddleware
     #           :standards_compliant - A Boolean indicating whether to respect
     #                                  the HTTP spec when following 301/302
     #                                  (default: false)
+    #           :callback            - A callable that will be called on redirects
+    #                                  with the old and new envs
     def initialize(app, options = {})
       super(app)
       @options = options
@@ -78,7 +80,8 @@ module FaradayMiddleware
       response.on_complete do |response_env|
         if follow_redirect?(response_env, response)
           raise RedirectLimitReached, response if follows.zero?
-          new_request_env = update_env(response_env, request_body, response)
+          new_request_env = update_env(response_env.dup, request_body, response)
+          callback.call(response_env, new_request_env) if callback
           response = perform_with_redirection(new_request_env, follows - 1)
         end
       end
@@ -111,6 +114,10 @@ module FaradayMiddleware
 
     def standards_compliant?
       @options.fetch(:standards_compliant, false)
+    end
+
+    def callback
+      @options[:callback]
     end
 
     # Internal: escapes unsafe characters from an URL which might be a path
