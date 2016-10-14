@@ -43,6 +43,19 @@ describe FaradayMiddleware::OAuth2 do
       expect(query_params(request)).to eq('q' => 'hello', 'access_token' => 'abc123')
       expect(auth_header(request)).to eq(%(Token token="abc123"))
     end
+
+    context "bearer token type configured" do
+      let(:options) { [nil, {:token_type => 'bearer'}] }
+
+      it "doesn't add headers" do
+        expect(auth_header(perform)).to be_nil
+      end
+
+      it "adds header for explicit token" do
+        request = perform(:q => 'hello', :access_token => 'abc123')
+        expect(auth_header(request)).to eq(%(Bearer abc123))
+      end
+    end
   end
 
   context "default token configured" do
@@ -67,6 +80,24 @@ describe FaradayMiddleware::OAuth2 do
       expect(query_params(request).fetch('access_token')).to_not eq('XYZ')
       expect(auth_header(request)).to be_nil
     end
+
+    context "bearer token type configured" do
+      let(:options) { ['XYZ', {:token_type => 'bearer'}] }
+
+      it "adds token header" do
+        expect(auth_header(perform)).to eq(%(Bearer XYZ))
+      end
+
+      it "overrides default with explicit token" do
+        request = perform(:q => 'hello', :access_token => 'abc123')
+        expect(auth_header(request)).to eq(%(Bearer abc123))
+      end
+
+      it "clears default with empty explicit token" do
+        request = perform(:q => 'hello', :access_token => nil)
+        expect(auth_header(request)).to be_nil
+      end
+    end
   end
 
   context "existing Authorization header" do
@@ -79,6 +110,15 @@ describe FaradayMiddleware::OAuth2 do
 
     it "doesn't override existing header" do
       expect(auth_header(subject)).to eq('custom')
+    end
+
+    context "bearer token type configured" do
+      let(:options) { ['XYZ', {:token_type => 'bearer'}] }
+      subject { perform({:q => 'hello'}, 'Authorization' => 'custom') }
+
+      it "doesn't override existing header" do
+        expect(auth_header(subject)).to eq('custom')
+      end
     end
   end
 
