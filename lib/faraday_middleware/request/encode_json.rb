@@ -9,8 +9,9 @@ module FaradayMiddleware
   #
   # Doesn't try to encode bodies that already are in string form.
   class EncodeJson < Faraday::Middleware
-    CONTENT_TYPE = 'Content-Type'.freeze
-    MIME_TYPE    = 'application/json'.freeze
+    CONTENT_TYPE    = 'Content-Type'.freeze
+    MIME_TYPE       = 'application/json'.freeze
+    MIME_TYPE_REGEX = /^application\/(vnd\..+\+)?json$/
 
     dependency do
       require 'json' unless defined?(::JSON)
@@ -36,7 +37,7 @@ module FaradayMiddleware
 
     def process_request?(env)
       type = request_type(env)
-      has_body?(env) and (type.empty? or type == MIME_TYPE)
+      has_body?(env) and (type.empty? or MIME_TYPE_REGEX =~ type)
     end
 
     def has_body?(env)

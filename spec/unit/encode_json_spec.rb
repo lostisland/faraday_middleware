@@ -81,6 +81,18 @@ describe FaradayMiddleware::EncodeJson do
     end
   end
 
+  context "object body with vendor json type" do
+    let(:result) { process({:a => 1}, 'application/vnd.myapp.v1+json; charset=utf-8') }
+
+    it "encodes body" do
+      expect(result_body).to eq('{"a":1}')
+    end
+
+    it "doesn't change content type" do
+      expect(result_type).to eq('application/vnd.myapp.v1+json; charset=utf-8')
+    end
+  end
+
   context "object body with incompatible type" do
     let(:result) { process({:a => 1}, 'application/xml; charset=utf-8') }
 
