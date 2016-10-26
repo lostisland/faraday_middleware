@@ -13,11 +13,15 @@ describe FaradayMiddleware::ParseDates, :type => :response do
 
   it "parses dates" do
     expect(process({"x" => "2012-02-01T13:14:15Z"}).body["x"].to_s).to eq(parsed)
+    expect(process({"x" => "2012-02-01T15:14:15+02:00"}).body["x"].utc.to_s).to eq(parsed)
+    expect(process({"x" => "2012-02-01T11:14:15-0200"}).body["x"].utc.to_s).to eq(parsed)
   end
 
   it "parses dates with milliseconds" do
     date_str = "2012-02-01T13:14:15.123Z"
+    non_zulu_date_str = "2012-02-01T11:14:15.123-02:00"
     expect(process({"x" => date_str}).body["x"]).to eq(Time.parse(date_str))
+    expect(process({"x" => non_zulu_date_str}).body["x"]).to eq(Time.parse(date_str))
   end
 
   it "parses nested dates in hash" do
