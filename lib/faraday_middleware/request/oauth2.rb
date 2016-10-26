@@ -4,10 +4,11 @@ require 'forwardable'
 module FaradayMiddleware
   # Public: A simple middleware that adds an access token to each request.
   #
-  # The token is added as both "access_token" query parameter and the
-  # "Authorization" HTTP request header. However, an explicit "access_token"
-  # parameter or "Authorization" header for the current request are not
-  # overriden.
+  # By default, the token is added as both "access_token" query parameter and the
+  # "Authorization" HTTP request header. It can alternatively be added exclusively
+  # as a bearer token "Authorization" header by specifying a "token_type" option
+  # of "bearer". However, an explicit "access_token" parameter or "Authorization"
+  # header for the current request are not overriden.
   #
   # Examples
   #
@@ -17,14 +18,18 @@ module FaradayMiddleware
   #   # configure query parameter name:
   #   OAuth2.new(app, 'abc123', :param_name => 'my_oauth_token')
   #
+  #   # use bearer token authorization header only
+  #   OAuth2.new(app, 'abc123', :token_type => 'bearer')
+  #
   #   # default token value is optional:
   #   OAuth2.new(app, :param_name => 'my_oauth_token')
   class OAuth2 < Faraday::Middleware
 
     PARAM_NAME  = 'access_token'.freeze
+    TOKEN_TYPE  = 'param'.freeze
     AUTH_HEADER = 'Authorization'.freeze
 
-    attr_reader :param_name
+    attr_reader :param_name, :token_type
 
     extend Forwardable
     def_delegators :'Faraday::Utils', :parse_query, :build_query
@@ -34,8 +39,13 @@ module FaradayMiddleware
       token = params[param_name]
 
       if token.respond_to?(:empty?) && !token.empty?
-        env[:url].query = build_query params
-        env[:request_headers][AUTH_HEADER] ||= %(Token token="#{token}")
+        case @token_type.downcase
+        when 'param'
+          env[:url].query = build_query params
+          env[:request_headers][AUTH_HEADER] ||= %(Token token="#{token}")
+        when 'bearer'
+          env[:request_headers][AUTH_HEADER] ||= %(Bearer #{token})
+        end
       end
 
       @app.call env
@@ -46,7 +56,19 @@ module FaradayMiddleware
       options, token = token, nil if token.is_a? Hash
       @token = token && token.to_s
       @param_name = options.fetch(:param_name, PARAM_NAME).to_s
-      raise ArgumentError, ":param_name can't be blank" if @param_name.empty?
+      @token_type = options.fetch(:token_type, TOKEN_TYPE).to_s
+
+      if @token_type == 'param' && @param_name.empty?
+        raise ArgumentError, ":param_name can't be blank"
+      end
+
+      if options[:token_type].nil?
+        warn "\nWarning: FaradayMiddleware::OAuth2 initialized with default "\
+             "token_type - token will be added as both a query string parameter "\
+             "and an Authorization header. In the next major release, tokens will "\
+             "be added exclusively as an Authorization header by default. Please "\
+             "visit https://github.com/lostisland/faraday_middleware/wiki for more information."
+      end
     end
 
     def query_params(url)
