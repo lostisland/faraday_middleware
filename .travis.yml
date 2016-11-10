@@ -22,3 +22,11 @@ matrix:
     - rvm: rbx-2
     - rvm: ruby-head
   fast_finish: true
+deploy:
+  provider: rubygems
+  api_key:
+    secure: H5OPkiOcBFpI34nxIdGc/Rj6nNQKBUR0ccyKBubFroXcVDftpA+TVx8Vq+sjYaM1GuZI1F3OJPLHXmuyYsnJ3M3yltG2pYpJehULdpVU6yMu6eaQ8UAzA8wbmM1ANWEGQi1giulnxHw9M08qFzECpZvDFJWjtCg9lws64emqPLA=
+  gem: faraday_middleware
+  on:
+    tags: true
+    repo: lostisland/faraday_middleware
