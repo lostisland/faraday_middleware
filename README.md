@@ -22,11 +22,11 @@ Examples
 --------
 
 ``` rb
-require 'faraday_middleware'
+require "faraday_middleware"
 
 ## in Faraday 0.8 or above:
-connection = Faraday.new 'http://example.com/api' do |conn|
-  conn.request :oauth2, 'TOKEN'
+connection = Faraday.new "http://example.com/api" do |conn|
+  conn.request :oauth2, "TOKEN"
   conn.request :json
 
   conn.response :xml,  :content_type => /\bxml$/
@@ -37,7 +37,7 @@ connection = Faraday.new 'http://example.com/api' do |conn|
 end
 
 ## with Faraday 0.7:
-connection = Faraday.new 'http://example.com/api' do |builder|
+connection = Faraday.new "http://example.com/api" do |builder|
   builder.use FaradayMiddleware::OAuth2, 'TOKEN'
   builder.use FaradayMiddleware::EncodeJson
 
