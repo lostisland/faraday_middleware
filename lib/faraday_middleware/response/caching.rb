@@ -79,11 +79,11 @@ module FaradayMiddleware
         finalize_response(cached_response, env)
       else
         # response.status is nil at this point, any checks need to be done inside on_complete block
-        @app.call(env).on_complete do |response|
-          if CACHEABLE_STATUS_CODES.include?(response.status)
-            cache.write(key, response)
+        @app.call(env).on_complete do |response_env|
+          if CACHEABLE_STATUS_CODES.include?(response_env.status)
+            cache.write(key, response_env.response)
           end
-          response
+          response_env
         end
       end
     end
