@@ -187,6 +187,19 @@ describe FaradayMiddleware::FollowRedirects do
     end
   end
 
+  context "for an HTTP 308 response" do
+    context "by default" do
+      it_behaves_like 'a successful redirection', 308
+      it_behaves_like 'a replayed redirection', 308
+    end
+
+    context "with standards compliancy enabled" do
+      let(:middleware_options) { { :standards_compliant => true } }
+      it_behaves_like 'a successful redirection', 308
+      it_behaves_like 'a replayed redirection', 308
+    end
+  end
+
   context "with a callback" do
     it "calls the callback" do
       from, to = nil, nil
