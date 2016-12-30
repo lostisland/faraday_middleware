@@ -12,7 +12,7 @@ module FaradayMiddleware
     end
   end
 
-  # Public: Follow HTTP 301, 302, 303, and 307 redirects.
+  # Public: Follow HTTP 301, 302, 303, 307, and 308 redirects.
   #
   # For HTTP 301, 302, and 303, the original GET, POST, PUT, DELETE, or PATCH
   # request gets converted into a GET. With `:standards_compliant => true`,
@@ -34,7 +34,7 @@ module FaradayMiddleware
     # HTTP methods for which 30x redirects can be followed
     ALLOWED_METHODS = Set.new [:head, :options, :get, :post, :put, :patch, :delete]
     # HTTP redirect status codes that this middleware implements
-    REDIRECT_CODES  = Set.new [301, 302, 303, 307]
+    REDIRECT_CODES  = Set.new [301, 302, 303, 307, 308]
     # Keys in env hash which will get cleared between requests
     ENV_TO_CLEAR    = Set.new [:status, :response, :response_headers]
 
