@@ -101,7 +101,6 @@ describe FaradayMiddleware::FollowRedirects do
     end
   end
 
-
   it "returns non-redirect response results" do
     expect(connection do |stub|
       stub.get('/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
@@ -144,6 +143,13 @@ describe FaradayMiddleware::FollowRedirects do
     end
 
     expect{ conn.get('/') }.to raise_error(FaradayMiddleware::RedirectLimitReached)
+  end
+
+  it "ignore fragments in the Location header" do
+    expect(connection do |stub|
+      stub.get('/')      { [301, {'Location' => '/found#fragment'}, ''] }
+      stub.get('/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
+    end.get('/').body).to eq 'fin'
   end
 
   [301, 302].each do |code|
