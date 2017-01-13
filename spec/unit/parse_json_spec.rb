@@ -66,6 +66,15 @@ describe FaradayMiddleware::ParseJson, :type => :response do
     end
   end
 
+  it "includes the response on the ParsingError instance" do
+    begin
+      process('{') { |env| env[:response] = Faraday::Response.new }
+      fail 'Parsing should have failed.'
+    rescue Faraday::Error::ParsingError => err
+      expect(err.response).to be_a(Faraday::Response)
+    end
+  end
+
   context "with mime type fix" do
     let(:middleware) {
       app = described_class::MimeTypeFix.new(lambda {|env|
