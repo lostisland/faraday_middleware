@@ -118,4 +118,12 @@ describe FaradayMiddleware::ParseJson, :type => :response do
       expect(response.body).to be_nil
     end
   end
+
+  context "with passing options to the parser" do
+    let(:options) { {:symbolize_names => true } }
+
+    it "correctly parses json body according to specified options" do
+      expect(process('{"a":1}').body).to eq(:a => 1)
+    end
+  end
 end
