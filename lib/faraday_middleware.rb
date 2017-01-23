@@ -24,7 +24,8 @@ module FaradayMiddleware
       :oauth    => lambda { OAuth },
       :oauth2   => lambda { OAuth2 },
       :json     => lambda { EncodeJson },
-      :method_override => lambda { MethodOverride }
+      :method_override => lambda { MethodOverride },
+      :limit_size => lambda { LimitSize },
 
     Faraday::Response.register_middleware \
       :mashify  => lambda { Mashify },
