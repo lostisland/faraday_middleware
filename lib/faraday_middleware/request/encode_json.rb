@@ -14,7 +14,11 @@ module FaradayMiddleware
     MIME_TYPE_REGEX = /^application\/(vnd\..+\+)?json$/
 
     dependency do
-      require 'json' unless defined?(::JSON)
+      begin
+        require 'multi_json' unless defined?(::MultiJson)
+      rescue LoadError
+        require 'json' unless defined?(::JSON)
+      end
     end
 
     def call(env)
@@ -25,7 +29,15 @@ module FaradayMiddleware
     end
 
     def encode(data)
-      ::JSON.dump data
+      if defined? ::MultiJson
+        if ::MultiJson.respond_to? :dump
+          ::MultiJson.dump data
+        else
+          ::MultiJson.encode data
+        end
+      else
+        ::JSON.dump data
+      end
     end
 
     def match_content_type(env)
