@@ -53,6 +53,33 @@ module ResponseMiddlewareExampleGroup
   end
 end
 
+class SimpleCache
+  def initialize
+    @cache = {}
+  end
+
+  def read(key)
+    @cache[key]
+  end
+
+  def write(key, value, options={})
+    if not options[:unless_exist] or not @cache[key]
+      @cache[key] = value
+    end
+  end
+
+  def fetch(key, options={})
+    result = read(key)
+    return result if result
+    result = yield
+    write(key, result)
+  end
+
+  def keys
+    @cache.keys
+  end
+end
+
 RSpec.configure do |config|
   config.include EnvCompatibility
   config.include ResponseMiddlewareExampleGroup, :type => :response
