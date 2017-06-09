@@ -118,4 +118,37 @@ describe FaradayMiddleware::ParseJson, :type => :response do
       expect(response.body).to be_nil
     end
   end
+
+  context "JSON options" do
+    let(:body) { '{"a": 1}' }
+    let(:result) { {} }
+    let(:options) do
+      {
+        :max_nesting => 22,
+        :allow_nan => true,
+        :symbolize_names => true,
+        :create_additions => false,
+        :object_class => Class,
+        :array_class => Class,
+        :foo => 1234
+      }
+    end
+
+    it "passes relevant options to JSON parse" do
+      allow(::JSON).to receive(:parse)
+        .with(
+          body,
+          :max_nesting => options[:max_nesting],
+          :allow_nan => options[:allow_nan],
+          :symbolize_names => options[:symbolize_names],
+          :create_additions => options[:create_additions],
+          :object_class => options[:object_class],
+          :array_class => options[:array_class]
+        )
+        .and_return(result)
+
+      response = process(body)
+      expect(response.body).to be(result)
+    end
+  end
 end
