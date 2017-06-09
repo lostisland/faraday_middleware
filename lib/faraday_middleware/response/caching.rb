@@ -27,6 +27,9 @@ module FaradayMiddleware
     #           :ignore_params - String name or Array names of query params
     #                            that should be ignored when forming the cache
     #                            key (default: []).
+    #           :write_options - Hash of settings that should be passed as the third
+    #                            options parameter to the cache's #write method. If not
+    #                            specified, no options parameter will be passed.
     #
     # Yields if no cache is given. The block should return a cache object.
     def initialize(app, cache = nil, options = {})
@@ -48,7 +51,11 @@ module FaradayMiddleware
             response = @app.call(env)
 
             if CACHEABLE_STATUS_CODES.include?(response.status)
-              cache.write(key, response)
+              if @options[:write_options]
+                cache.write(key, response, @options[:write_options])
+              else
+                cache.write(key, response)
+              end
             end
           end
           finalize_response(response, env)
@@ -81,7 +88,11 @@ module FaradayMiddleware
         # response.status is nil at this point, any checks need to be done inside on_complete block
         @app.call(env).on_complete do |response_env|
           if CACHEABLE_STATUS_CODES.include?(response_env.status)
-            cache.write(key, response_env.response)
+            if @options[:write_options]
+              cache.write(key, response_env.response, @options[:write_options])
+            else
+              cache.write(key, response_env.response)
+            end
           end
           response_env
         end

@@ -78,6 +78,26 @@ describe FaradayMiddleware::Caching do
     end
   end
 
+  context ":write_options" do
+    let(:options) { {:write_options => {:expires_in => 9000 } } }
+
+    it "passes on the options when writing to the cache" do
+      expect(@cache).to receive(:write).with("/",
+                                             instance_of(Faraday::Response),
+                                             options[:write_options])
+      get('/')
+    end
+
+    context "with no :write_options" do
+      let(:options) { {} }
+
+      it "doesn't pass a third options parameter to the cache's #write" do
+        expect(@cache).to receive(:write).with("/", instance_of(Faraday::Response))
+        get('/')
+      end
+    end
+  end
+
   class TestCache < Hash
     def read(key)
       if cached = self[key]
@@ -85,7 +105,7 @@ describe FaradayMiddleware::Caching do
       end
     end
 
-    def write(key, data)
+    def write(key, data, options = nil)
       self[key] = Marshal.dump(data)
     end
 
