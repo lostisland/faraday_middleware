@@ -49,14 +49,7 @@ module FaradayMiddleware
           key = cache_key(env)
           unless response = cache.read(key) and response
             response = @app.call(env)
-
-            if CACHEABLE_STATUS_CODES.include?(response.status)
-              if @options[:write_options]
-                cache.write(key, response, @options[:write_options])
-              else
-                cache.write(key, response)
-              end
-            end
+            store_response_in_cache(key, response)
           end
           finalize_response(response, env)
         end
@@ -87,15 +80,19 @@ module FaradayMiddleware
       else
         # response.status is nil at this point, any checks need to be done inside on_complete block
         @app.call(env).on_complete do |response_env|
-          if CACHEABLE_STATUS_CODES.include?(response_env.status)
-            if @options[:write_options]
-              cache.write(key, response_env.response, @options[:write_options])
-            else
-              cache.write(key, response_env.response)
-            end
-          end
+          store_response_in_cache(key, response_env.response)
           response_env
         end
+      end
+    end
+
+    def store_response_in_cache(key, response)
+      return unless CACHEABLE_STATUS_CODES.include?(response.status)
+
+      if @options[:write_options]
+        cache.write(key, response, @options[:write_options])
+      else
+        cache.write(key, response)
       end
     end
 
