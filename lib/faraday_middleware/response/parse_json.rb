@@ -7,18 +7,10 @@ module FaradayMiddleware
       require 'json' unless defined?(::JSON)
     end
 
-    define_parser do |body, options|
+    define_parser do |body, parser_options|
       next if body.strip.empty?
 
-      ::JSON.parse(
-        body,
-        :max_nesting => options[:max_nesting],
-        :allow_nan => options[:allow_nan],
-        :symbolize_names => options[:symbolize_names],
-        :create_additions => options[:create_additions],
-        :object_class => options[:object_class],
-        :array_class => options[:array_class]
-      )
+      ::JSON.parse(body, parser_options)
     end
 
     # Public: Override the content-type of the response with "application/json"

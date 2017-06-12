@@ -124,27 +124,15 @@ describe FaradayMiddleware::ParseJson, :type => :response do
     let(:result) { {} }
     let(:options) do
       {
-        :max_nesting => 22,
-        :allow_nan => true,
-        :symbolize_names => true,
-        :create_additions => false,
-        :object_class => Class,
-        :array_class => Class,
-        :foo => 1234
+        :parser_options => {
+          :symbolize_names => true
+        }
       }
     end
 
     it "passes relevant options to JSON parse" do
       allow(::JSON).to receive(:parse)
-        .with(
-          body,
-          :max_nesting => options[:max_nesting],
-          :allow_nan => options[:allow_nan],
-          :symbolize_names => options[:symbolize_names],
-          :create_additions => options[:create_additions],
-          :object_class => options[:object_class],
-          :array_class => options[:array_class]
-        )
+        .with(body, options[:parser_options])
         .and_return(result)
 
       response = process(body)

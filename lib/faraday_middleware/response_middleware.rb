@@ -23,6 +23,7 @@ module FaradayMiddleware
     def initialize(app = nil, options = {})
       super(app)
       @options = options
+      @parser_options = options[:parser_options]
       @content_types = Array(options[:content_type])
     end
 
@@ -47,7 +48,11 @@ module FaradayMiddleware
     def parse(body)
       if self.class.parser
         begin
-          self.class.parser.call(body, @options)
+          if @parser_options
+            self.class.parser.call(body, @parser_options)
+          else
+            self.class.parser.call(body)
+          end
         rescue StandardError, SyntaxError => err
           raise err if err.is_a? SyntaxError and err.class.name != 'Psych::SyntaxError'
           raise Faraday::Error::ParsingError, err
