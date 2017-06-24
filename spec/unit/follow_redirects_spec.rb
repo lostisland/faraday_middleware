@@ -152,6 +152,18 @@ describe FaradayMiddleware::FollowRedirects do
     end.get('/').body).to eq 'fin'
   end
 
+  described_class::REDIRECT_CODES.each do |code|
+    context "for an HTTP #{code} response" do
+      it "raises a FaradayMiddleware::RedirectLimitReached when Location header is missing" do
+        conn = connection do |stub|
+          stub.get('/') { [code, {}, ''] }
+        end
+
+        expect{ conn.get('/') }.to raise_error(FaradayMiddleware::RedirectLimitReached)
+      end
+    end
+  end
+
   [301, 302].each do |code|
     context "for an HTTP #{code} response" do
       it_behaves_like 'a successful redirection', code

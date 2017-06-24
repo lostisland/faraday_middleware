@@ -89,7 +89,7 @@ module FaradayMiddleware
     end
 
     def update_env(env, request_body, response)
-      env[:url] += safe_escape(response['location'])
+      env[:url] += safe_escape(response['location'] || '')
 
       if convert_to_get?(response)
         env[:method] = :get
