@@ -7,7 +7,7 @@ gem 'multi_xml', '>= 0.5.3'
 gem 'rack', '< 2'
 gem 'rack-cache', '>= 1.1', '< 1.3'
 gem 'rake', '>= 0.9', '< 11'
-gem 'rash', '>= 0.3'
+gem 'rash_alt', '>= 0.4.3'
 gem 'simple_oauth', '>= 0.1', '< 0.3'
 
 group :test do

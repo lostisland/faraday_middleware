@@ -6,7 +6,7 @@ module FaradayMiddleware
   class Rashify < Mashify
     dependency do
       require 'rash'
-      self.mash_class = ::Hashie::Rash
+      self.mash_class = ::Hashie::Mash::Rash
     end
   end
 end

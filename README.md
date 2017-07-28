@@ -15,7 +15,7 @@ Some dependent libraries are needed only when using specific middleware:
 * FaradayMiddleware::ParseXml: "multi_xml"
 * FaradayMiddleware::OAuth: "simple_oauth"
 * FaradayMiddleware::Mashify: "hashie"
-* FaradayMiddleware::Rashify: "rash"
+* FaradayMiddleware::Rashify: "rash_alt" (Make sure to uninstall original rash gem to avoid conflict)
 * FaradayMiddleware::Instrumentation: "activesupport"
 
 Examples
