@@ -3,27 +3,31 @@ require 'faraday_middleware/response_middleware'
 module FaradayMiddleware
   # Public: Parse response bodies as YAML.
   #
-  # Warning: this uses `YAML.load()` by default and as such is not safe against
-  # code injection or DoS attacks. If you're loading resources from an
-  # untrusted host or over HTTP, you should subclass this middleware and
-  # redefine it to use `safe_load()` if you're using a Psych version that
-  # supports it:
+  # Warning: This is not backwards compatible with versions of this middleware prior to
+  # faraday_middleware v0.12 - prior to this version, we used YAML.load rather than
+  # YAMl.safe_load, which exposes serious remote code execution risks - see
+  # https://github.com/ruby/psych/issues/119 for details. If you're sure you can trust
+  # YAML you're passing, you can set up an unsafe version of this middleware as follows:
   #
-  #     class SafeYaml < FaradayMiddleware::ParseYaml
+  #     class UnsafelyParseYaml < FaradayMiddleware::ResponseMiddleware
+  #       dependency do
+  #         require 'yaml'
+  #       end
+  #
   #       define_parser do |body|
-  #         YAML.safe_load(body)
+  #         YAML.load body
   #       end
   #     end
   #
   #     Faraday.new(..) do |config|
-  #       config.use SafeYaml
+  #       config.use UnsafelyParseYaml
   #       ...
   #     end
   class ParseYaml < ResponseMiddleware
-    dependency 'yaml'
+    dependency 'safe_yaml/load'
 
     define_parser do |body|
-      ::YAML.load body
+      SafeYAML.load body
     end
   end
 end
