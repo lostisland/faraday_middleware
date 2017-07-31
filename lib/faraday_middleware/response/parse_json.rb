@@ -11,7 +11,7 @@ module FaradayMiddleware
       next if body.strip.empty?
 
       if parser_options
-        ::JSON.parse(body, parser_options) if parser_options
+        ::JSON.parse(body, parser_options)
       else
         ::JSON.parse(body)
       end
