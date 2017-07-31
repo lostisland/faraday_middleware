@@ -8,13 +8,7 @@ module FaradayMiddleware
     end
 
     define_parser do |body, parser_options|
-      next if body.strip.empty?
-
-      if parser_options
-        ::JSON.parse(body, parser_options)
-      else
-        ::JSON.parse(body)
-      end
+      ::JSON.parse(body, parser_options || {}) unless body.strip.empty?
     end
 
     # Public: Override the content-type of the response with "application/json"
