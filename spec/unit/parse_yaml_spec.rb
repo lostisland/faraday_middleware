@@ -50,4 +50,25 @@ describe FaradayMiddleware::ParseYaml, :type => :response do
   it "chokes on invalid yaml" do
     expect{ process('{!') }.to raise_error(Faraday::Error::ParsingError)
   end
+
+  context "SafeYAML options" do
+    let(:body) { 'a: 1' }
+    let(:result) { {a: 1} }
+    let(:options) do
+      {
+        :parser_options => {
+          :symbolize_names => true
+        }
+      }
+    end
+
+    it "passes relevant options to SafeYAML load" do
+      expect(::SafeYAML).to receive(:load)
+                         .with(body, nil, options[:parser_options])
+                         .and_return(result)
+
+      response = process(body)
+      expect(response.body).to be(result)
+    end
+  end
 end

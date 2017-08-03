@@ -68,4 +68,23 @@ describe FaradayMiddleware::ParseXml, :type => :response do
       expect{ process(data) }.to raise_error(Faraday::Error::ParsingError)
     end
   end
+
+  context "MultiXml options" do
+    let(:options) do
+      {
+        :parser_options => {
+          :symbolize_names => true
+        }
+      }
+    end
+
+    it "passes relevant options to MultiXml parse" do
+      expect(::MultiXml).to receive(:parse)
+                         .with(xml, options[:parser_options])
+                         .and_return(user)
+
+      response = process(xml)
+      expect(response.body).to be(user)
+    end
+  end
 end

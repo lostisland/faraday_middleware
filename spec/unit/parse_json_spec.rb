@@ -121,7 +121,7 @@ describe FaradayMiddleware::ParseJson, :type => :response do
 
   context "JSON options" do
     let(:body) { '{"a": 1}' }
-    let(:result) { {} }
+    let(:result) { {a: 1} }
     let(:options) do
       {
         :parser_options => {
@@ -131,12 +131,12 @@ describe FaradayMiddleware::ParseJson, :type => :response do
     end
 
     it "passes relevant options to JSON parse" do
-      allow(::JSON).to receive(:parse)
+      expect(::JSON).to receive(:parse)
         .with(body, options[:parser_options])
         .and_return(result)
 
       response = process(body)
-      expect(response.body).to be(result)
+      expect(response.body).to eq(result)
     end
   end
 end

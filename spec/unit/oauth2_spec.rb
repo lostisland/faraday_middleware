@@ -27,7 +27,7 @@ describe FaradayMiddleware::OAuth2 do
   end
 
   context "no token configured" do
-    let(:options) { nil }
+    let(:options) { [nil, {:token_type => :param}] }
 
     it "doesn't add params" do
       request = perform(:q => 'hello')
@@ -45,7 +45,7 @@ describe FaradayMiddleware::OAuth2 do
     end
 
     context "bearer token type configured" do
-      let(:options) { [nil, {:token_type => 'bearer'}] }
+      let(:options) { [nil, {:token_type => :bearer}] }
 
       it "doesn't add headers" do
         expect(auth_header(perform)).to be_nil
@@ -59,7 +59,7 @@ describe FaradayMiddleware::OAuth2 do
   end
 
   context "default token configured" do
-    let(:options) { 'XYZ' }
+    let(:options) { ['XYZ', {:token_type => :param}] }
 
     it "adds token param" do
       expect(query_params(perform(:q => 'hello'))).to eq('q' => 'hello', 'access_token' => 'XYZ')
@@ -82,7 +82,7 @@ describe FaradayMiddleware::OAuth2 do
     end
 
     context "bearer token type configured" do
-      let(:options) { ['XYZ', {:token_type => 'bearer'}] }
+      let(:options) { ['XYZ', {:token_type => :bearer}] }
 
       it "adds token header" do
         expect(auth_header(perform)).to eq(%(Bearer XYZ))
@@ -101,7 +101,7 @@ describe FaradayMiddleware::OAuth2 do
   end
 
   context "existing Authorization header" do
-    let(:options) { 'XYZ' }
+    let(:options) { ['XYZ', {:token_type => :param}] }
     subject { perform({:q => 'hello'}, 'Authorization' => 'custom') }
 
     it "adds token param" do
@@ -113,7 +113,7 @@ describe FaradayMiddleware::OAuth2 do
     end
 
     context "bearer token type configured" do
-      let(:options) { ['XYZ', {:token_type => 'bearer'}] }
+      let(:options) { ['XYZ', {:token_type => :bearer}] }
       subject { perform({:q => 'hello'}, 'Authorization' => 'custom') }
 
       it "doesn't override existing header" do
@@ -123,7 +123,7 @@ describe FaradayMiddleware::OAuth2 do
   end
 
   context "custom param name configured" do
-    let(:options) { ['XYZ', {:param_name => :oauth}] }
+    let(:options) { ['XYZ', {:token_type => :param, :param_name => :oauth}] }
 
     it "adds token param" do
       expect(query_params(perform)).to eq('oauth' => 'XYZ')
@@ -137,7 +137,7 @@ describe FaradayMiddleware::OAuth2 do
   end
 
   context "options without token configuration" do
-    let(:options) { [{:param_name => :oauth}] }
+    let(:options) { [{:token_type => :param, :param_name => :oauth}] }
 
     it "doesn't add param" do
       expect(query_params(perform)).to be_empty
@@ -149,7 +149,7 @@ describe FaradayMiddleware::OAuth2 do
   end
 
   context "invalid param name configured" do
-    let(:options) { ['XYZ', {:param_name => nil}] }
+    let(:options) { ['XYZ', {:token_type => :param, :param_name => nil}] }
 
     it "raises error" do
       expect{ make_app }.to raise_error(ArgumentError, ":param_name can't be blank")
