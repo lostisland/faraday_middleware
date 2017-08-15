@@ -10,11 +10,14 @@ Dependencies
 
 Some dependent libraries are needed only when using specific middleware:
 
-* FaradayMiddleware::ParseXml: "multi_xml"
-* FaradayMiddleware::OAuth: "simple_oauth"
-* FaradayMiddleware::Mashify: "hashie"
-* FaradayMiddleware::Rashify: "rash_alt" (Make sure to uninstall original rash gem to avoid conflict)
-* FaradayMiddleware::Instrumentation: "activesupport"
+| Middleware                  | Library        | Notes |
+| --------------------------- | -------------- | ----- |
+| [FaradayMiddleware::Instrumentation](https://github.com/lostisland/faraday_middleware/blob/master/lib/faraday_middleware/instrumentation.rb) | [`activesupport`](https://rubygems.org/gems/activesupport) |       |
+| [FaradayMiddleware::OAuth](https://github.com/lostisland/faraday_middleware/blob/master/lib/faraday_middleware/request/oauth.rb)    | [`simple_oauth`](https://rubygems.org/gems/simple_oauth) |       |
+| [FaradayMiddleware::ParseXml](https://github.com/lostisland/faraday_middleware/blob/master/lib/faraday_middleware/response/parse_xml.rb) | [`multi_xml`](https://rubygems.org/gems/multi_xml)    |       |
+| [FaradayMiddleware::ParseYaml](https://github.com/lostisland/faraday_middleware/blob/master/lib/faraday_middleware/response/parse_yaml.rb)  | [`safe_yaml`](https://rubygems.org/gems/safe_yaml)     | Not backwards compatible with versions of this middleware prior to `faraday_middleware` v0.12. See code comments for alternatives. |
+| [FaradayMiddleware::Mashify](https://github.com/lostisland/faraday_middleware/blob/master/lib/faraday_middleware/response/mashify.rb)  | [`hashie`](https://rubygems.org/gems/hashie)       |       |
+| [FaradayMiddleware::Rashify](https://github.com/lostisland/faraday_middleware/blob/master/lib/faraday_middleware/response/rashify.rb)  | [`rash_alt`](https://rubygems.org/gems/rash_alt)     | Make sure to uninstall original `rash` gem to avoid conflict. |
 
 Examples
 --------
