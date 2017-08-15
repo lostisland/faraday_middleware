@@ -16,6 +16,7 @@ Some dependent libraries are needed only when using specific middleware:
 | [FaradayMiddleware::OAuth](https://github.com/lostisland/faraday_middleware/blob/master/lib/faraday_middleware/request/oauth.rb)    | `simple_oauth` |       |
 | [FaradayMiddleware::Mashify](https://github.com/lostisland/faraday_middleware/blob/master/lib/faraday_middleware/response/mashify.rb)  | `hashie`       |       |
 | [FaradayMiddleware::Rashify](https://github.com/lostisland/faraday_middleware/blob/master/lib/faraday_middleware/response/rashify.rb)  | `rash_alt`     | Make sure to uninstall original `rash` gem to avoid conflict. |
+| [FaradayMiddleware::ParseYaml](https://github.com/lostisland/faraday_middleware/blob/master/lib/faraday_middleware/response/parse_yaml.rb)  | `safe_yaml`     | Not backwards compatible with versions of this middleware prior to `faraday_middleware` v0.12. See code comments for alternatives. |
 | [FaradayMiddleware::Instrumentation](https://github.com/lostisland/faraday_middleware/blob/master/lib/faraday_middleware/instrumentation.rb) | `activesupport` |       |
 
 Examples
