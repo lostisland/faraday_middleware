@@ -12,11 +12,11 @@ Some dependent libraries are needed only when using specific middleware:
 
 | Middleware                  | Library        | Notes |
 | --------------------------- | -------------- | ----- |
-| FaradayMiddleware::ParseXml | `multi_xml`    |       |
-| FaradayMiddleware::OAuth    | `simple_oauth` |       |
-| FaradayMiddleware::Mashify  | `hashie`       |       |
-| FaradayMiddleware::Rashify  | `rash_alt`     | Make sure to uninstall original `rash` gem to avoid conflict. |
-| FaradayMiddleware::Instrumentation | `activesupport` |       |
+| [FaradayMiddleware::ParseXml](https://github.com/lostisland/faraday_middleware/blob/master/lib/faraday_middleware/response/parse_xml.rb) | `multi_xml`    |       |
+| [FaradayMiddleware::OAuth](https://github.com/lostisland/faraday_middleware/blob/master/lib/faraday_middleware/request/oauth.rb)    | `simple_oauth` |       |
+| [FaradayMiddleware::Mashify](https://github.com/lostisland/faraday_middleware/blob/master/lib/faraday_middleware/response/mashify.rb)  | `hashie`       |       |
+| [FaradayMiddleware::Rashify](https://github.com/lostisland/faraday_middleware/blob/master/lib/faraday_middleware/response/rashify.rb)  | `rash_alt`     | Make sure to uninstall original `rash` gem to avoid conflict. |
+| [FaradayMiddleware::Instrumentation](https://github.com/lostisland/faraday_middleware/blob/master/lib/faraday_middleware/instrumentation.rb) | `activesupport` |       |
 
 Examples
 --------
