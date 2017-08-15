@@ -10,13 +10,13 @@ Dependencies
 
 Some dependent libraries are needed only when using specific middleware:
 
-| Middleware                  | Library | Notes |
-| --------------------------- | ------- | ----- |
-| FaradayMiddleware::ParseXml | `multi_xml` | |
-| FaradayMiddleware::OAuth    | `simple_oauth` | |
-| FaradayMiddleware::Mashify  | `hashie` | |
-| FaradayMiddleware::Rashify  | `rash_alt` | Make sure to uninstall original `rash` gem to avoid conflict.  |
-| FaradayMiddleware::Instrumentation | `activesupport` | |
+| Middleware                  | Library        | Notes |
+| --------------------------- | -------------- | ----- |
+| FaradayMiddleware::ParseXml | `multi_xml`    |       |
+| FaradayMiddleware::OAuth    | `simple_oauth` |       |
+| FaradayMiddleware::Mashify  | `hashie`       |       |
+| FaradayMiddleware::Rashify  | `rash_alt`     | Make sure to uninstall original `rash` gem to avoid conflict. |
+| FaradayMiddleware::Instrumentation | `activesupport` |       |
 
 Examples
 --------
