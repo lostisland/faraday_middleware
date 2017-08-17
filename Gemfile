@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'brotli', '>= 0.1.8'
 gem 'hashie', '>= 1.2'
 gem 'jruby-openssl', :platforms => :jruby
 gem 'json', '< 2'

@@ -12,7 +12,7 @@ describe FaradayMiddleware::Gzip, :type => :response do
   context 'request' do
     it 'sets the Accept-Encoding request header' do
       env = process('').env
-      expect(env[:request_headers][:accept_encoding]).to eq('gzip,deflate')
+      expect(env[:request_headers][:accept_encoding]).to eq('gzip,deflate,br')
     end
 
     it 'doesnt overwrite existing Accept-Encoding request header' do
@@ -44,6 +44,9 @@ describe FaradayMiddleware::Gzip, :type => :response do
       compressed_body = z.deflate(uncompressed_body, Zlib::FINISH)
       z.close
       compressed_body
+    }
+    let(:brotlied_body) {
+      Brotli.deflate(uncompressed_body)
     }
 
     shared_examples 'compressed response' do
@@ -77,6 +80,13 @@ describe FaradayMiddleware::Gzip, :type => :response do
     context 'raw deflated response' do
       let(:body) { raw_deflated_body }
       let(:headers) { {'Content-Encoding' => 'deflate', 'Content-Length' => body.length} }
+
+      it_behaves_like 'compressed response'
+    end
+
+    context 'brotlied response' do
+      let(:body) { brotlied_body }
+      let(:headers) { {'Content-Encoding' => 'br', 'Content-Length' => body.length } }
 
       it_behaves_like 'compressed response'
     end
