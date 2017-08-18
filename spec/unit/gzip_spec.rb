@@ -2,6 +2,7 @@ require 'helper'
 require 'faraday_middleware/gzip'
 
 describe FaradayMiddleware::Gzip, :type => :response do
+  require 'brotli' unless jruby?
 
   let(:middleware) {
     described_class.new(lambda { |env|
@@ -89,7 +90,7 @@ describe FaradayMiddleware::Gzip, :type => :response do
       let(:headers) { {'Content-Encoding' => 'br', 'Content-Length' => body.length } }
 
       it_behaves_like 'compressed response'
-    end
+    end unless jruby?
 
     context 'identity response' do
       let(:body) { uncompressed_body }

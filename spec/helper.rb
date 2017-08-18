@@ -5,7 +5,7 @@ if ENV['COVERAGE']
     def format(result)
       SimpleCov::Formatter::HTMLFormatter.new.format(result) unless ENV['CI']
       File.open('coverage/covered_percent', 'w') do |f|
-        f.printf "%.2f", result.source_files.covered_percent
+        f.printf '%.2f', result.source_files.covered_percent
       end
     end
   end
@@ -32,10 +32,10 @@ end
 
 module ResponseMiddlewareExampleGroup
   def self.included(base)
-    base.let(:options) { Hash.new }
-    base.let(:headers) { Hash.new }
+    base.let(:options) { {} }
+    base.let(:headers) { {} }
     base.let(:middleware) {
-      described_class.new(lambda {|env|
+      described_class.new(lambda { |env|
         Faraday::Response.new(env)
       }, options)
     }
@@ -43,9 +43,9 @@ module ResponseMiddlewareExampleGroup
 
   def process(body, content_type = nil, options = {})
     env = {
-      :body => body, :request => options,
-      :request_headers => Faraday::Utils::Headers.new,
-      :response_headers => Faraday::Utils::Headers.new(headers)
+      body: body, request: options,
+      request_headers: Faraday::Utils::Headers.new,
+      response_headers: Faraday::Utils::Headers.new(headers)
     }
     env[:response_headers]['content-type'] = content_type if content_type
     yield(env) if block_given?
@@ -55,8 +55,12 @@ end
 
 RSpec.configure do |config|
   config.include EnvCompatibility
-  config.include ResponseMiddlewareExampleGroup, :type => :response
+  config.include ResponseMiddlewareExampleGroup, type: :response
   config.expect_with :rspec do |c|
     c.syntax = :expect
+  end
+
+  def jruby?
+    defined?(RUBY_ENGINE) && RUBY_ENGINE == 'jruby'
   end
 end
