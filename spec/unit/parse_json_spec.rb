@@ -61,9 +61,7 @@ describe FaradayMiddleware::ParseJson, :type => :response do
   end
 
   it "chokes on invalid json" do
-    ['{!', '"a"', 'true', 'null', '1'].each do |data|
-      expect{ process(data) }.to raise_error(Faraday::Error::ParsingError)
-    end
+    expect{ process('{!') }.to raise_error(Faraday::Error::ParsingError)
   end
 
   it "includes the response on the ParsingError instance" do

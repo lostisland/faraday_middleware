@@ -12,7 +12,6 @@ module FaradayMiddleware
   # - em_http
   class Gzip < Faraday::Middleware
     dependency 'zlib'
-    dependency 'brotli'
 
     ACCEPT_ENCODING = 'Accept-Encoding'.freeze
     CONTENT_ENCODING = 'Content-Encoding'.freeze
@@ -65,6 +64,8 @@ module FaradayMiddleware
     end
 
     def brotli_inflate(body)
+      self.class.dependency 'brotli'
+
       Brotli.inflate(body)
     end
   end
