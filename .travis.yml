@@ -7,8 +7,9 @@ rvm:
   - 2.0
   - 2.1
   - 2.2
-  - 2.3.0
-  - 2.4.0
+  - 2.3
+  - 2.4
+  - 2.5.0
   - jruby-head
   - rbx-2
 gemfile:
@@ -16,7 +17,9 @@ gemfile:
   - Gemfile-0.9.rb
 matrix:
   exclude:
-    - rvm: 2.4.0
+    - rvm: 2.4
+      gemfile: Gemfile-0.9.rb
+    - rvm: 2.5.0
       gemfile: Gemfile-0.9.rb
   allow_failures:
     - rvm: jruby-head
@@ -30,6 +33,6 @@ deploy:
   on:
     tags: true
     repo: lostisland/faraday_middleware
-    rvm: 2.4.0
+    rvm: 2.5.0
     gemfile: Gemfile
-    condition: "$TRAVIS_RUBY_VERSION == 2.4.0"
+    condition: "$TRAVIS_RUBY_VERSION == 2.5.0"
