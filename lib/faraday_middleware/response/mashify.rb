@@ -10,9 +10,19 @@ module FaradayMiddleware
       attr_accessor :mash_class
     end
 
+    # Private: Disables Hashie warnings about overriding class properties
+    # with json attributes.
+    require 'hashie/mash'
+    class Mash < Hashie::Mash
+      disable_warnings
+
+      def new(body)
+        super.new(body)
+      end
+    end
+
     dependency do
-      require 'hashie/mash'
-      self.mash_class = ::Hashie::Mash
+      self.mash_class = ::FaradayMiddleware::Mashify::Mash
     end
 
     def initialize(app = nil, options = {})
