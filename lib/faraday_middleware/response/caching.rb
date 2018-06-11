@@ -22,7 +22,7 @@ module FaradayMiddleware
 
     # Public: initialize the middleware.
     #
-    # cache   - An object that responds to read, write and fetch (default: nil).
+    # cache   - An object that responds to read and write (default: nil).
     # options - An options Hash (default: {}):
     #           :ignore_params - String name or Array names of query params
     #                            that should be ignored when forming the cache
