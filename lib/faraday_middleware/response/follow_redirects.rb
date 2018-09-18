@@ -45,6 +45,9 @@ module FaradayMiddleware
     # the "%" character which we assume already represents an escaped sequence.
     URI_UNSAFE = /[^\-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]%]/
 
+    # Regex that matches meta refresh tag content extracting interval and url
+    META_REFRESH_LOCATION = /^\s*(?<interval>\d+)\s*\;\s*url\s*=\s*(?<url>.+)\s*$/
+
     # Public: Initialize the middleware.
     #
     # options - An options Hash (default: {}):
@@ -54,6 +57,9 @@ module FaradayMiddleware
     #                                  (default: false)
     #           :callback            - A callable that will be called on redirects
     #                                  with the old and new envs
+    #           :follow_meta_refresh - A Boolean indication whether to follow
+    #                                  HTML meta refresh tag
+    #                                  (default: false)
     def initialize(app, options = {})
       super(app)
       @options = options
@@ -89,13 +95,19 @@ module FaradayMiddleware
     end
 
     def update_env(env, request_body, response)
-      env[:url] += safe_escape(response['location'] || '')
-
-      if convert_to_get?(response)
+      if follow_meta_refresh?(env)
         env[:method] = :get
         env[:body] = nil
+        env[:url] = URI(meta_refresh_location(env))
       else
-        env[:body] = request_body
+        env[:url] += safe_escape(response['location'] || '')
+
+        if convert_to_get?(response)
+          env[:method] = :get
+          env[:body] = nil
+        else
+          env[:body] = request_body
+        end
       end
 
       ENV_TO_CLEAR.each {|key| env.delete key }
@@ -104,8 +116,27 @@ module FaradayMiddleware
     end
 
     def follow_redirect?(env, response)
+      return true if follow_meta_refresh?(env)
+
       ALLOWED_METHODS.include? env[:method] and
         REDIRECT_CODES.include? response.status
+    end
+
+    def follow_meta_refresh?(env)
+      return false unless @options[:follow_meta_refresh]
+
+      meta_refresh_tag(env).size > 0
+    rescue Nokogiri::SyntaxError
+      false
+    end
+
+    def meta_refresh_location(env)
+      meta_content = meta_refresh_tag(env).attribute('content').value
+      safe_escape meta_content.match(META_REFRESH_LOCATION)[:url]
+    end
+
+    def meta_refresh_tag(env)
+      Nokogiri::HTML(env.response.body).css('meta[http-equiv="refresh"]')
     end
 
     def follow_limit

@@ -1,5 +1,6 @@
 require 'helper'
 require 'faraday_middleware/response/follow_redirects'
+require 'nokogiri'
 
 describe FaradayMiddleware::FollowRedirects do
   it 'redirects on 301' do
@@ -75,5 +76,28 @@ describe FaradayMiddleware::FollowRedirects do
 
     response = connection.get 'http://www.site-a.com'
     expect(response.env[:url].to_s).to eq('https://www.site-b.com/')
+  end
+
+  it 'redirects on meta refresh' do
+    body = %{
+      <html>
+        <head>
+          <meta content="0;url=http://www.site-b.com/" http-equiv="refresh"/>
+        </head>
+      </html>
+    }
+
+    stub_request(:get, 'http://www.site-a.com/').to_return(
+      :status => 301,
+      :body => body)
+    stub_request(:get, 'http://www.site-b.com/')
+
+    connection = Faraday.new do |conn|
+      conn.use FaradayMiddleware::FollowRedirects, follow_meta_refresh: true
+      conn.adapter Faraday.default_adapter
+    end
+
+    response = connection.get 'http://www.site-a.com'
+    expect(response.env[:url].to_s).to eq('http://www.site-b.com/')
   end
 end
