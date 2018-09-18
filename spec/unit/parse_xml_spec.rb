@@ -69,6 +69,14 @@ describe FaradayMiddleware::ParseXml, :type => :response do
     end
   end
 
+  it "includes a response object when throwing parsing error" do
+    data = 'invalid_xml'
+    expect{ process(data) }.to raise_error { |error|
+      expect(error).to be_a(Faraday::Error::ParsingError)
+      expect(error.cause.response).to eq(data)
+    }
+  end
+
   context "MultiXml options" do
     let(:options) do
       {
