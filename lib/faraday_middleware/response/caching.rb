@@ -1,5 +1,6 @@
 require 'faraday'
 require 'forwardable'
+require 'digest/sha1'
 # fixes normalizing query strings:
 require 'faraday_middleware/addressable_patch' if defined? ::Addressable::URI
 
@@ -66,7 +67,8 @@ module FaradayMiddleware
         url.query = params.any? ? build_query(params) : nil
       end
       url.normalize!
-      url.request_uri
+
+      Digest::SHA1.hexdigest(url.request_uri)
     end
 
     def params_to_ignore

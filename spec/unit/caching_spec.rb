@@ -82,7 +82,7 @@ describe FaradayMiddleware::Caching do
     let(:options) { {:write_options => {:expires_in => 9000 } } }
 
     it "passes on the options when writing to the cache" do
-      expect(@cache).to receive(:write).with("/",
+      expect(@cache).to receive(:write).with(Digest::SHA1.hexdigest("/"),
                                              instance_of(Faraday::Response),
                                              options[:write_options])
       get('/')
@@ -92,7 +92,7 @@ describe FaradayMiddleware::Caching do
       let(:options) { {} }
 
       it "doesn't pass a third options parameter to the cache's #write" do
-        expect(@cache).to receive(:write).with("/", instance_of(Faraday::Response))
+        expect(@cache).to receive(:write).with(Digest::SHA1.hexdigest("/"), instance_of(Faraday::Response))
         get('/')
       end
     end
