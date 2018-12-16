@@ -45,15 +45,24 @@ module FaradayMiddleware
     # the "%" character which we assume already represents an escaped sequence.
     URI_UNSAFE = /[^\-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]%]/
 
+    AUTH_HEADER = 'Authorization'.freeze
+
     # Public: Initialize the middleware.
     #
     # options - An options Hash (default: {}):
-    #           :limit               - A Numeric redirect limit (default: 3)
-    #           :standards_compliant - A Boolean indicating whether to respect
+    #     :limit                      - A Numeric redirect limit (default: 3)
+    #     :standards_compliant        - A Boolean indicating whether to respect
     #                                  the HTTP spec when following 301/302
     #                                  (default: false)
-    #           :callback            - A callable that will be called on redirects
+    #     :callback                   - A callable that will be called on redirects
     #                                  with the old and new envs
+    #     :cookies                    - An Array of Strings (e.g.
+    #                                  ['cookie1', 'cookie2']) to choose
+    #                                  cookies to be kept, or :all to keep
+    #                                  all cookies (default: []).
+    #     :clear_authorization_header - A Boolean indicating whether the request
+    #                                 Authorization header should be cleared on
+    #                                 redirects (default: false)
     def initialize(app, options = {})
       super(app)
       @options = options
@@ -98,6 +107,8 @@ module FaradayMiddleware
         env[:body] = request_body
       end
 
+      env[:request_headers].delete(AUTH_HEADER) if clear_authorization_header?
+
       ENV_TO_CLEAR.each {|key| env.delete key }
 
       env
@@ -129,6 +140,10 @@ module FaradayMiddleware
       uri.to_s.gsub(URI_UNSAFE) { |match|
         '%' + match.unpack('H2' * match.bytesize).join('%').upcase
       }
+    end
+
+    def clear_authorization_header?
+      @options.fetch(:clear_authorization_header, false)
     end
   end
 end
