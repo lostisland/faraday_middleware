@@ -1,6 +1,7 @@
 require 'helper'
 require 'faraday_middleware/response/follow_redirects'
 require 'faraday'
+require 'sinatra/base'
 
 # expose a method in Test adapter that should have been public
 Faraday::Adapter::Test::Stubs.class_eval { public :new_stub }
@@ -185,40 +186,102 @@ describe FaradayMiddleware::FollowRedirects do
     end
 
     context "is true" do
-      it "redirects without original authorization headers" do
-        conn = connection(:clear_authorization_header => true) do |stub|
-          stub.get('/redirect') {
-            [301, {'Location' => '/found'}, '']
-          }
-          stub.get('/found') { |env|
-            [200, {'Content-Type' => 'text/plain'}, env[:request_headers]['Authorization']]
-          }
+      class RedirectToMock < Sinatra::Base
+        get '/found' do
+          request.env["HTTP_AUTHORIZATION"]
         end
-
-        response = conn.get('/redirect') { |req|
-          req.headers['Authorization'] = 'failed'
-        }
-
-        expect(response.body).to be_nil
       end
-    end
 
-    context "is not specified" do
-      it "redirects without original authorization headers" do
-        conn = connection() do |stub|
-          stub.get('/redirect') {
-            [301, {'Location' => '/found'}, '']
-          }
-          stub.get('/found') { |env|
-            [200, {'Content-Type' => 'text/plain'}, env[:request_headers]['Authorization']]
-          }
+      let(:conn) do
+        Faraday.new do |conn|
+          conn.use FaradayMiddleware::FollowRedirects
+          conn.adapter Faraday.default_adapter
         end
+      end
 
-        response = conn.get('/redirect') { |req|
-          req.headers['Authorization'] = 'failed'
-        }
+      context "redirect to same host" do
+        it "redirects with the original authorization headers" do
+          class RedirectFromSameHostMock < Sinatra::Base
+            get '/redirect' do
+              redirect '/found'
+            end
+          end
+          stub_request(:get, 'http://localhost/redirect').to_rack(RedirectFromSameHostMock)
+          stub_request(:get, 'http://localhost/found').to_rack(RedirectToMock)
 
-        expect(response.body).to be_nil
+          response = conn.get('http://localhost/redirect') { |req|
+            req.headers['Authorization'] = 'success'
+          }
+          expect(response.body).to eq('success')
+        end
+      end
+
+      context "redirect to same host with explicitly port" do
+        it "redirects with the original authorization headers" do
+          class RedirectFromSameHostMock < Sinatra::Base
+            get '/redirect' do
+              redirect 'http://localhost:80/found'
+            end
+          end
+          stub_request(:get, 'http://localhost/redirect').to_rack(RedirectFromSameHostMock)
+          stub_request(:get, 'http://localhost/found').to_rack(RedirectToMock)
+
+          response = conn.get('http://localhost/redirect') { |req|
+            req.headers['Authorization'] = 'success'
+          }
+          expect(response.body).to eq('success')
+        end
+      end
+
+      context "redirect to different scheme" do
+        it "redirects without original authorization headers" do
+          class RedirectFromDifferentSchemeMock < Sinatra::Base
+            get '/redirect' do
+              redirect 'https://localhost2/found'
+            end
+          end
+          stub_request(:get, 'http://localhost/redirect').to_rack(RedirectFromDifferentSchemeMock)
+          stub_request(:get, 'https://localhost2/found').to_rack(RedirectToMock)
+
+          response = conn.get('http://localhost/redirect') { |req|
+            req.headers['Authorization'] = 'failed'
+          }
+          expect(response.body).to eq ''
+        end
+      end
+
+      context "redirect to different host" do
+        it "redirects without original authorization headers" do
+          class RedirectFromDifferentHostMock < Sinatra::Base
+            get '/redirect' do
+              redirect 'http://localhost2/found'
+            end
+          end
+          stub_request(:get, 'http://localhost/redirect').to_rack(RedirectFromDifferentHostMock)
+          stub_request(:get, 'http://localhost2/found').to_rack(RedirectToMock)
+
+          response = conn.get('http://localhost/redirect') { |req|
+            req.headers['Authorization'] = 'failed'
+          }
+          expect(response.body).to eq ''
+        end
+      end
+
+      context "redirect to different port" do
+        it "redirects without original authorization headers" do
+          class RedirectFromDifferentPortMock < Sinatra::Base
+            get '/redirect' do
+              redirect 'http://localhost:9091/found'
+            end
+          end
+          stub_request(:get, 'http://localhost:9090/redirect').to_rack(RedirectFromDifferentPortMock)
+          stub_request(:get, 'http://localhost:9091/found').to_rack(RedirectToMock)
+
+          response = conn.get('http://localhost:9090/redirect') { |req|
+            req.headers['Authorization'] = 'failed'
+          }
+          expect(response.body).to eq ''
+        end
       end
     end
   end

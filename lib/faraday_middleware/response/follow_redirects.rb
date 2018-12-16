@@ -98,6 +98,8 @@ module FaradayMiddleware
     end
 
     def update_env(env, request_body, response)
+      redirect_from_url = env[:url].to_s
+      redirect_to_url = safe_escape(response['location'] || '')
       env[:url] += safe_escape(response['location'] || '')
 
       if convert_to_get?(response)
@@ -107,7 +109,7 @@ module FaradayMiddleware
         env[:body] = request_body
       end
 
-      env[:request_headers].delete(AUTH_HEADER) if clear_authorization_header?
+      env[:request_headers].delete(AUTH_HEADER) if clear_authorization_header?(redirect_from_url, redirect_to_url)
 
       ENV_TO_CLEAR.each {|key| env.delete key }
 
@@ -142,8 +144,18 @@ module FaradayMiddleware
       }
     end
 
-    def clear_authorization_header?
+    def clear_authorization_header?(from_url, to_url)
+      return false if redirect_to_same_host?(from_url, to_url)
       @options.fetch(:clear_authorization_header, true)
+    end
+
+    def redirect_to_same_host?(from_url, to_url)
+      return true if to_url.start_with?('/')
+
+      from_uri = URI.parse(from_url)
+      to_uri = URI.parse(to_url)
+
+      [from_uri.scheme, from_uri.host, from_uri.port] == [to_uri.scheme, to_uri.host, to_uri.port]
     end
   end
 end
