@@ -109,7 +109,7 @@ module FaradayMiddleware
         env[:body] = request_body
       end
 
-      env[:request_headers].delete(AUTH_HEADER) if clear_authorization_header?(redirect_from_url, redirect_to_url)
+      env = clear_authorization_header(env, redirect_from_url, redirect_to_url)
 
       ENV_TO_CLEAR.each {|key| env.delete key }
 
@@ -144,9 +144,12 @@ module FaradayMiddleware
       }
     end
 
-    def clear_authorization_header?(from_url, to_url)
-      return false if redirect_to_same_host?(from_url, to_url)
-      @options.fetch(:clear_authorization_header, true)
+    def clear_authorization_header(env, from_url, to_url)
+      return env if redirect_to_same_host?(from_url, to_url)
+      return env unless @options.fetch(:clear_authorization_header, true)
+
+      env[:request_headers].delete(AUTH_HEADER)
+      env
     end
 
     def redirect_to_same_host?(from_url, to_url)
