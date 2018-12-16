@@ -202,6 +202,25 @@ describe FaradayMiddleware::FollowRedirects do
         expect(response.body).to be_nil
       end
     end
+
+    context "is not specified" do
+      it "redirects without original authorization headers" do
+        conn = connection() do |stub|
+          stub.get('/redirect') {
+            [301, {'Location' => '/found'}, '']
+          }
+          stub.get('/found') { |env|
+            [200, {'Content-Type' => 'text/plain'}, env[:request_headers]['Authorization']]
+          }
+        end
+
+        response = conn.get('/redirect') { |req|
+          req.headers['Authorization'] = 'failed'
+        }
+
+        expect(response.body).to be_nil
+      end
+    end
   end
 
   [301, 302].each do |code|
