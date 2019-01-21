@@ -1,8 +1,6 @@
 require 'faraday'
 require 'forwardable'
 require 'digest/sha1'
-# fixes normalizing query strings:
-require 'faraday_middleware/addressable_patch' if defined? ::Addressable::URI
 
 module FaradayMiddleware
   # Public: Caches GET responses and pulls subsequent ones from the cache.
