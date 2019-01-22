@@ -1,7 +1,7 @@
 sudo: false
 bundler_args: --without development
 language: ruby
-before_install: gem install bundler
+before_install: gem install bundler -v '<2'
 rvm:
   - 1.9.3
   - 2.0
