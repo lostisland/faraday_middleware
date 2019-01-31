@@ -13,10 +13,25 @@ module FaradayMiddleware
   class Gzip < Faraday::Middleware
     dependency 'zlib'
 
+    def self.optional_dependency(lib = nil)
+      lib ? require(lib) : yield
+      true
+    rescue LoadError, NameError
+      false
+    end
+
+    BROTLI_SUPPORTED = optional_dependency 'brotli'
+
+    def self.supported_encodings
+      encodings = %w[gzip deflate]
+      encodings << 'br' if BROTLI_SUPPORTED
+      encodings
+    end
+
     ACCEPT_ENCODING = 'Accept-Encoding'.freeze
     CONTENT_ENCODING = 'Content-Encoding'.freeze
     CONTENT_LENGTH = 'Content-Length'.freeze
-    SUPPORTED_ENCODINGS = 'gzip,deflate,br'.freeze
+    SUPPORTED_ENCODINGS = supported_encodings.join(',').freeze
     RUBY_ENCODING = '1.9'.respond_to?(:force_encoding)
 
     def call(env)
@@ -64,8 +79,6 @@ module FaradayMiddleware
     end
 
     def brotli_inflate(body)
-      self.class.dependency 'brotli'
-
       Brotli.inflate(body)
     end
   end
