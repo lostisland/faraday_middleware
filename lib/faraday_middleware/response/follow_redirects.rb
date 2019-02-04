@@ -149,7 +149,6 @@ module FaradayMiddleware
       return env unless @options.fetch(:clear_authorization_header, true)
 
       env[:request_headers].delete(AUTH_HEADER)
-      env
     end
 
     def redirect_to_same_host?(from_url, to_url)
