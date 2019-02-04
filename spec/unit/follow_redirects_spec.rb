@@ -164,6 +164,118 @@ describe FaradayMiddleware::FollowRedirects do
     end
   end
 
+  context "when clear_authorization_header option" do
+    context "is false" do
+      it "redirects with the original authorization headers" do
+        conn = connection(:clear_authorization_header => false) do |stub|
+          stub.get('/redirect') {
+            [301, {'Location' => '/found'}, '']
+          }
+          stub.get('/found') { |env|
+            [200, {'Content-Type' => 'text/plain'}, env[:request_headers]['Authorization']]
+          }
+        end
+        response = conn.get('/redirect') { |req|
+          req.headers['Authorization'] = 'success'
+        }
+
+        expect(response.body).to eq 'success'
+      end
+    end
+
+    context "is true" do
+      context "redirect to same host" do
+        it "redirects with the original authorization headers" do
+          conn = connection do |stub|
+            stub.get('http://localhost/redirect') do
+              [301, {'Location' => '/found'}, '']
+            end
+            stub.get('http://localhost/found') do |env|
+              [200, {}, env.request_headers["Authorization"]]
+            end
+          end
+          response = conn.get('http://localhost/redirect') do |req|
+            req.headers['Authorization'] = 'success'
+          end
+
+          expect(response.body).to eq 'success'
+        end
+      end
+
+      context "redirect to same host with explicitly port" do
+        it "redirects with the original authorization headers" do
+          conn = connection do |stub|
+            stub.get('http://localhost/redirect') do
+              [301, {'Location' => 'http://localhost:80/found'}, '']
+            end
+            stub.get('http://localhost/found') do |env|
+              [200, {}, env.request_headers["Authorization"]]
+            end
+          end
+          response = conn.get('http://localhost/redirect') { |req|
+            req.headers['Authorization'] = 'success'
+          }
+
+          expect(response.body).to eq 'success'
+        end
+      end
+
+      context "redirect to different scheme" do
+        it "redirects without original authorization headers" do
+          conn = connection do |stub|
+            stub.get('http://localhost/redirect') do
+              [301, {'Location' => 'https://localhost2/found'}, '']
+            end
+            stub.get('https://localhost2/found') do |env|
+              [200, {}, env.request_headers["Authorization"]]
+            end
+          end
+          response = conn.get('http://localhost/redirect') { |req|
+            req.headers['Authorization'] = 'failed'
+          }
+
+          expect(response.body).to eq nil
+        end
+      end
+
+      context "redirect to different host" do
+        it "redirects without original authorization headers" do
+          conn = connection do |stub|
+            stub.get('http://localhost/redirect') do
+              [301, {'Location' => 'http://localhost2/found'}, '']
+            end
+            stub.get('https://localhost2/found') do |env|
+              [200, {}, env.request_headers["Authorization"]]
+            end
+          end
+          response = conn.get('http://localhost/redirect') { |req|
+            req.headers['Authorization'] = 'failed'
+          }
+
+          expect(response.body).to eq nil
+        end
+      end
+
+      context "redirect to different port" do
+        it "redirects without original authorization headers" do
+          conn = connection do |stub|
+            stub.get('http://localhost:9090/redirect') do
+              [301, {'Location' => 'http://localhost:9091/found'}, '']
+            end
+            stub.get('http://localhost:9091/found') do |env|
+              [200, {}, env.request_headers["Authorization"]]
+            end
+          end
+          response = conn.get('http://localhost:9090/redirect') { |req|
+            req.headers['Authorization'] = 'failed'
+          }
+
+          expect(response.body).to eq nil
+        end
+      end
+    end
+  end
+
   [301, 302].each do |code|
     context "for an HTTP #{code} response" do
       it_behaves_like 'a successful redirection', code

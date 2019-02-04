@@ -45,15 +45,24 @@ module FaradayMiddleware
     # the "%" character which we assume already represents an escaped sequence.
     URI_UNSAFE = /[^\-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]%]/
 
+    AUTH_HEADER = 'Authorization'.freeze
+
     # Public: Initialize the middleware.
     #
     # options - An options Hash (default: {}):
-    #           :limit               - A Numeric redirect limit (default: 3)
-    #           :standards_compliant - A Boolean indicating whether to respect
+    #     :limit                      - A Numeric redirect limit (default: 3)
+    #     :standards_compliant        - A Boolean indicating whether to respect
     #                                  the HTTP spec when following 301/302
     #                                  (default: false)
-    #           :callback            - A callable that will be called on redirects
+    #     :callback                   - A callable that will be called on redirects
     #                                  with the old and new envs
+    #     :cookies                    - An Array of Strings (e.g.
+    #                                  ['cookie1', 'cookie2']) to choose
+    #                                  cookies to be kept, or :all to keep
+    #                                  all cookies (default: []).
+    #     :clear_authorization_header - A Boolean indicating whether the request
+    #                                  Authorization header should be cleared on
+    #                                  redirects (default: true)
     def initialize(app, options = {})
       super(app)
       @options = options
@@ -89,7 +98,9 @@ module FaradayMiddleware
     end
 
     def update_env(env, request_body, response)
-      env[:url] += safe_escape(response['location'] || '')
+      redirect_from_url = env[:url].to_s
+      redirect_to_url = safe_escape(response['location'] || '')
+      env[:url] += redirect_to_url
 
       if convert_to_get?(response)
         env[:method] = :get
@@ -97,6 +108,8 @@ module FaradayMiddleware
       else
         env[:body] = request_body
       end
+
+      clear_authorization_header(env, redirect_from_url, redirect_to_url)
 
       ENV_TO_CLEAR.each {|key| env.delete key }
 
@@ -129,6 +142,22 @@ module FaradayMiddleware
       uri.to_s.gsub(URI_UNSAFE) { |match|
         '%' + match.unpack('H2' * match.bytesize).join('%').upcase
       }
+    end
+
+    def clear_authorization_header(env, from_url, to_url)
+      return env if redirect_to_same_host?(from_url, to_url)
+      return env unless @options.fetch(:clear_authorization_header, true)
+
+      env[:request_headers].delete(AUTH_HEADER)
+    end
+
+    def redirect_to_same_host?(from_url, to_url)
+      return true if to_url.start_with?('/')
+
+      from_uri = URI.parse(from_url)
+      to_uri = URI.parse(to_url)
+
+      [from_uri.scheme, from_uri.host, from_uri.port] == [to_uri.scheme, to_uri.host, to_uri.port]
     end
   end
 end
