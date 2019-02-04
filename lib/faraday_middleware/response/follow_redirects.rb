@@ -109,7 +109,7 @@ module FaradayMiddleware
         env[:body] = request_body
       end
 
-      env = clear_authorization_header(env, redirect_from_url, redirect_to_url)
+      clear_authorization_header(env, redirect_from_url, redirect_to_url)
 
       ENV_TO_CLEAR.each {|key| env.delete key }
 
