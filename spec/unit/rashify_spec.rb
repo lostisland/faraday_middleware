@@ -1,7 +1,7 @@
 require 'helper'
 require 'faraday_middleware/response/rashify'
 
-describe FaradayMiddleware::Rashify do
+RSpec.describe FaradayMiddleware::Rashify do
   context "when used", :type => :response do
     it "creates a Hashie::Rash from the body" do
       body = { "name" => "Erik Michaels-Ober", "username" => "sferik" }

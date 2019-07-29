@@ -5,7 +5,7 @@ require 'faraday'
 # expose a method in Test adapter that should have been public
 Faraday::Adapter::Test::Stubs.class_eval { public :new_stub }
 
-describe FaradayMiddleware::FollowRedirects do
+RSpec.describe FaradayMiddleware::FollowRedirects do
   let(:middleware_options) { Hash.new }
 
   shared_examples_for "a successful redirection" do |status_code|

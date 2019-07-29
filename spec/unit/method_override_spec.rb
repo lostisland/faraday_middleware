@@ -1,7 +1,7 @@
 require 'helper'
 require 'faraday_middleware/request/method_override'
 
-describe FaradayMiddleware::MethodOverride do
+RSpec.describe FaradayMiddleware::MethodOverride do
 
   let(:middleware) { described_class.new(lambda {|env| env }, *options) }
   let(:env) { middleware.call faraday_env(request_env(request_method)) }

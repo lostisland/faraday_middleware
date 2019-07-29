@@ -1,7 +1,7 @@
 require 'helper'
 require 'faraday_middleware/response/chunked'
 
-describe FaradayMiddleware::Chunked, :type => :response do
+RSpec.describe FaradayMiddleware::Chunked, :type => :response do
   context "no transfer-encoding" do
     it "doesn't change nil body" do
       expect(process(nil).body).to be_nil

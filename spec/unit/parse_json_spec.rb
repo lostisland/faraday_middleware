@@ -1,7 +1,7 @@
 require 'helper'
 require 'faraday_middleware/response/parse_json'
 
-describe FaradayMiddleware::ParseJson, :type => :response do
+RSpec.describe FaradayMiddleware::ParseJson, :type => :response do
   context "no type matching" do
     it "doesn't change nil body" do
       expect(process(nil).body).to be_nil

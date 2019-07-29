@@ -1,7 +1,7 @@
 require 'helper'
 require 'faraday_middleware/response/mashify'
 
-describe FaradayMiddleware::Mashify do
+RSpec.describe FaradayMiddleware::Mashify do
   MyMash = Struct.new(:body)
 
   context "when used", :type => :response do

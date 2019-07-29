@@ -1,7 +1,7 @@
 require 'helper'
 require 'faraday_middleware/response/parse_xml'
 
-describe FaradayMiddleware::ParseXml, :type => :response do
+RSpec.describe FaradayMiddleware::ParseXml, :type => :response do
   let(:xml)  { '<user><name>Erik Michaels-Ober</name><screen_name>sferik</screen_name></user>' }
   let(:user) { {'user' => {'name' => 'Erik Michaels-Ober', 'screen_name' => 'sferik'} } }
 
