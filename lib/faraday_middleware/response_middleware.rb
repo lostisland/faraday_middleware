@@ -10,8 +10,8 @@ module FaradayMiddleware
     end
 
     # Store a Proc that receives the body and returns the parsed result.
-    def self.define_parser(parser = nil)
-      @parser = parser || Proc.new
+    def self.define_parser(parser = nil, &block)
+      @parser = parser || block if block_given?
     end
 
     def self.inherited(subclass)
