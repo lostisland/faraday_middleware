@@ -11,7 +11,7 @@ module FaradayMiddleware
 
     # Store a Proc that receives the body and returns the parsed result.
     def self.define_parser(parser = nil, &block)
-      @parser = parser || block if block_given?
+      @parser = parser || block || raise(ArgumentError, 'Define parser with a block')
     end
 
     def self.inherited(subclass)
