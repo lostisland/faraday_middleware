@@ -49,6 +49,9 @@ describe FaradayMiddleware::Gzip, :type => :response do
     let(:brotlied_body) {
       Brotli.deflate(uncompressed_body)
     }
+    let(:empty_body) {
+      ""
+    }
 
     shared_examples 'compressed response' do
       it 'uncompresses the body' do
@@ -90,6 +93,19 @@ describe FaradayMiddleware::Gzip, :type => :response do
       let(:headers) { {'Content-Encoding' => 'br', 'Content-Length' => body.length } }
 
       it_behaves_like 'compressed response'
+    end unless jruby?
+
+    context 'empty response' do
+      let(:body) { empty_body }
+      let(:headers) { {'Content-Encoding' => 'gzip', 'Content-Length' => body.length } }
+
+      it 'sets the Content-Length' do
+        expect(process(body).headers['Content-Length']).to eq(empty_body.length)
+      end
+
+      it 'removes the Content-Encoding' do
+        expect(process(body).headers['Content-Encoding']).to be_nil
+      end
     end unless jruby?
 
     context 'identity response' do
