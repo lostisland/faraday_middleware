@@ -106,7 +106,7 @@ describe FaradayMiddleware::Gzip, :type => :response do
       it 'removes the Content-Encoding' do
         expect(process(body).headers['Content-Encoding']).to be_nil
       end
-    end unless jruby?
+    end
 
     context 'identity response' do
       let(:body) { uncompressed_body }
