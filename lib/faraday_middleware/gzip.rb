@@ -37,13 +37,17 @@ module FaradayMiddleware
     def call(env)
       env[:request_headers][ACCEPT_ENCODING] ||= SUPPORTED_ENCODINGS
       @app.call(env).on_complete do |response_env|
-        case response_env[:response_headers][CONTENT_ENCODING]
-        when 'gzip'
-          reset_body(response_env, &method(:uncompress_gzip))
-        when 'deflate'
-          reset_body(response_env, &method(:inflate))
-        when 'br'
-          reset_body(response_env, &method(:brotli_inflate))
+        if response_env[:body].empty?
+          reset_body(response_env, &method(:raw_body))
+        else
+          case response_env[:response_headers][CONTENT_ENCODING]
+          when 'gzip'
+            reset_body(response_env, &method(:uncompress_gzip))
+          when 'deflate'
+            reset_body(response_env, &method(:inflate))
+          when 'br'
+            reset_body(response_env, &method(:brotli_inflate))
+          end
         end
       end
     end
@@ -80,6 +84,10 @@ module FaradayMiddleware
 
     def brotli_inflate(body)
       Brotli.inflate(body)
+    end
+
+    def raw_body(body)
+      body
     end
   end
 end
