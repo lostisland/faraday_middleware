@@ -3,7 +3,7 @@ require 'faraday_middleware/request/oauth'
 require 'uri'
 require 'forwardable'
 
-describe FaradayMiddleware::OAuth do
+RSpec.describe FaradayMiddleware::OAuth do
   def auth_header(env)
     env[:request_headers]['Authorization']
   end

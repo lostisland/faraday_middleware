@@ -6,7 +6,7 @@ require 'faraday'
 require 'faraday_middleware/response/caching'
 require 'faraday_middleware/rack_compatible'
 
-describe FaradayMiddleware::Caching do
+RSpec.describe FaradayMiddleware::Caching do
   before do
     @cache = TestCache.new
     request_count = 0
@@ -126,7 +126,7 @@ describe FaradayMiddleware::Caching do
 end
 
 # RackCompatible + Rack::Cache
-describe FaradayMiddleware::RackCompatible, 'caching' do
+RSpec.describe FaradayMiddleware::RackCompatible, 'caching' do
   include FileUtils
 
   CACHE_DIR = File.expand_path('../../tmp/cache', __FILE__)

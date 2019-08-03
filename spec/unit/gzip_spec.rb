@@ -1,7 +1,7 @@
 require 'helper'
 require 'faraday_middleware/gzip'
 
-describe FaradayMiddleware::Gzip, :type => :response do
+RSpec.describe FaradayMiddleware::Gzip, :type => :response do
   require 'brotli' unless jruby?
 
   let(:middleware) {

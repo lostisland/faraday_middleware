@@ -3,7 +3,7 @@ require 'uri'
 require 'faraday_middleware/request/oauth2'
 require 'faraday/utils'
 
-describe FaradayMiddleware::OAuth2 do
+RSpec.describe FaradayMiddleware::OAuth2 do
 
   def query_params(env)
     Faraday::Utils.parse_query env[:url].query

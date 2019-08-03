@@ -1,7 +1,7 @@
 require 'helper'
 require 'faraday_middleware/response/follow_redirects'
 
-describe FaradayMiddleware::FollowRedirects do
+RSpec.describe FaradayMiddleware::FollowRedirects do
   it 'redirects on 301' do
     stub_request(:get, 'http://www.site-a.com/').to_return(
       :status => 301,

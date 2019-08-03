@@ -2,7 +2,7 @@ require 'helper'
 require 'faraday_middleware/response/parse_dates'
 require 'json'
 
-describe FaradayMiddleware::ParseDates, :type => :response do
+RSpec.describe FaradayMiddleware::ParseDates, :type => :response do
   let(:parsed){
     if RUBY_VERSION > "1.9"
       "2012-02-01 13:14:15 UTC"

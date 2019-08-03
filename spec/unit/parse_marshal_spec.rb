@@ -1,7 +1,7 @@
 require 'helper'
 require 'faraday_middleware/response/parse_marshal'
 
-describe FaradayMiddleware::ParseMarshal, :type => :response do
+RSpec.describe FaradayMiddleware::ParseMarshal, :type => :response do
   it "restores a marshaled dump" do
     expect(process(Marshal.dump(:a => 1)).body).to be_eql(:a => 1)
   end
