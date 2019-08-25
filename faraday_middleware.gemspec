@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.homepage = 'https://github.com/lostisland/faraday_middleware'
   spec.licenses = ['MIT']
 
-  spec.add_dependency 'faraday', ['>= 0.7.4', '< 1.0']
+  spec.add_dependency 'faraday', '>= 0.7.4'
 
   spec.files = `git ls-files -z lib LICENSE.md README.md`.split("\0")
 end

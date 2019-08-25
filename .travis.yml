@@ -15,8 +15,17 @@ rvm:
 gemfile:
   - Gemfile
   - Gemfile-0.9.rb
+  - Gemfile-1.0.rb
 matrix:
   exclude:
+    - rvm: 1.9.3
+      gemfile: Gemfile-1.0.rb
+    - rvm: 2.0
+      gemfile: Gemfile-1.0.rb
+    - rvm: 2.1
+      gemfile: Gemfile-1.0.rb
+    - rvm: 2.2
+      gemfile: Gemfile-1.0.rb
     - rvm: 2.4
       gemfile: Gemfile-0.9.rb
     - rvm: 2.5.0

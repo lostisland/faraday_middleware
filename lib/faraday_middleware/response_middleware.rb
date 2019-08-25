@@ -5,6 +5,13 @@ module FaradayMiddleware
   class ResponseMiddleware < Faraday::Middleware
     CONTENT_TYPE = 'Content-Type'.freeze
 
+    PARSING_ERROR =
+      begin
+        Faraday::ParsingError
+      rescue NameError
+        Faraday::Error::ParsingError
+      end
+
     class << self
       attr_accessor :parser
     end
@@ -38,8 +45,8 @@ module FaradayMiddleware
     def process_response(env)
       env[:raw_body] = env[:body] if preserve_raw?(env)
       env[:body] = parse(env[:body])
-    rescue Faraday::Error::ParsingError => err
-      raise Faraday::Error::ParsingError.new(err, env[:response])
+    rescue PARSING_ERROR => err
+      raise PARSING_ERROR.new(err, env[:response])
     end
 
     # Parse the response body.
@@ -51,7 +58,7 @@ module FaradayMiddleware
           self.class.parser.call(body, @parser_options)
         rescue StandardError, SyntaxError => err
           raise err if err.is_a? SyntaxError and err.class.name != 'Psych::SyntaxError'
-          raise Faraday::Error::ParsingError, err
+          raise PARSING_ERROR, err
         end
       else
         body

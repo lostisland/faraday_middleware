@@ -65,7 +65,7 @@ RSpec.describe FaradayMiddleware::ParseXml, :type => :response do
 
   it "chokes on invalid xml" do
     ['{!', '"a"', 'true', 'null', '1'].each do |data|
-      expect{ process(data) }.to raise_error(Faraday::Error::ParsingError)
+      expect{ process(data) }.to raise_error(FaradayMiddleware::ResponseMiddleware::PARSING_ERROR)
     end
   end
 
