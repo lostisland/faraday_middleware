@@ -25,6 +25,8 @@ RSpec.describe FaradayMiddleware::Caching do
         stub.post('/', &response)
         stub.get('/other', &response)
         stub.get('/broken', &broken)
+        stub.get('http://www.site-a.com/test', &response)
+        stub.get('http://www.site-b.com/test', &response)
       end
     end
   end
@@ -75,6 +77,15 @@ RSpec.describe FaradayMiddleware::Caching do
       expect(get('/?utm_source=a&utm_term=b').body).to eq('request:1')
       expect(get('/?utm_source=a&utm_term=b&foo=bar').body).to eq('request:2')
       expect(get('/?foo=bar').body).to eq('request:2')
+    end
+  end
+
+  context ":full_key" do
+    let(:options) { {:full_key => true} }
+
+    it "use full URL as cache key" do
+      expect(get('http://www.site-a.com/test').body).to eq('request:1')
+      expect(get('http://www.site-b.com/test').body).to eq('request:2')
     end
   end
 
