@@ -48,7 +48,7 @@ RSpec.describe FaradayMiddleware::ParseYaml, :type => :response do
   end
 
   it "chokes on invalid yaml" do
-    expect{ process('{!') }.to raise_error(Faraday::Error::ParsingError)
+    expect{ process('{!') }.to raise_error(Faraday::ParsingError)
   end
 
   context "SafeYAML options" do
