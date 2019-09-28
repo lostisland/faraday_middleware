@@ -102,6 +102,8 @@ module FaradayMiddleware
       redirect_to_url = safe_escape(response['location'] || '')
       env[:url] += redirect_to_url
 
+      ENV_TO_CLEAR.each { |key| env.delete key }
+
       if convert_to_get?(response)
         env[:method] = :get
         env[:body] = nil
@@ -110,8 +112,6 @@ module FaradayMiddleware
       end
 
       clear_authorization_header(env, redirect_from_url, redirect_to_url)
-
-      ENV_TO_CLEAR.each {|key| env.delete key }
 
       env
     end
