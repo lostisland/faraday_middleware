@@ -6,20 +6,8 @@ rvm:
   - 2.4
   - 2.5.0
   - 2.6.3
-  - jruby-head
-  - rbx-2
-gemfile:
-  - Gemfile
-  - Gemfile-0.9.rb
+gemfile: Gemfile
 matrix:
-  exclude:
-    - rvm: 2.4
-      gemfile: Gemfile-0.9.rb
-    - rvm: 2.5.0
-      gemfile: Gemfile-0.9.rb
-  allow_failures:
-    - rvm: jruby-head
-    - rvm: rbx-2
   fast_finish: true
 deploy:
   provider: rubygems

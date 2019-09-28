@@ -2,7 +2,6 @@ source 'https://rubygems.org'
 
 gem 'brotli', '>= 0.1.8', platforms: :mri
 gem 'hashie', '>= 1.2'
-gem 'jruby-openssl', platforms: :jruby
 gem 'json', '< 3'
 gem 'multi_xml', '>= 0.5.3'
 gem 'rack', '< 2'

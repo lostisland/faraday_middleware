@@ -60,8 +60,4 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
   config.disable_monkey_patching!
-
-  def jruby?
-    defined?(RUBY_ENGINE) && RUBY_ENGINE == 'jruby'
-  end
 end
