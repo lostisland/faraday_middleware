@@ -13,7 +13,7 @@ Dependencies
 
 Ruby >= 2.3.0
 
-#### As of version 0.16.0, faraday and faraday_middleware no longer support jruby or Rubinius
+#### As of v0.16.0, `faraday` and `faraday_middleware` no longer officially support JRuby or Rubinius.
 
 Some dependent libraries are needed only when using specific middleware:
 
