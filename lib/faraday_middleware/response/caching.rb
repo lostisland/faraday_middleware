@@ -29,6 +29,7 @@ module FaradayMiddleware
     #           :write_options - Hash of settings that should be passed as the third
     #                            options parameter to the cache's #write method. If not
     #                            specified, no options parameter will be passed.
+    #           :full_key      - Boolean - use full URL (url.host + url.request_uri) as cache key
     #
     # Yields if no cache is given. The block should return a cache object.
     def initialize(app, cache = nil, options = {})
@@ -65,12 +66,15 @@ module FaradayMiddleware
         url.query = params.any? ? build_query(params) : nil
       end
       url.normalize!
-
-      Digest::SHA1.hexdigest(url.request_uri)
+      Digest::SHA1.hexdigest(full_key? ? url.host + url.request_uri : url.request_uri)
     end
 
     def params_to_ignore
       @params_to_ignore ||= Array(@options[:ignore_params]).map { |p| p.to_s }
+    end
+
+    def full_key?
+      @full_key ||= @options[:full_key]
     end
 
     def cache_on_complete(env)

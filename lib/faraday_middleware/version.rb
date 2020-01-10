@@ -1,3 +1,3 @@
 module FaradayMiddleware
-  VERSION = '0.16.0'.freeze unless defined?(FaradayMiddleware::VERSION)
+  VERSION = '1.0.0'.freeze unless defined?(FaradayMiddleware::VERSION)
 end
