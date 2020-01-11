@@ -11,6 +11,10 @@ A collection of useful [Faraday][] middleware. [See the documentation][docs].
 Dependencies
 ------------
 
+Ruby >= 2.3.0
+
+#### As of v0.16.0, `faraday` and `faraday_middleware` no longer officially support JRuby or Rubinius.
+
 Some dependent libraries are needed only when using specific middleware:
 
 | Middleware                  | Library        | Notes |

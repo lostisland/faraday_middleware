@@ -61,14 +61,14 @@ RSpec.describe FaradayMiddleware::ParseJson, :type => :response do
   end
 
   it "chokes on invalid json" do
-    expect{ process('{!') }.to raise_error(Faraday::Error::ParsingError)
+    expect{ process('{!') }.to raise_error(Faraday::ParsingError)
   end
 
   it "includes the response on the ParsingError instance" do
     begin
       process('{') { |env| env[:response] = Faraday::Response.new }
       fail 'Parsing should have failed.'
-    rescue Faraday::Error::ParsingError => err
+    rescue Faraday::ParsingError => err
       expect(err.response).to be_a(Faraday::Response)
     end
   end

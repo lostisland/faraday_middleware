@@ -11,6 +11,6 @@ RSpec.describe FaradayMiddleware::ParseMarshal, :type => :response do
   end
 
   it "chokes on invalid content" do
-    expect{ process('abc') }.to raise_error(Faraday::Error::ParsingError)
+    expect{ process('abc') }.to raise_error(Faraday::ParsingError)
   end
 end

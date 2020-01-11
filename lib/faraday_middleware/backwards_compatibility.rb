@@ -15,4 +15,3 @@ module Faraday
     autoload :ParseYaml,    'faraday_middleware/response/parse_yaml'
   end
 end
-

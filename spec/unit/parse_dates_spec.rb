@@ -3,13 +3,7 @@ require 'faraday_middleware/response/parse_dates'
 require 'json'
 
 RSpec.describe FaradayMiddleware::ParseDates, :type => :response do
-  let(:parsed){
-    if RUBY_VERSION > "1.9"
-      "2012-02-01 13:14:15 UTC"
-    else
-      "Wed Feb 01 13:14:15 UTC 2012"
-    end
-  }
+  let(:parsed){ "2012-02-01 13:14:15 UTC" }
 
   it "parses dates" do
     expect(process({"x" => "2012-02-01T13:14:15Z"}).body["x"].to_s).to eq(parsed)
