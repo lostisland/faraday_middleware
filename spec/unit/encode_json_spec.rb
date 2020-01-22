@@ -13,7 +13,7 @@ RSpec.describe FaradayMiddleware::EncodeJson do
   def result_body() result[:body] end
   def result_type() result[:request_headers]['content-type'] end
 
-  context "no body" do
+  context 'no body' do
     let(:result) { process(nil) }
 
     it "doesn't change body" do
@@ -25,7 +25,7 @@ RSpec.describe FaradayMiddleware::EncodeJson do
     end
   end
 
-  context "empty body" do
+  context 'empty body' do
     let(:result) { process('') }
 
     it "doesn't change body" do
@@ -37,42 +37,42 @@ RSpec.describe FaradayMiddleware::EncodeJson do
     end
   end
 
-  context "string body" do
+  context 'string body' do
     let(:result) { process('{"a":1}') }
 
     it "doesn't change body" do
       expect(result_body).to eq('{"a":1}')
     end
 
-    it "adds content type" do
+    it 'adds content type' do
       expect(result_type).to eq('application/json')
     end
   end
 
-  context "object body" do
+  context 'object body' do
     let(:result) { process({:a => 1}) }
 
-    it "encodes body" do
+    it 'encodes body' do
       expect(result_body).to eq('{"a":1}')
     end
 
-    it "adds content type" do
+    it 'adds content type' do
       expect(result_type).to eq('application/json')
     end
   end
 
-  context "empty object body" do
+  context 'empty object body' do
     let(:result) { process({}) }
 
-    it "encodes body" do
+    it 'encodes body' do
       expect(result_body).to eq('{}')
     end
   end
 
-  context "object body with json type" do
+  context 'object body with json type' do
     let(:result) { process({:a => 1}, 'application/json; charset=utf-8') }
 
-    it "encodes body" do
+    it 'encodes body' do
       expect(result_body).to eq('{"a":1}')
     end
 
@@ -81,10 +81,10 @@ RSpec.describe FaradayMiddleware::EncodeJson do
     end
   end
 
-  context "object body with vendor json type" do
+  context 'object body with vendor json type' do
     let(:result) { process({:a => 1}, 'application/vnd.myapp.v1+json; charset=utf-8') }
 
-    it "encodes body" do
+    it 'encodes body' do
       expect(result_body).to eq('{"a":1}')
     end
 
@@ -93,7 +93,7 @@ RSpec.describe FaradayMiddleware::EncodeJson do
     end
   end
 
-  context "object body with incompatible type" do
+  context 'object body with incompatible type' do
     let(:result) { process({:a => 1}, 'application/xml; charset=utf-8') }
 
     it "doesn't change body" do

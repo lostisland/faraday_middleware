@@ -26,7 +26,7 @@ RSpec.describe FaradayMiddleware::Gzip, :type => :response do
 
   context 'response' do
     let(:uncompressed_body) {
-      "<html><head><title>Rspec</title></head><body>Hello, spec!</body></html>"
+      '<html><head><title>Rspec</title></head><body>Hello, spec!</body></html>'
     }
     let(:gzipped_body) {
       io = StringIO.new
@@ -50,7 +50,7 @@ RSpec.describe FaradayMiddleware::Gzip, :type => :response do
       Brotli.deflate(uncompressed_body)
     }
     let(:empty_body) {
-      ""
+      ''
     }
 
     shared_examples 'compressed response' do

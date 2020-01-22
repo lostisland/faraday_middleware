@@ -1,5 +1,5 @@
-require "time"
-require "faraday"
+require 'time'
+require 'faraday'
 
 module FaradayMiddleware
   # Parse dates from response body

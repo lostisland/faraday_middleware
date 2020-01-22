@@ -68,10 +68,10 @@ RSpec.describe FaradayMiddleware::Caching do
     expect(get('/broken').body).to eq('request:2')
   end
 
-  context ":ignore_params" do
+  context ':ignore_params' do
     let(:options) { {:ignore_params => %w[ utm_source utm_term ]} }
 
-    it "strips ignored parameters from cache_key" do
+    it 'strips ignored parameters from cache_key' do
       expect(get('/').body).to eq('request:1')
       expect(get('/?utm_source=a').body).to eq('request:1')
       expect(get('/?utm_source=a&utm_term=b').body).to eq('request:1')
@@ -80,30 +80,30 @@ RSpec.describe FaradayMiddleware::Caching do
     end
   end
 
-  context ":full_key" do
+  context ':full_key' do
     let(:options) { {:full_key => true} }
 
-    it "use full URL as cache key" do
+    it 'use full URL as cache key' do
       expect(get('http://www.site-a.com/test').body).to eq('request:1')
       expect(get('http://www.site-b.com/test').body).to eq('request:2')
     end
   end
 
-  context ":write_options" do
+  context ':write_options' do
     let(:options) { {:write_options => {:expires_in => 9000 } } }
 
-    it "passes on the options when writing to the cache" do
-      expect(@cache).to receive(:write).with(Digest::SHA1.hexdigest("/"),
+    it 'passes on the options when writing to the cache' do
+      expect(@cache).to receive(:write).with(Digest::SHA1.hexdigest('/'),
                                              instance_of(Faraday::Response),
                                              options[:write_options])
       get('/')
     end
 
-    context "with no :write_options" do
+    context 'with no :write_options' do
       let(:options) { {} }
 
       it "doesn't pass a third options parameter to the cache's #write" do
-        expect(@cache).to receive(:write).with(Digest::SHA1.hexdigest("/"), instance_of(Faraday::Response))
+        expect(@cache).to receive(:write).with(Digest::SHA1.hexdigest('/'), instance_of(Faraday::Response))
         get('/')
       end
     end
@@ -128,8 +128,8 @@ RSpec.describe FaradayMiddleware::Caching do
   class CachingLint < Struct.new(:app)
     def call(env)
       app.call(env).on_complete do
-        raise "no headers" unless env[:response_headers].is_a? Hash
-        raise "no response" unless env[:response].is_a? Faraday::Response
+        raise 'no headers' unless env[:response_headers].is_a? Hash
+        raise 'no response' unless env[:response].is_a? Faraday::Response
         # raise "env not identical" unless env[:response].env.object_id == env.object_id
       end
     end
