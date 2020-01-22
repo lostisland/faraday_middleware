@@ -6,6 +6,7 @@ rvm:
   - 2.4
   - 2.5.0
   - 2.6.3
+  - 2.7
 matrix:
   fast_finish: true
 deploy:
