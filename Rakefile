@@ -5,7 +5,7 @@ default_gemfile = ENV['BUNDLE_GEMFILE'] =~ /Gemfile$/
 begin
   require 'cane/rake_task'
 rescue LoadError
-  warn "warning: cane not available; skipping quality checks."
+  warn 'warning: cane not available; skipping quality checks.'
 else
   desc %(Check code quality metrics with Cane)
   Cane::RakeTask.new(:quality) do |cane|

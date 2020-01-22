@@ -12,7 +12,7 @@ module FaradayMiddleware
   # http://rack.rubyforge.org/doc/classes/Rack/MethodOverride.html
   class MethodOverride < Faraday::Middleware
 
-    HEADER = "X-Http-Method-Override".freeze
+    HEADER = 'X-Http-Method-Override'.freeze
 
     # Public: Initialize the middleware.
     #

@@ -8,29 +8,29 @@ Faraday::Adapter::Test::Stubs.class_eval { public :new_stub }
 RSpec.describe FaradayMiddleware::FollowRedirects do
   let(:middleware_options) { Hash.new }
 
-  shared_examples_for "a successful redirection" do |status_code|
-    it "follows the redirection for a GET request" do
+  shared_examples_for 'a successful redirection' do |status_code|
+    it 'follows the redirection for a GET request' do
       expect(connection do |stub|
         stub.get('/permanent') { [status_code, {'Location' => '/found'}, ''] }
         stub.get('/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
       end.get('/permanent').body).to eq 'fin'
     end
 
-    it "follows the redirection for a HEAD request" do
+    it 'follows the redirection for a HEAD request' do
       expect(connection do |stub|
                stub.head('/permanent') { [status_code, {'Location' => '/found'}, ''] }
                stub.head('/found') { [200, {'Content-Type' => 'text/plain'}, ''] }
              end.head('/permanent').status).to eq 200
     end
 
-    it "follows the redirection for a OPTIONS request" do
+    it 'follows the redirection for a OPTIONS request' do
       expect(connection do |stub|
                stub.new_stub(:options, '/permanent') { [status_code, {'Location' => '/found'}, ''] }
                stub.new_stub(:options, '/found') { [200, {'Content-Type' => 'text/plain'}, ''] }
              end.run_request(:options, '/permanent', nil, nil).status).to eq 200
     end
 
-    it "tolerates invalid characters in redirect location" do
+    it 'tolerates invalid characters in redirect location' do
       unescaped_location = '/found?action_type_map=["og.likes!%20you"]'
       escaped_location = '/found?action_type_map=[%22og.likes!%20you%22]'
 
@@ -41,7 +41,7 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
     end
   end
 
-  shared_examples_for "a forced GET redirection" do |status_code|
+  shared_examples_for 'a forced GET redirection' do |status_code|
     [:put, :post, :delete, :patch].each do |method|
       it "a #{method.to_s.upcase} request is converted to a GET" do
         expect(connection do |stub|
@@ -57,8 +57,8 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
     end
   end
 
-  shared_examples_for "a replayed redirection" do |status_code|
-    it "redirects with the original request headers" do
+  shared_examples_for 'a replayed redirection' do |status_code|
+    it 'redirects with the original request headers' do
       conn = connection do |stub|
         stub.get('/redirect') {
           [status_code, {'Location' => '/found'}, '']
@@ -101,20 +101,20 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
     end
   end
 
-  it "returns non-redirect response results" do
+  it 'returns non-redirect response results' do
     expect(connection do |stub|
       stub.get('/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
     end.get('/found').body).to eq 'fin'
   end
 
-  it "follows a single redirection" do
+  it 'follows a single redirection' do
     expect(connection do |stub|
       stub.get('/')      { [301, {'Location' => '/found'}, ''] }
       stub.get('/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
     end.get('/').body).to eq 'fin'
   end
 
-  it "follows many redirections" do
+  it 'follows many redirections' do
     expect(connection do |stub|
       stub.get('/')          { [301, {'Location' => '/redirect1'}, ''] }
       stub.get('/redirect1') { [301, {'Location' => '/redirect2'}, ''] }
@@ -123,7 +123,7 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
     end.get('/').body).to eq 'fin'
   end
 
-  it "raises a FaradayMiddleware::RedirectLimitReached after 3 redirections (by default)" do
+  it 'raises a FaradayMiddleware::RedirectLimitReached after 3 redirections (by default)' do
     conn = connection do |stub|
       stub.get('/')          { [301, {'Location' => '/redirect1'}, ''] }
       stub.get('/redirect1') { [301, {'Location' => '/redirect2'}, ''] }
@@ -135,7 +135,7 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
     expect{ conn.get('/') }.to raise_error(FaradayMiddleware::RedirectLimitReached)
   end
 
-  it "raises a FaradayMiddleware::RedirectLimitReached after the initialized limit" do
+  it 'raises a FaradayMiddleware::RedirectLimitReached after the initialized limit' do
     conn = connection(:limit => 1) do |stub|
       stub.get('/')          { [301, {'Location' => '/redirect1'}, ''] }
       stub.get('/redirect1') { [301, {'Location' => '/found'}, ''] }
@@ -145,7 +145,7 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
     expect{ conn.get('/') }.to raise_error(FaradayMiddleware::RedirectLimitReached)
   end
 
-  it "ignore fragments in the Location header" do
+  it 'ignore fragments in the Location header' do
     expect(connection do |stub|
       stub.get('/')      { [301, {'Location' => '/found#fragment'}, ''] }
       stub.get('/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
@@ -154,7 +154,7 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
 
   described_class::REDIRECT_CODES.each do |code|
     context "for an HTTP #{code} response" do
-      it "raises a FaradayMiddleware::RedirectLimitReached when Location header is missing" do
+      it 'raises a FaradayMiddleware::RedirectLimitReached when Location header is missing' do
         conn = connection do |stub|
           stub.get('/') { [code, {}, ''] }
         end
@@ -164,9 +164,9 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
     end
   end
 
-  context "when clear_authorization_header option" do
-    context "is false" do
-      it "redirects with the original authorization headers" do
+  context 'when clear_authorization_header option' do
+    context 'is false' do
+      it 'redirects with the original authorization headers' do
         conn = connection(:clear_authorization_header => false) do |stub|
           stub.get('/redirect') {
             [301, {'Location' => '/found'}, '']
@@ -183,15 +183,15 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
       end
     end
 
-    context "is true" do
-      context "redirect to same host" do
-        it "redirects with the original authorization headers" do
+    context 'is true' do
+      context 'redirect to same host' do
+        it 'redirects with the original authorization headers' do
           conn = connection do |stub|
             stub.get('http://localhost/redirect') do
               [301, {'Location' => '/found'}, '']
             end
             stub.get('http://localhost/found') do |env|
-              [200, {}, env.request_headers["Authorization"]]
+              [200, {}, env.request_headers['Authorization']]
             end
           end
           response = conn.get('http://localhost/redirect') do |req|
@@ -202,14 +202,14 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
         end
       end
 
-      context "redirect to same host with explicitly port" do
-        it "redirects with the original authorization headers" do
+      context 'redirect to same host with explicitly port' do
+        it 'redirects with the original authorization headers' do
           conn = connection do |stub|
             stub.get('http://localhost/redirect') do
               [301, {'Location' => 'http://localhost:80/found'}, '']
             end
             stub.get('http://localhost/found') do |env|
-              [200, {}, env.request_headers["Authorization"]]
+              [200, {}, env.request_headers['Authorization']]
             end
           end
           response = conn.get('http://localhost/redirect') { |req|
@@ -220,14 +220,14 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
         end
       end
 
-      context "redirect to different scheme" do
-        it "redirects without original authorization headers" do
+      context 'redirect to different scheme' do
+        it 'redirects without original authorization headers' do
           conn = connection do |stub|
             stub.get('http://localhost/redirect') do
               [301, {'Location' => 'https://localhost2/found'}, '']
             end
             stub.get('https://localhost2/found') do |env|
-              [200, {}, env.request_headers["Authorization"]]
+              [200, {}, env.request_headers['Authorization']]
             end
           end
           response = conn.get('http://localhost/redirect') { |req|
@@ -238,14 +238,14 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
         end
       end
 
-      context "redirect to different host" do
-        it "redirects without original authorization headers" do
+      context 'redirect to different host' do
+        it 'redirects without original authorization headers' do
           conn = connection do |stub|
             stub.get('http://localhost/redirect') do
               [301, {'Location' => 'http://localhost2/found'}, '']
             end
             stub.get('https://localhost2/found') do |env|
-              [200, {}, env.request_headers["Authorization"]]
+              [200, {}, env.request_headers['Authorization']]
             end
           end
           response = conn.get('http://localhost/redirect') { |req|
@@ -256,14 +256,14 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
         end
       end
 
-      context "redirect to different port" do
-        it "redirects without original authorization headers" do
+      context 'redirect to different port' do
+        it 'redirects without original authorization headers' do
           conn = connection do |stub|
             stub.get('http://localhost:9090/redirect') do
               [301, {'Location' => 'http://localhost:9091/found'}, '']
             end
             stub.get('http://localhost:9091/found') do |env|
-              [200, {}, env.request_headers["Authorization"]]
+              [200, {}, env.request_headers['Authorization']]
             end
           end
           response = conn.get('http://localhost:9090/redirect') { |req|
@@ -280,58 +280,58 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
     context "for an HTTP #{code} response" do
       it_behaves_like 'a successful redirection', code
 
-      context "by default" do
+      context 'by default' do
         it_behaves_like 'a forced GET redirection', code
       end
 
-      context "with standards compliancy enabled" do
+      context 'with standards compliancy enabled' do
         let(:middleware_options) { { :standards_compliant => true } }
         it_behaves_like 'a replayed redirection', code
       end
     end
   end
 
-  context "for an HTTP 303 response" do
-    context "by default" do
+  context 'for an HTTP 303 response' do
+    context 'by default' do
       it_behaves_like 'a successful redirection', 303
       it_behaves_like 'a forced GET redirection', 303
     end
 
-    context "with standards compliancy enabled" do
+    context 'with standards compliancy enabled' do
       let(:middleware_options) { { :standards_compliant => true } }
       it_behaves_like 'a successful redirection', 303
       it_behaves_like 'a forced GET redirection', 303
     end
   end
 
-  context "for an HTTP 307 response" do
-    context "by default" do
+  context 'for an HTTP 307 response' do
+    context 'by default' do
       it_behaves_like 'a successful redirection', 307
       it_behaves_like 'a replayed redirection', 307
     end
 
-    context "with standards compliancy enabled" do
+    context 'with standards compliancy enabled' do
       let(:middleware_options) { { :standards_compliant => true } }
       it_behaves_like 'a successful redirection', 307
       it_behaves_like 'a replayed redirection', 307
     end
   end
 
-  context "for an HTTP 308 response" do
-    context "by default" do
+  context 'for an HTTP 308 response' do
+    context 'by default' do
       it_behaves_like 'a successful redirection', 308
       it_behaves_like 'a replayed redirection', 308
     end
 
-    context "with standards compliancy enabled" do
+    context 'with standards compliancy enabled' do
       let(:middleware_options) { { :standards_compliant => true } }
       it_behaves_like 'a successful redirection', 308
       it_behaves_like 'a replayed redirection', 308
     end
   end
 
-  context "with a callback" do
-    it "calls the callback" do
+  context 'with a callback' do
+    it 'calls the callback' do
       from, to = nil, nil
       callback = lambda { |old, new| from, to = old[:url].path, new[:url].path }
 

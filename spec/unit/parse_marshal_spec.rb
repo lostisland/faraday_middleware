@@ -2,15 +2,15 @@ require 'helper'
 require 'faraday_middleware/response/parse_marshal'
 
 RSpec.describe FaradayMiddleware::ParseMarshal, :type => :response do
-  it "restores a marshaled dump" do
+  it 'restores a marshaled dump' do
     expect(process(Marshal.dump(:a => 1)).body).to be_eql(:a => 1)
   end
 
-  it "nulifies blank response" do
+  it 'nulifies blank response' do
     expect(process('').body).to be_nil
   end
 
-  it "chokes on invalid content" do
+  it 'chokes on invalid content' do
     expect{ process('abc') }.to raise_error(Faraday::ParsingError)
   end
 end

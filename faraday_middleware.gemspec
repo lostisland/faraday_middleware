@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.version = FaradayMiddleware::VERSION
 
   spec.summary = %q{Various middleware for Faraday}
-  spec.authors = ["Erik Michaels-Ober", "Wynn Netherland"]
+  spec.authors = ['Erik Michaels-Ober', 'Wynn Netherland']
   spec.email = ['sferik@gmail.com', 'wynn.netherland@gmail.com']
   spec.homepage = 'https://github.com/lostisland/faraday_middleware'
   spec.licenses = ['MIT']
