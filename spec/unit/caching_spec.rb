@@ -159,9 +159,9 @@ RSpec.describe FaradayMiddleware::RackCompatible, 'caching' do
       b.use RackErrorsComplainer
 
       b.use FaradayMiddleware::RackCompatible, Rack::Cache::Context,
-        :metastore   => "file:#{CACHE_DIR}/rack/meta",
-        :entitystore => "file:#{CACHE_DIR}/rack/body",
-        :verbose     => true
+            :metastore   => "file:#{CACHE_DIR}/rack/meta",
+            :entitystore => "file:#{CACHE_DIR}/rack/body",
+            :verbose     => true
 
       b.adapter :test do |stub|
         stub.get('/', &response)
