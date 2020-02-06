@@ -149,10 +149,11 @@ RSpec.describe FaradayMiddleware::RackCompatible, 'caching' do
 
     request_count = 0
     response = lambda { |env|
-      [200, { 'Content-Type' => 'text/plain',
-              'Cache-Control' => 'public, max-age=900',
-            },
-            "request:#{request_count+=1}"]
+      [200,
+       { 'Content-Type' => 'text/plain',
+         'Cache-Control' => 'public, max-age=900',
+       },
+       "request:#{request_count+=1}"]
     }
 
     @conn = Faraday.new do |b|
