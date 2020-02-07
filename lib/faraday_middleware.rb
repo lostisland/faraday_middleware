@@ -2,6 +2,7 @@
 
 require 'faraday'
 
+# Main FaradayMiddleware module.
 module FaradayMiddleware
   autoload :OAuth,           'faraday_middleware/request/oauth'
   autoload :OAuth2,          'faraday_middleware/request/oauth2'

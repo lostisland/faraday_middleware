@@ -2,6 +2,7 @@
 
 require 'faraday'
 
+# Main FaradayMiddleware module.
 module FaradayMiddleware
   # Internal: The base class for middleware that parses responses.
   class ResponseMiddleware < Faraday::Middleware
