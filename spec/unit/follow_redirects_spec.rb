@@ -354,6 +354,7 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
       if defined?(Faraday::Env) && !env.is_a?(Faraday::Env)
         raise "expected Faraday::Env, got #{env.class}"
       end
+
       app.call(env)
     end
   end
