@@ -154,7 +154,7 @@ RSpec.describe FaradayMiddleware::RackCompatible, 'caching' do
         response = app.call(env)
         error_stream = env[:rack_errors]
         if error_stream.respond_to?(:string) && error_stream.string.include?('error')
-          raise %(unexpected error in 'rack.errors': %p) % error_stream.string
+          raise format(%(unexpected error in 'rack.errors': %<error>p), error: error_stream.string)
         end
 
         response
