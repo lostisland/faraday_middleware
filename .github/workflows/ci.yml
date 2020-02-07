@@ -35,6 +35,7 @@ jobs:
           yard-junk --path lib
 
   build:
+    needs: [linting]
     runs-on: ubuntu-latest
     strategy:
       matrix:
