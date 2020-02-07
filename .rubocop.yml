@@ -18,6 +18,10 @@ Layout/LineLength:
     - spec/**/*.rb
     - examples/**/*.rb
 
+Naming/PredicateName:
+  Exclude:
+    - 'lib/faraday_middleware/request/encode_json.rb'
+
 Style/DoubleNegation:
   Enabled: false
 
