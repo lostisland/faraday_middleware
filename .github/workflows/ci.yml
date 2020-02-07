@@ -13,6 +13,27 @@ env:
   CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
 
 jobs:
+  linting:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Ruby 2.6
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 2.6.x
+
+      - name: Rubocop
+        run: |
+          gem install rubocop rubocop-performance --no-document
+          rubocop --require rubocop-performance --format progress
+
+      - name: Yard-Junk
+        run: |
+          gem install yard-junk --no-document
+          yard-junk --path lib
+
   build:
     runs-on: ubuntu-latest
     strategy:
@@ -29,7 +50,7 @@ jobs:
     - name: Set up RVM
       run: |
         curl -sSL https://get.rvm.io | bash
-        
+
     - name: Set up Ruby
       run: |
         source $HOME/.rvm/scripts/rvm
