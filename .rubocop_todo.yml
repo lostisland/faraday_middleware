@@ -83,15 +83,6 @@ Style/FormatStringToken:
     - 'spec/helper.rb'
     - 'spec/unit/caching_spec.rb'
 
-# Offense count: 4
-# Configuration parameters: MinBodyLength.
-Style/GuardClause:
-  Exclude:
-    - 'lib/faraday_middleware/request/encode_json.rb'
-    - 'lib/faraday_middleware/request/oauth2.rb'
-    - 'spec/unit/caching_spec.rb'
-    - 'spec/unit/oauth_spec.rb'
-
 # Offense count: 6
 # Cop supports --auto-correct.
 Style/IfUnlessModifier:

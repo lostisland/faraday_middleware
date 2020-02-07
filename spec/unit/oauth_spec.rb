@@ -11,11 +11,12 @@ RSpec.describe FaradayMiddleware::OAuth do
   end
 
   def auth_values(env)
-    if auth = auth_header(env)
-      raise "invalid header: #{auth.inspect}" unless auth.sub!('OAuth ', '')
+    auth = auth_header(env)
+    return unless auth
 
-      Hash[*auth.split(/, |=/)]
-    end
+    raise "invalid header: #{auth.inspect}" unless auth.sub!('OAuth ', '')
+
+    Hash[*auth.split(/, |=/)]
   end
 
   def perform(oauth_options = {}, headers = {}, params = {})

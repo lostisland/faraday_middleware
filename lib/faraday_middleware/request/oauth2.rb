@@ -66,13 +66,13 @@ module FaradayMiddleware
         raise ArgumentError, ":param_name can't be blank"
       end
 
-      if options[:token_type].nil?
-        warn "\nWarning: FaradayMiddleware::OAuth2 initialized with default "\
-             'token_type - token will be added as both a query string parameter '\
-             'and an Authorization header. In the next major release, tokens will '\
-             'be added exclusively as an Authorization header by default. Please '\
-             'visit https://github.com/lostisland/faraday_middleware/wiki for more information.'
-      end
+      return unless options[:token_type].nil?
+
+      warn "\nWarning: FaradayMiddleware::OAuth2 initialized with default "\
+        'token_type - token will be added as both a query string parameter '\
+        'and an Authorization header. In the next major release, tokens will '\
+        'be added exclusively as an Authorization header by default. Please '\
+        'visit https://github.com/lostisland/faraday_middleware/wiki for more information.'
     end
 
     def query_params(url)
