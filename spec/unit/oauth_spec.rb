@@ -31,7 +31,7 @@ RSpec.describe FaradayMiddleware::OAuth do
   end
 
   def make_app
-    described_class.new(lambda{|env| env}, *Array(options))
+    described_class.new(lambda{ |env| env }, *Array(options))
   end
 
   context 'invalid options' do
