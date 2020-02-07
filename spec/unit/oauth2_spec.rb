@@ -23,7 +23,7 @@ RSpec.describe FaradayMiddleware::OAuth2 do
   end
 
   def make_app
-    described_class.new(lambda{|env| env}, *Array(options))
+    described_class.new(lambda{ |env| env }, *Array(options))
   end
 
   context 'no token configured' do
