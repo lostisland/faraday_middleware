@@ -31,10 +31,10 @@ module FaradayMiddleware
     end
 
     def match_content_type(env)
-      if process_request?(env)
-        env[:request_headers][CONTENT_TYPE] ||= MIME_TYPE
-        yield env[:body] unless env[:body].respond_to?(:to_str)
-      end
+      return unless process_request?(env)
+
+      env[:request_headers][CONTENT_TYPE] ||= MIME_TYPE
+      yield env[:body] unless env[:body].respond_to?(:to_str)
     end
 
     def process_request?(env)

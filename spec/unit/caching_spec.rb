@@ -113,9 +113,10 @@ RSpec.describe FaradayMiddleware::Caching do
 
   class TestCache < Hash
     def read(key)
-      if cached = self[key]
-        Marshal.load(cached)
-      end
+      cached = self[key]
+      return unless cached
+
+      Marshal.load(cached)
     end
 
     def write(key, data, _options = nil)
