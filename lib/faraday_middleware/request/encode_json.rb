@@ -42,7 +42,7 @@ module FaradayMiddleware
       has_body?(env) && (type.empty? || MIME_TYPE_REGEX =~ type)
     end
 
-    def has_body?(env)
+    def body?(env)
       (body = env[:body]) && !(body.respond_to?(:to_str) && body.empty?)
     end
 
