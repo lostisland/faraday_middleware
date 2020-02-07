@@ -31,7 +31,7 @@ RSpec.describe FaradayMiddleware::ParseDates, :type => :response do
   end
 
   it 'leaves arrays with ids alone' do
-    expect(process({'x' => [1,2,3]}).body).to eq({'x' => [1,2,3]})
+    expect(process({'x' => [1, 2, 3]}).body).to eq({'x' => [1, 2, 3]})
   end
 
   it 'does not parse date-like things' do
