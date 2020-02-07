@@ -24,11 +24,6 @@ Metrics/MethodLength:
   Max: 18
 
 # Offense count: 1
-Naming/ConstantName:
-  Exclude:
-    - 'lib/faraday_middleware/rack_compatible.rb'
-
-# Offense count: 1
 # Configuration parameters: NamePrefix, ForbiddenPrefixes, AllowedMethods, MethodDefinitionMacros.
 # NamePrefix: is_, has_, have_
 # ForbiddenPrefixes: is_, has_, have_

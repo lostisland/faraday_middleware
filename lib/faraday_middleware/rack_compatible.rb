@@ -24,7 +24,7 @@ module FaradayMiddleware
       finalize_response(env, rack_response)
     end
 
-    NonPrefixedHeaders = %w[CONTENT_LENGTH CONTENT_TYPE].freeze
+    NON_PREFIXED_HEADERS = %w[CONTENT_LENGTH CONTENT_TYPE].freeze
 
     # faraday to rack-compatible
     def prepare_env(faraday_env)
@@ -47,7 +47,7 @@ module FaradayMiddleware
       rack_env = {}
       env[:request_headers].each do |name, value|
         name = name.upcase.tr('-', '_')
-        name = "HTTP_#{name}" unless NonPrefixedHeaders.include? name
+        name = "HTTP_#{name}" unless NON_PREFIXED_HEADERS.include? name
         rack_env[name] = value
       end
       rack_env
@@ -62,7 +62,7 @@ module FaradayMiddleware
       rack_env.each do |name, value|
         next unless String === name && String === value
 
-        if NonPrefixedHeaders.include?(name) || name.start_with?('HTTP_')
+        if NON_PREFIXED_HEADERS.include?(name) || name.start_with?('HTTP_')
           name = name.sub(/^HTTP_/, '').downcase.tr('_', '-')
           headers[name] = value
         end
