@@ -24,7 +24,6 @@ module FaradayMiddleware
   #   # default token value is optional:
   #   OAuth2.new(app, :param_name => 'my_oauth_token')
   class OAuth2 < Faraday::Middleware
-
     PARAM_NAME  = 'access_token'.freeze
     TOKEN_TYPE  = 'param'.freeze
     AUTH_HEADER = 'Authorization'.freeze
