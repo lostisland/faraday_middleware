@@ -27,6 +27,10 @@ Security/MarshalLoad:
     - 'lib/faraday_middleware/response/parse_marshal.rb'
     - 'spec/unit/caching_spec.rb'
 
+Style/AccessModifierDeclarations:
+  Exclude:
+    - 'spec/unit/follow_redirects_spec.rb'
+
 Style/DoubleNegation:
   Enabled: false
 

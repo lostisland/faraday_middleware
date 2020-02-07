@@ -15,13 +15,6 @@ Metrics/AbcSize:
 Metrics/MethodLength:
   Max: 17
 
-# Offense count: 1
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: inline, group
-Style/AccessModifierDeclarations:
-  Exclude:
-    - 'spec/unit/follow_redirects_spec.rb'
-
 # Offense count: 3
 Style/CaseEquality:
   Exclude:
