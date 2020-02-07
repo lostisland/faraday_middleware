@@ -105,7 +105,8 @@ RSpec.describe FaradayMiddleware::OAuth do
     let(:options) { [{ :consumer_key => 'CKEY',
                        :consumer_secret => 'CSECRET',
                        :nonce => '547fed103e122eecf84c080843eedfe6',
-                       :timestamp => '1286830180'}] }
+                       :timestamp => '1286830180'}]
+    }
 
     let(:value) { {'foo' => 'bar'} }
 
