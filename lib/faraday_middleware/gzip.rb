@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'faraday'
 
 module FaradayMiddleware
@@ -28,9 +30,9 @@ module FaradayMiddleware
       encodings
     end
 
-    ACCEPT_ENCODING = 'Accept-Encoding'.freeze
-    CONTENT_ENCODING = 'Content-Encoding'.freeze
-    CONTENT_LENGTH = 'Content-Length'.freeze
+    ACCEPT_ENCODING = 'Accept-Encoding'
+    CONTENT_ENCODING = 'Content-Encoding'
+    CONTENT_LENGTH = 'Content-Length'
     SUPPORTED_ENCODINGS = supported_encodings.join(',').freeze
     RUBY_ENCODING = '1.9'.respond_to?(:force_encoding)
 
@@ -61,7 +63,7 @@ module FaradayMiddleware
     def uncompress_gzip(body)
       io = StringIO.new(body)
       gzip_reader = if RUBY_ENCODING
-                      Zlib::GzipReader.new(io, :encoding => 'ASCII-8BIT')
+                      Zlib::GzipReader.new(io, encoding: 'ASCII-8BIT')
                     else
                       Zlib::GzipReader.new(io)
                     end

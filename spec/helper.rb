@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 if ENV['COVERAGE']
   require 'simplecov'
 
@@ -34,11 +36,11 @@ module ResponseMiddlewareExampleGroup
   def self.included(base)
     base.let(:options) { {} }
     base.let(:headers) { {} }
-    base.let(:middleware) {
+    base.let(:middleware) do
       described_class.new(lambda { |env|
         Faraday::Response.new(env)
       }, options)
-    }
+    end
   end
 
   def process(body, content_type = nil, options = {})

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'faraday'
 require 'forwardable'
 
@@ -24,9 +26,9 @@ module FaradayMiddleware
   #   # default token value is optional:
   #   OAuth2.new(app, :param_name => 'my_oauth_token')
   class OAuth2 < Faraday::Middleware
-    PARAM_NAME  = 'access_token'.freeze
-    TOKEN_TYPE  = 'param'.freeze
-    AUTH_HEADER = 'Authorization'.freeze
+    PARAM_NAME  = 'access_token'
+    TOKEN_TYPE  = 'param'
+    AUTH_HEADER = 'Authorization'
 
     attr_reader :param_name, :token_type
 
@@ -52,8 +54,11 @@ module FaradayMiddleware
 
     def initialize(app, token = nil, options = {})
       super(app)
-      options, token = token, nil if token.is_a? Hash
-      @token = token && token.to_s
+      if token.is_a? Hash
+        options = token
+        token = nil
+      end
+      @token = token&.to_s
       @param_name = options.fetch(:param_name, PARAM_NAME).to_s
       @token_type = options.fetch(:token_type, TOKEN_TYPE).to_s
 
@@ -71,7 +76,7 @@ module FaradayMiddleware
     end
 
     def query_params(url)
-      if url.query.nil? or url.query.empty?
+      if url.query.nil? || url.query.empty?
         {}
       else
         parse_query url.query

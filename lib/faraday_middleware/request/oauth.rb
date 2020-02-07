@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'faraday'
 require 'forwardable'
 
@@ -23,9 +25,9 @@ module FaradayMiddleware
   class OAuth < Faraday::Middleware
     dependency 'simple_oauth'
 
-    AUTH_HEADER = 'Authorization'.freeze
-    CONTENT_TYPE = 'Content-Type'.freeze
-    TYPE_URLENCODED = 'application/x-www-form-urlencoded'.freeze
+    AUTH_HEADER = 'Authorization'
+    CONTENT_TYPE = 'Content-Type'
+    TYPE_URLENCODED = 'application/x-www-form-urlencoded'
 
     extend Forwardable
     parser_method = :parse_nested_query
@@ -38,7 +40,9 @@ module FaradayMiddleware
     end
 
     def call(env)
-      env[:request_headers][AUTH_HEADER] ||= oauth_header(env).to_s if sign_request?(env)
+      if sign_request?(env)
+        env[:request_headers][AUTH_HEADER] ||= oauth_header(env).to_s
+      end
       @app.call(env)
     end
 
@@ -54,7 +58,7 @@ module FaradayMiddleware
     end
 
     def oauth_options(env)
-      if extra = env[:request][:oauth] and extra.is_a? Hash and !extra.empty?
+      if (extra = env[:request][:oauth]) && extra.is_a?(Hash) && !extra.empty?
         @options.merge extra
       else
         @options
@@ -73,12 +77,12 @@ module FaradayMiddleware
 
     def include_body_params?(env)
       # see RFC 5849, section 3.4.1.3.1 for details
-      !(type = env[:request_headers][CONTENT_TYPE]) or type == TYPE_URLENCODED
+      !(type = env[:request_headers][CONTENT_TYPE]) || (type == TYPE_URLENCODED)
     end
 
     def signature_params(params)
       params.empty? ? params :
-        params.reject { |k, v| v.respond_to?(:content_type) }
+        params.reject { |_k, v| v.respond_to?(:content_type) }
     end
   end
 end

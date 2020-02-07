@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'helper'
 require 'forwardable'
 require 'fileutils'
@@ -10,11 +12,11 @@ RSpec.describe FaradayMiddleware::Caching do
   before do
     @cache = TestCache.new
     request_count = 0
-    response = lambda { |env|
-      [200, {'Content-Type' => 'text/plain'}, "request:#{request_count+=1}"]
+    response = lambda { |_env|
+      [200, { 'Content-Type' => 'text/plain' }, "request:#{request_count += 1}"]
     }
-    broken = lambda { |env|
-      [500, {'Content-Type' => 'text/plain'}, "request:#{request_count+=1}"]
+    broken = lambda { |_env|
+      [500, { 'Content-Type' => 'text/plain' }, "request:#{request_count += 1}"]
     }
     @conn = Faraday.new do |b|
       b.use CachingLint
@@ -69,7 +71,7 @@ RSpec.describe FaradayMiddleware::Caching do
   end
 
   context ':ignore_params' do
-    let(:options) { {:ignore_params => %w[ utm_source utm_term ]} }
+    let(:options) { { ignore_params: %w[utm_source utm_term] } }
 
     it 'strips ignored parameters from cache_key' do
       expect(get('/').body).to eq('request:1')
@@ -81,7 +83,7 @@ RSpec.describe FaradayMiddleware::Caching do
   end
 
   context ':full_key' do
-    let(:options) { {:full_key => true} }
+    let(:options) { { full_key: true } }
 
     it 'use full URL as cache key' do
       expect(get('http://www.site-a.com/test').body).to eq('request:1')
@@ -90,7 +92,7 @@ RSpec.describe FaradayMiddleware::Caching do
   end
 
   context ':write_options' do
-    let(:options) { {:write_options => {:expires_in => 9000 } } }
+    let(:options) { { write_options: { expires_in: 9000 } } }
 
     it 'passes on the options when writing to the cache' do
       expect(@cache).to receive(:write).with(Digest::SHA1.hexdigest('/'),
@@ -116,7 +118,7 @@ RSpec.describe FaradayMiddleware::Caching do
       end
     end
 
-    def write(key, data, options = nil)
+    def write(key, data, _options = nil)
       self[key] = Marshal.dump(data)
     end
 
@@ -140,7 +142,7 @@ end
 RSpec.describe FaradayMiddleware::RackCompatible, 'caching' do
   include FileUtils
 
-  CACHE_DIR = File.expand_path('../../tmp/cache', __FILE__)
+  CACHE_DIR = File.expand_path('../tmp/cache', __dir__)
 
   before do
     rm_r CACHE_DIR if File.exist? CACHE_DIR
@@ -148,21 +150,20 @@ RSpec.describe FaradayMiddleware::RackCompatible, 'caching' do
     Rack::Cache::Storage.instance.clear
 
     request_count = 0
-    response = lambda { |env|
+    response = lambda { |_env|
       [200,
        { 'Content-Type' => 'text/plain',
-         'Cache-Control' => 'public, max-age=900',
-       },
-       "request:#{request_count+=1}"]
+         'Cache-Control' => 'public, max-age=900' },
+       "request:#{request_count += 1}"]
     }
 
     @conn = Faraday.new do |b|
       b.use RackErrorsComplainer
 
       b.use FaradayMiddleware::RackCompatible, Rack::Cache::Context,
-            :metastore   => "file:#{CACHE_DIR}/rack/meta",
-            :entitystore => "file:#{CACHE_DIR}/rack/body",
-            :verbose     => true
+            metastore: "file:#{CACHE_DIR}/rack/meta",
+            entitystore: "file:#{CACHE_DIR}/rack/body",
+            verbose: true
 
       b.adapter :test do |stub|
         stub.get('/', &response)
@@ -175,12 +176,12 @@ RSpec.describe FaradayMiddleware::RackCompatible, 'caching' do
   def_delegators :@conn, :get, :post
 
   it 'caches get requests' do
-    response = get('/', :user_agent => 'test')
+    response = get('/', user_agent: 'test')
     expect(response.body).to eq('request:1')
     expect(response.env[:method]).to eq(:get)
     expect(response.status).to eq(200)
 
-    response = get('/', :user_agent => 'test')
+    response = get('/', user_agent: 'test')
     expect(response.body).to eq('request:1')
     expect(response['content-type']).to eq('text/plain')
     expect(response.env[:method]).to eq(:get)

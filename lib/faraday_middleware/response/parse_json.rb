@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'faraday_middleware/response_middleware'
 
 module FaradayMiddleware
@@ -18,7 +20,7 @@ module FaradayMiddleware
     # This is to fix responses from certain API providers that insist on serving
     # JSON with wrong MIME-types such as "text/javascript".
     class MimeTypeFix < ResponseMiddleware
-      MIME_TYPE = 'application/json'.freeze
+      MIME_TYPE = 'application/json'
 
       def process_response(env)
         old_type = env[:response_headers][CONTENT_TYPE].to_s
@@ -27,11 +29,11 @@ module FaradayMiddleware
         env[:response_headers][CONTENT_TYPE] = new_type
       end
 
-      BRACKETS = %w- [ { -
-      WHITESPACE = [ ' ', "\n", "\r", "\t" ]
+      BRACKETS = %w-[ {-.freeze
+      WHITESPACE = [' ', "\n", "\r", "\t"].freeze
 
       def parse_response?(env)
-        super and BRACKETS.include? first_char(env[:body])
+        super && BRACKETS.include?(first_char(env[:body]))
       end
 
       def first_char(body)
@@ -39,7 +41,7 @@ module FaradayMiddleware
         begin
           char = body[idx += 1]
           char = char.chr if char
-        end while char and WHITESPACE.include? char
+        end while char && WHITESPACE.include?(char)
         char
       end
     end

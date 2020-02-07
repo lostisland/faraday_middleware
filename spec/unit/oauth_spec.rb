@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'helper'
 require 'faraday_middleware/request/oauth'
 require 'uri'
@@ -18,12 +20,12 @@ RSpec.describe FaradayMiddleware::OAuth do
 
   def perform(oauth_options = {}, headers = {}, params = {})
     env = {
-      :url => URI('http://example.com/'),
-      :request_headers => Faraday::Utils::Headers.new.update(headers),
-      :request => {},
-      :body => params
+      url: URI('http://example.com/'),
+      request_headers: Faraday::Utils::Headers.new.update(headers),
+      request: {},
+      body: params
     }
-    unless oauth_options.is_a? Hash and oauth_options.empty?
+    unless oauth_options.is_a?(Hash) && oauth_options.empty?
       env[:request][:oauth] = oauth_options
     end
     app = make_app
@@ -31,14 +33,14 @@ RSpec.describe FaradayMiddleware::OAuth do
   end
 
   def make_app
-    described_class.new(lambda{ |env| env }, *Array(options))
+    described_class.new(->(env) { env }, *Array(options))
   end
 
   context 'invalid options' do
     let(:options) { nil }
 
     it 'errors out' do
-      expect{ make_app }.to raise_error(ArgumentError)
+      expect { make_app }.to raise_error(ArgumentError)
     end
   end
 
@@ -57,9 +59,8 @@ RSpec.describe FaradayMiddleware::OAuth do
 
   context 'configured with consumer and token' do
     let(:options) do
-      [{ :consumer_key => 'CKEY', :consumer_secret => 'CSECRET',
-         :token => 'TOKEN', :token_secret => 'TSECRET'
-      }]
+      [{ consumer_key: 'CKEY', consumer_secret: 'CSECRET',
+         token: 'TOKEN', token_secret: 'TSECRET' }]
     end
 
     it 'adds auth info to the header' do
@@ -81,7 +82,7 @@ RSpec.describe FaradayMiddleware::OAuth do
     end
 
     it 'can override oauth options per-request' do
-      auth = auth_values(perform(:consumer_key => 'CKEY2'))
+      auth = auth_values(perform(consumer_key: 'CKEY2'))
 
       expect(auth['oauth_consumer_key']).to eq(%("CKEY2"))
       expect(auth['oauth_token']).to eq(%("TOKEN"))
@@ -93,7 +94,7 @@ RSpec.describe FaradayMiddleware::OAuth do
   end
 
   context 'configured without token' do
-    let(:options) { [{ :consumer_key => 'CKEY', :consumer_secret => 'CSECRET' }] }
+    let(:options) { [{ consumer_key: 'CKEY', consumer_secret: 'CSECRET' }] }
 
     it 'adds auth info to the header' do
       auth = auth_values(perform)
@@ -103,16 +104,17 @@ RSpec.describe FaradayMiddleware::OAuth do
   end
 
   context 'handling body parameters' do
-    let(:options) { [{ :consumer_key => 'CKEY',
-                       :consumer_secret => 'CSECRET',
-                       :nonce => '547fed103e122eecf84c080843eedfe6',
-                       :timestamp => '1286830180'}]
-    }
+    let(:options) do
+      [{ consumer_key: 'CKEY',
+         consumer_secret: 'CSECRET',
+         nonce: '547fed103e122eecf84c080843eedfe6',
+         timestamp: '1286830180' }]
+    end
 
-    let(:value) { {'foo' => 'bar'} }
+    let(:value) { { 'foo' => 'bar' } }
 
-    let(:type_json) { {'Content-Type' => 'application/json'} }
-    let(:type_form) { {'Content-Type' => 'application/x-www-form-urlencoded'} }
+    let(:type_json) { { 'Content-Type' => 'application/json' } }
+    let(:type_form) { { 'Content-Type' => 'application/x-www-form-urlencoded' } }
 
     extend Forwardable
     query_method = :build_nested_query
@@ -142,12 +144,10 @@ RSpec.describe FaradayMiddleware::OAuth do
 
     it 'includes the body parameters for form type with string body' do
       # simulates the behavior of Faraday::MiddleWare::UrlEncoded
-      value = { 'foo' => ['bar', 'baz', 'wat'] }
-      auth_header_hash   = auth_header(perform({}, type_form, value))
+      value = { 'foo' => %w[bar baz wat] }
+      auth_header_hash = auth_header(perform({}, type_form, value))
       auth_header_string = auth_header(perform({}, type_form, build_nested_query(value)))
       expect(auth_header_string).to eq(auth_header_hash)
     end
-
   end
-
 end
