@@ -114,15 +114,6 @@ Style/MultilineTernaryOperator:
   Exclude:
     - 'lib/faraday_middleware/request/oauth.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AutoCorrect, EnforcedStyle, IgnoredMethods.
-# SupportedStyles: predicate, comparison
-Style/NumericPredicate:
-  Exclude:
-    - 'spec/**/*'
-    - 'lib/faraday_middleware/rack_compatible.rb'
-
 # Offense count: 3
 Style/StructInheritance:
   Exclude:
