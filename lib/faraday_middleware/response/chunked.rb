@@ -11,6 +11,7 @@ module FaradayMiddleware
         chunk_len, raw_body = raw_body.split("\r\n", 2)
         chunk_len = chunk_len.split(';',2).first.hex
         break if chunk_len == 0
+
         decoded_body << raw_body[0, chunk_len]
         # The 2 is to strip the extra CRLF at the end of the chunk
         raw_body = raw_body[chunk_len + 2, raw_body.length - chunk_len - 2]
