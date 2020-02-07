@@ -14,11 +14,6 @@ Lint/AssignmentInCondition:
     - 'spec/unit/caching_spec.rb'
     - 'spec/unit/oauth_spec.rb'
 
-# Offense count: 1
-Lint/Loop:
-  Exclude:
-    - 'lib/faraday_middleware/response/parse_json.rb'
-
 # Offense count: 5
 Metrics/AbcSize:
   Max: 20
