@@ -22,11 +22,6 @@ Style/AccessModifierDeclarations:
   Exclude:
     - 'spec/unit/follow_redirects_spec.rb'
 
-# Offense count: 3
-Style/CaseEquality:
-  Exclude:
-    - 'lib/faraday_middleware/rack_compatible.rb'
-
 # Offense count: 6
 # Cop supports --auto-correct.
 Style/IfUnlessModifier:
