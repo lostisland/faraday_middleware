@@ -14,6 +14,8 @@ Gem::Specification.new do |spec|
   spec.homepage = 'https://github.com/lostisland/faraday_middleware'
   spec.licenses = ['MIT']
 
+  spec.required_ruby_version = '>= 2.3'
+
   spec.add_dependency 'faraday', '~> 1.0'
 
   spec.files = `git ls-files -z lib LICENSE.md README.md`.split("\0")
