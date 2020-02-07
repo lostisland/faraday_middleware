@@ -89,6 +89,7 @@ module FaradayMiddleware
       response.on_complete do |response_env|
         if follow_redirect?(response_env, response)
           raise RedirectLimitReached, response if follows.zero?
+
           new_request_env = update_env(response_env.dup, request_body, response)
           callback.call(response_env, new_request_env) if callback
           response = perform_with_redirection(new_request_env, follows - 1)

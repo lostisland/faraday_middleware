@@ -90,6 +90,7 @@ module FaradayMiddleware
 
     def each
       return to_enum(:each) unless block_given?
+
       super
       yield :preserve_raw, preserve_raw
     end
