@@ -38,10 +38,11 @@ module FaradayMiddleware
 
       def first_char(body)
         idx = -1
-        begin
+        char = body[idx += 1]
+        while char && WHITESPACE.include?(char)
           char = body[idx += 1]
           char = char.chr if char
-        end while char && WHITESPACE.include?(char)
+        end
         char
       end
     end
