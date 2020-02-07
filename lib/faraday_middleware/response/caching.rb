@@ -84,7 +84,7 @@ module FaradayMiddleware
 
     def cache_on_complete(env)
       key = cache_key(env)
-      if cached_response = cache.read(key)
+      if (cached_response = cache.read(key))
         finalize_response(cached_response, env)
       else
         # response.status is nil at this point, any checks need to be done inside on_complete block
