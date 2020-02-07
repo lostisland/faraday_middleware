@@ -39,13 +39,6 @@ Naming/PredicateName:
     - 'spec/**/*'
     - 'lib/faraday_middleware/request/encode_json.rb'
 
-# Offense count: 1
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: snake_case, normalcase, non_integer
-Naming/VariableNumber:
-  Exclude:
-    - 'Rakefile'
-
 # Offense count: 2
 Security/MarshalLoad:
   Exclude:
