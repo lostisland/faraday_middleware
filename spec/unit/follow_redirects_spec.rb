@@ -9,6 +9,21 @@ Faraday::Adapter::Test::Stubs.class_eval { public :new_stub }
 
 RSpec.describe FaradayMiddleware::FollowRedirects do
   let(:middleware_options) { {} }
+  let(:lint_middleware) do
+    # checks env hash in request phase for basic validity
+    Struct.new(:app) do
+      def call(env)
+        if env[:status] || env[:response] || env[:response_headers]
+          raise "invalid request: #{env.inspect}"
+        end
+        if defined?(Faraday::Env) && !env.is_a?(Faraday::Env)
+          raise "expected Faraday::Env, got #{env.class}"
+        end
+
+        app.call(env)
+      end
+    end
+  end
 
   shared_examples_for 'a successful redirection' do |status_code|
     it 'follows the redirection for a GET request' do
@@ -351,26 +366,12 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
     end
   end
 
-  # checks env hash in request phase for basic validity
-  class Lint < Struct.new(:app)
-    def call(env)
-      if env[:status] || env[:response] || env[:response_headers]
-        raise "invalid request: #{env.inspect}"
-      end
-      if defined?(Faraday::Env) && !env.is_a?(Faraday::Env)
-        raise "expected Faraday::Env, got #{env.class}"
-      end
-
-      app.call(env)
-    end
-  end
-
   private
 
   def connection(options = middleware_options)
     Faraday.new do |c|
       c.use described_class, options
-      c.use Lint
+      c.use lint_middleware
       c.adapter :test do |stub|
         yield(stub) if block_given?
       end
