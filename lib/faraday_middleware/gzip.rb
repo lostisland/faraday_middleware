@@ -61,10 +61,10 @@ module FaradayMiddleware
     def uncompress_gzip(body)
       io = StringIO.new(body)
       gzip_reader = if RUBY_ENCODING
-        Zlib::GzipReader.new(io, :encoding => 'ASCII-8BIT')
-      else
-        Zlib::GzipReader.new(io)
-      end
+                      Zlib::GzipReader.new(io, :encoding => 'ASCII-8BIT')
+                    else
+                      Zlib::GzipReader.new(io)
+                    end
       gzip_reader.read
     end
 
