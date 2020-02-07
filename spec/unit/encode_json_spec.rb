@@ -11,6 +11,7 @@ RSpec.describe FaradayMiddleware::EncodeJson do
   end
 
   def result_body() result[:body] end
+
   def result_type() result[:request_headers]['content-type'] end
 
   context 'no body' do
