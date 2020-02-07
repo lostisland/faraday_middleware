@@ -76,11 +76,6 @@ Style/IfUnlessModifier:
     - 'lib/faraday_middleware/response_middleware.rb'
     - 'spec/unit/oauth_spec.rb'
 
-# Offense count: 1
-Style/MultilineTernaryOperator:
-  Exclude:
-    - 'lib/faraday_middleware/request/oauth.rb'
-
 # Offense count: 3
 Style/StructInheritance:
   Exclude:
