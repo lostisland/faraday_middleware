@@ -9,6 +9,18 @@ require 'faraday_middleware/response/caching'
 require 'faraday_middleware/rack_compatible'
 
 RSpec.describe FaradayMiddleware::Caching do
+  let(:caching_lint_middleware) do
+    Struct.new(:app) do
+      def call(env)
+        app.call(env).on_complete do
+          raise 'no headers' unless env[:response_headers].is_a? Hash
+          raise 'no response' unless env[:response].is_a? Faraday::Response
+          # raise "env not identical" unless env[:response].env.object_id == env.object_id
+        end
+      end
+    end
+  end
+
   before do
     @cache = TestCache.new
     request_count = 0
@@ -19,7 +31,7 @@ RSpec.describe FaradayMiddleware::Caching do
       [500, { 'Content-Type' => 'text/plain' }, "request:#{request_count += 1}"]
     }
     @conn = Faraday.new do |b|
-      b.use CachingLint
+      b.use caching_lint_middleware
       b.use FaradayMiddleware::Caching, @cache, options
       b.adapter :test do |stub|
         stub.get('/', &response)
@@ -127,16 +139,6 @@ RSpec.describe FaradayMiddleware::Caching do
       read(key) || yield.tap { |data| write(key, data) }
     end
   end
-
-  class CachingLint < Struct.new(:app)
-    def call(env)
-      app.call(env).on_complete do
-        raise 'no headers' unless env[:response_headers].is_a? Hash
-        raise 'no response' unless env[:response].is_a? Faraday::Response
-        # raise "env not identical" unless env[:response].env.object_id == env.object_id
-      end
-    end
-  end
 end
 
 # RackCompatible + Rack::Cache
@@ -144,6 +146,21 @@ RSpec.describe FaradayMiddleware::RackCompatible, 'caching' do
   include FileUtils
 
   CACHE_DIR = File.expand_path('../tmp/cache', __dir__)
+
+  let(:rack_errors_complainer_middleware) do
+    # middleware to check whether "rack.errors" is free of error reports
+    Struct.new(:app) do
+      def call(env)
+        response = app.call(env)
+        error_stream = env[:rack_errors]
+        if error_stream.respond_to?(:string) && error_stream.string.include?('error')
+          raise %(unexpected error in 'rack.errors': %p) % error_stream.string
+        end
+
+        response
+      end
+    end
+  end
 
   before do
     rm_r CACHE_DIR if File.exist? CACHE_DIR
@@ -159,7 +176,7 @@ RSpec.describe FaradayMiddleware::RackCompatible, 'caching' do
     }
 
     @conn = Faraday.new do |b|
-      b.use RackErrorsComplainer
+      b.use rack_errors_complainer_middleware
 
       b.use FaradayMiddleware::RackCompatible, Rack::Cache::Context,
             metastore: "file:#{CACHE_DIR}/rack/meta",
@@ -196,18 +213,5 @@ RSpec.describe FaradayMiddleware::RackCompatible, 'caching' do
     expect(get('/').body).to eq('request:1')
     expect(post('/').body).to eq('request:2')
     expect(post('/').body).to eq('request:3')
-  end
-
-  # middleware to check whether "rack.errors" is free of error reports
-  class RackErrorsComplainer < Struct.new(:app)
-    def call(env)
-      response = app.call(env)
-      error_stream = env[:rack_errors]
-      if error_stream.respond_to?(:string) && error_stream.string.include?('error')
-        raise %(unexpected error in 'rack.errors': %p) % error_stream.string
-      end
-
-      response
-    end
   end
 end
