@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'faraday'
 require 'set'
 
@@ -32,20 +34,20 @@ module FaradayMiddleware
   #   end
   class FollowRedirects < Faraday::Middleware
     # HTTP methods for which 30x redirects can be followed
-    ALLOWED_METHODS = Set.new [:head, :options, :get, :post, :put, :patch, :delete]
+    ALLOWED_METHODS = Set.new %i[head options get post put patch delete]
     # HTTP redirect status codes that this middleware implements
     REDIRECT_CODES  = Set.new [301, 302, 303, 307, 308]
     # Keys in env hash which will get cleared between requests
-    ENV_TO_CLEAR    = Set.new [:status, :response, :response_headers]
+    ENV_TO_CLEAR    = Set.new %i[status response response_headers]
 
     # Default value for max redirects followed
     FOLLOW_LIMIT = 3
 
     # Regex that matches characters that need to be escaped in URLs, sans
     # the "%" character which we assume already represents an escaped sequence.
-    URI_UNSAFE = /[^\-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]%]/
+    URI_UNSAFE = %r{[^\-_.!~*'()a-zA-Z\d;/?:@&=+$,\[\]%]}.freeze
 
-    AUTH_HEADER = 'Authorization'.freeze
+    AUTH_HEADER = 'Authorization'
 
     # Public: Initialize the middleware.
     #
@@ -78,7 +80,7 @@ module FaradayMiddleware
     private
 
     def convert_to_get?(response)
-      ![:head, :options].include?(response.env[:method]) &&
+      !%i[head options].include?(response.env[:method]) &&
         @convert_to_get.include?(response.status)
     end
 
@@ -91,7 +93,7 @@ module FaradayMiddleware
           raise RedirectLimitReached, response if follows.zero?
 
           new_request_env = update_env(response_env.dup, request_body, response)
-          callback.call(response_env, new_request_env) if callback
+          callback&.call(response_env, new_request_env)
           response = perform_with_redirection(new_request_env, follows - 1)
         end
       end
@@ -118,8 +120,8 @@ module FaradayMiddleware
     end
 
     def follow_redirect?(env, response)
-      ALLOWED_METHODS.include? env[:method] and
-        REDIRECT_CODES.include? response.status
+      ALLOWED_METHODS.include?(env[:method]) &&
+        REDIRECT_CODES.include?(response.status)
     end
 
     def follow_limit
@@ -140,9 +142,9 @@ module FaradayMiddleware
     # risk double-escaping.
     def safe_escape(uri)
       uri = uri.split('#')[0] # we want to remove the fragment if present
-      uri.to_s.gsub(URI_UNSAFE) { |match|
+      uri.to_s.gsub(URI_UNSAFE) do |match|
         '%' + match.unpack('H2' * match.bytesize).join('%').upcase
-      }
+      end
     end
 
     def clear_authorization_header(env, from_url, to_url)

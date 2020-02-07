@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require 'helper'
 require 'faraday_middleware/response/parse_json'
 
-RSpec.describe FaradayMiddleware::ParseJson, :type => :response do
+RSpec.describe FaradayMiddleware::ParseJson, type: :response do
   context 'no type matching' do
     it "doesn't change nil body" do
       expect(process(nil).body).to be_nil
@@ -19,7 +21,7 @@ RSpec.describe FaradayMiddleware::ParseJson, :type => :response do
   end
 
   context 'with preserving raw' do
-    let(:options) { {:preserve_raw => true} }
+    let(:options) { { preserve_raw: true } }
 
     it 'parses json body' do
       response = process('{"a":1}')
@@ -28,13 +30,13 @@ RSpec.describe FaradayMiddleware::ParseJson, :type => :response do
     end
 
     it 'can opt out of preserving raw' do
-      response = process('{"a":1}', nil, :preserve_raw => false)
+      response = process('{"a":1}', nil, preserve_raw: false)
       expect(response.env[:raw_body]).to be_nil
     end
   end
 
   context 'with regexp type matching' do
-    let(:options) { {:content_type => /\bjson$/} }
+    let(:options) { { content_type: /\bjson$/ } }
 
     it 'parses json body of correct type' do
       response = process('{"a":1}', 'application/x-json')
@@ -48,7 +50,7 @@ RSpec.describe FaradayMiddleware::ParseJson, :type => :response do
   end
 
   context 'with array type matching' do
-    let(:options) { {:content_type => %w[a/b c/d]} }
+    let(:options) { { content_type: %w[a/b c/d] } }
 
     it 'parses json body of correct type' do
       expect(process('{"a":1}', 'a/b').body).to be_a(Hash)
@@ -61,25 +63,25 @@ RSpec.describe FaradayMiddleware::ParseJson, :type => :response do
   end
 
   it 'chokes on invalid json' do
-    expect{ process('{!') }.to raise_error(Faraday::ParsingError)
+    expect { process('{!') }.to raise_error(Faraday::ParsingError)
   end
 
   it 'includes the response on the ParsingError instance' do
     begin
       process('{') { |env| env[:response] = Faraday::Response.new }
-      fail 'Parsing should have failed.'
-    rescue Faraday::ParsingError => err
-      expect(err.response).to be_a(Faraday::Response)
+      raise 'Parsing should have failed.'
+    rescue Faraday::ParsingError => e
+      expect(e.response).to be_a(Faraday::Response)
     end
   end
 
   context 'with mime type fix' do
-    let(:middleware) {
+    let(:middleware) do
       app = described_class::MimeTypeFix.new(lambda { |env|
         Faraday::Response.new(env)
-      }, :content_type => /^text\//)
-      described_class.new(app, :content_type => 'application/json')
-    }
+      }, content_type: %r{^text/})
+      described_class.new(app, content_type: 'application/json')
+    end
 
     it 'ignores completely incompatible type' do
       response = process('{"a":1}', 'application/xml')
@@ -119,11 +121,11 @@ RSpec.describe FaradayMiddleware::ParseJson, :type => :response do
 
   context 'JSON options' do
     let(:body) { '{"a": 1}' }
-    let(:result) { {a: 1} }
+    let(:result) { { a: 1 } }
     let(:options) do
       {
-        :parser_options => {
-          :symbolize_names => true
+        parser_options: {
+          symbolize_names: true
         }
       }
     end

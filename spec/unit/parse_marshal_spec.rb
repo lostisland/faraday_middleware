@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'helper'
 require 'faraday_middleware/response/parse_marshal'
 
-RSpec.describe FaradayMiddleware::ParseMarshal, :type => :response do
+RSpec.describe FaradayMiddleware::ParseMarshal, type: :response do
   it 'restores a marshaled dump' do
-    expect(process(Marshal.dump(:a => 1)).body).to be_eql(:a => 1)
+    expect(process(Marshal.dump(a: 1)).body).to be_eql(a: 1)
   end
 
   it 'nulifies blank response' do
@@ -11,6 +13,6 @@ RSpec.describe FaradayMiddleware::ParseMarshal, :type => :response do
   end
 
   it 'chokes on invalid content' do
-    expect{ process('abc') }.to raise_error(Faraday::ParsingError)
+    expect { process('abc') }.to raise_error(Faraday::ParsingError)
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'helper'
 require 'faraday_middleware/response/follow_redirects'
 require 'faraday'
@@ -6,27 +8,27 @@ require 'faraday'
 Faraday::Adapter::Test::Stubs.class_eval { public :new_stub }
 
 RSpec.describe FaradayMiddleware::FollowRedirects do
-  let(:middleware_options) { Hash.new }
+  let(:middleware_options) { {} }
 
   shared_examples_for 'a successful redirection' do |status_code|
     it 'follows the redirection for a GET request' do
       expect(connection do |stub|
-        stub.get('/permanent') { [status_code, {'Location' => '/found'}, ''] }
-        stub.get('/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
+        stub.get('/permanent') { [status_code, { 'Location' => '/found' }, ''] }
+        stub.get('/found') { [200, { 'Content-Type' => 'text/plain' }, 'fin'] }
       end.get('/permanent').body).to eq 'fin'
     end
 
     it 'follows the redirection for a HEAD request' do
       expect(connection do |stub|
-               stub.head('/permanent') { [status_code, {'Location' => '/found'}, ''] }
-               stub.head('/found') { [200, {'Content-Type' => 'text/plain'}, ''] }
+               stub.head('/permanent') { [status_code, { 'Location' => '/found' }, ''] }
+               stub.head('/found') { [200, { 'Content-Type' => 'text/plain' }, ''] }
              end.head('/permanent').status).to eq 200
     end
 
     it 'follows the redirection for a OPTIONS request' do
       expect(connection do |stub|
-               stub.new_stub(:options, '/permanent') { [status_code, {'Location' => '/found'}, ''] }
-               stub.new_stub(:options, '/found') { [200, {'Content-Type' => 'text/plain'}, ''] }
+               stub.new_stub(:options, '/permanent') { [status_code, { 'Location' => '/found' }, ''] }
+               stub.new_stub(:options, '/found') { [200, { 'Content-Type' => 'text/plain' }, ''] }
              end.run_request(:options, '/permanent', nil, nil).status).to eq 200
     end
 
@@ -34,24 +36,24 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
       unescaped_location = '/found?action_type_map=["og.likes!%20you"]'
       escaped_location = '/found?action_type_map=[%22og.likes!%20you%22]'
 
-      expect(connection { |stub|
-        stub.get('/') { [status_code, {'Location' => unescaped_location}, ''] }
-        stub.get(escaped_location) { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
-      }.get('/').body).to eq('fin')
+      expect(connection do |stub|
+        stub.get('/') { [status_code, { 'Location' => unescaped_location }, ''] }
+        stub.get(escaped_location) { [200, { 'Content-Type' => 'text/plain' }, 'fin'] }
+      end.get('/').body).to eq('fin')
     end
   end
 
   shared_examples_for 'a forced GET redirection' do |status_code|
-    [:put, :post, :delete, :patch].each do |method|
+    %i[put post delete patch].each do |method|
       it "a #{method.to_s.upcase} request is converted to a GET" do
         expect(connection do |stub|
-          stub.new_stub(method, '/redirect') {
-            [status_code, {'Location' => '/found'}, 'elsewhere']
-          }
-          stub.get('/found') { |env|
-            body = env[:body] and body.empty? && (body = nil)
-            [200, {'Content-Type' => 'text/plain'}, body.inspect]
-          }
+          stub.new_stub(method, '/redirect') do
+            [status_code, { 'Location' => '/found' }, 'elsewhere']
+          end
+          stub.get('/found') do |env|
+            (body = env[:body]) && body.empty? && (body = nil)
+            [200, { 'Content-Type' => 'text/plain' }, body.inspect]
+          end
         end.run_request(method, '/redirect', 'request data', nil).body).to eq('nil')
       end
     end
@@ -60,39 +62,39 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
   shared_examples_for 'a replayed redirection' do |status_code|
     it 'redirects with the original request headers' do
       conn = connection do |stub|
-        stub.get('/redirect') {
-          [status_code, {'Location' => '/found'}, '']
-        }
-        stub.get('/found') { |env|
-          [200, {'Content-Type' => 'text/plain'}, env[:request_headers]['X-Test-Value']]
-        }
+        stub.get('/redirect') do
+          [status_code, { 'Location' => '/found' }, '']
+        end
+        stub.get('/found') do |env|
+          [200, { 'Content-Type' => 'text/plain' }, env[:request_headers]['X-Test-Value']]
+        end
       end
 
-      response = conn.get('/redirect') { |req|
+      response = conn.get('/redirect') do |req|
         req.headers['X-Test-Value'] = 'success'
-      }
+      end
 
       expect(response.body).to eq('success')
     end
 
-    [:put, :post, :delete, :patch].each do |method|
+    %i[put post delete patch].each do |method|
       it "replays a #{method.to_s.upcase} request" do
         expect(connection do |stub|
-          stub.new_stub(method, '/redirect') { [status_code, {'Location' => '/found'}, ''] }
-          stub.new_stub(method, '/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
+          stub.new_stub(method, '/redirect') { [status_code, { 'Location' => '/found' }, ''] }
+          stub.new_stub(method, '/found') { [200, { 'Content-Type' => 'text/plain' }, 'fin'] }
         end.run_request(method, '/redirect', nil, nil).body).to eq 'fin'
       end
     end
 
-    [:put, :post, :patch].each do |method|
+    %i[put post patch].each do |method|
       it "forwards request body for a #{method.to_s.upcase} request" do
         conn = connection do |stub|
-          stub.new_stub(method, '/redirect') {
-            [status_code, {'Location' => '/found'}, '']
-          }
-          stub.new_stub(method, '/found') { |env|
-            [200, {'Content-Type' => 'text/plain'}, env[:body]]
-          }
+          stub.new_stub(method, '/redirect') do
+            [status_code, { 'Location' => '/found' }, '']
+          end
+          stub.new_stub(method, '/found') do |env|
+            [200, { 'Content-Type' => 'text/plain' }, env[:body]]
+          end
         end
 
         response = conn.run_request(method, '/redirect', 'original data', nil)
@@ -103,52 +105,52 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
 
   it 'returns non-redirect response results' do
     expect(connection do |stub|
-      stub.get('/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
+      stub.get('/found') { [200, { 'Content-Type' => 'text/plain' }, 'fin'] }
     end.get('/found').body).to eq 'fin'
   end
 
   it 'follows a single redirection' do
     expect(connection do |stub|
-      stub.get('/')      { [301, {'Location' => '/found'}, ''] }
-      stub.get('/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
+      stub.get('/')      { [301, { 'Location' => '/found' }, ''] }
+      stub.get('/found') { [200, { 'Content-Type' => 'text/plain' }, 'fin'] }
     end.get('/').body).to eq 'fin'
   end
 
   it 'follows many redirections' do
     expect(connection do |stub|
-      stub.get('/')          { [301, {'Location' => '/redirect1'}, ''] }
-      stub.get('/redirect1') { [301, {'Location' => '/redirect2'}, ''] }
-      stub.get('/redirect2') { [301, {'Location' => '/found'}, ''] }
-      stub.get('/found')     { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
+      stub.get('/')          { [301, { 'Location' => '/redirect1' }, ''] }
+      stub.get('/redirect1') { [301, { 'Location' => '/redirect2' }, ''] }
+      stub.get('/redirect2') { [301, { 'Location' => '/found' }, ''] }
+      stub.get('/found')     { [200, { 'Content-Type' => 'text/plain' }, 'fin'] }
     end.get('/').body).to eq 'fin'
   end
 
   it 'raises a FaradayMiddleware::RedirectLimitReached after 3 redirections (by default)' do
     conn = connection do |stub|
-      stub.get('/')          { [301, {'Location' => '/redirect1'}, ''] }
-      stub.get('/redirect1') { [301, {'Location' => '/redirect2'}, ''] }
-      stub.get('/redirect2') { [301, {'Location' => '/redirect3'}, ''] }
-      stub.get('/redirect3') { [301, {'Location' => '/found'}, ''] }
-      stub.get('/found')     { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
+      stub.get('/')          { [301, { 'Location' => '/redirect1' }, ''] }
+      stub.get('/redirect1') { [301, { 'Location' => '/redirect2' }, ''] }
+      stub.get('/redirect2') { [301, { 'Location' => '/redirect3' }, ''] }
+      stub.get('/redirect3') { [301, { 'Location' => '/found' }, ''] }
+      stub.get('/found')     { [200, { 'Content-Type' => 'text/plain' }, 'fin'] }
     end
 
-    expect{ conn.get('/') }.to raise_error(FaradayMiddleware::RedirectLimitReached)
+    expect { conn.get('/') }.to raise_error(FaradayMiddleware::RedirectLimitReached)
   end
 
   it 'raises a FaradayMiddleware::RedirectLimitReached after the initialized limit' do
-    conn = connection(:limit => 1) do |stub|
-      stub.get('/')          { [301, {'Location' => '/redirect1'}, ''] }
-      stub.get('/redirect1') { [301, {'Location' => '/found'}, ''] }
-      stub.get('/found')     { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
+    conn = connection(limit: 1) do |stub|
+      stub.get('/')          { [301, { 'Location' => '/redirect1' }, ''] }
+      stub.get('/redirect1') { [301, { 'Location' => '/found' }, ''] }
+      stub.get('/found')     { [200, { 'Content-Type' => 'text/plain' }, 'fin'] }
     end
 
-    expect{ conn.get('/') }.to raise_error(FaradayMiddleware::RedirectLimitReached)
+    expect { conn.get('/') }.to raise_error(FaradayMiddleware::RedirectLimitReached)
   end
 
   it 'ignore fragments in the Location header' do
     expect(connection do |stub|
-      stub.get('/')      { [301, {'Location' => '/found#fragment'}, ''] }
-      stub.get('/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
+      stub.get('/')      { [301, { 'Location' => '/found#fragment' }, ''] }
+      stub.get('/found') { [200, { 'Content-Type' => 'text/plain' }, 'fin'] }
     end.get('/').body).to eq 'fin'
   end
 
@@ -159,7 +161,7 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
           stub.get('/') { [code, {}, ''] }
         end
 
-        expect{ conn.get('/') }.to raise_error(FaradayMiddleware::RedirectLimitReached)
+        expect { conn.get('/') }.to raise_error(FaradayMiddleware::RedirectLimitReached)
       end
     end
   end
@@ -167,17 +169,17 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
   context 'when clear_authorization_header option' do
     context 'is false' do
       it 'redirects with the original authorization headers' do
-        conn = connection(:clear_authorization_header => false) do |stub|
-          stub.get('/redirect') {
-            [301, {'Location' => '/found'}, '']
-          }
-          stub.get('/found') { |env|
-            [200, {'Content-Type' => 'text/plain'}, env[:request_headers]['Authorization']]
-          }
+        conn = connection(clear_authorization_header: false) do |stub|
+          stub.get('/redirect') do
+            [301, { 'Location' => '/found' }, '']
+          end
+          stub.get('/found') do |env|
+            [200, { 'Content-Type' => 'text/plain' }, env[:request_headers]['Authorization']]
+          end
         end
-        response = conn.get('/redirect') { |req|
+        response = conn.get('/redirect') do |req|
           req.headers['Authorization'] = 'success'
-        }
+        end
 
         expect(response.body).to eq 'success'
       end
@@ -188,7 +190,7 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
         it 'redirects with the original authorization headers' do
           conn = connection do |stub|
             stub.get('http://localhost/redirect') do
-              [301, {'Location' => '/found'}, '']
+              [301, { 'Location' => '/found' }, '']
             end
             stub.get('http://localhost/found') do |env|
               [200, {}, env.request_headers['Authorization']]
@@ -206,15 +208,15 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
         it 'redirects with the original authorization headers' do
           conn = connection do |stub|
             stub.get('http://localhost/redirect') do
-              [301, {'Location' => 'http://localhost:80/found'}, '']
+              [301, { 'Location' => 'http://localhost:80/found' }, '']
             end
             stub.get('http://localhost/found') do |env|
               [200, {}, env.request_headers['Authorization']]
             end
           end
-          response = conn.get('http://localhost/redirect') { |req|
+          response = conn.get('http://localhost/redirect') do |req|
             req.headers['Authorization'] = 'success'
-          }
+          end
 
           expect(response.body).to eq 'success'
         end
@@ -224,15 +226,15 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
         it 'redirects without original authorization headers' do
           conn = connection do |stub|
             stub.get('http://localhost/redirect') do
-              [301, {'Location' => 'https://localhost2/found'}, '']
+              [301, { 'Location' => 'https://localhost2/found' }, '']
             end
             stub.get('https://localhost2/found') do |env|
               [200, {}, env.request_headers['Authorization']]
             end
           end
-          response = conn.get('http://localhost/redirect') { |req|
+          response = conn.get('http://localhost/redirect') do |req|
             req.headers['Authorization'] = 'failed'
-          }
+          end
 
           expect(response.body).to eq nil
         end
@@ -242,15 +244,15 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
         it 'redirects without original authorization headers' do
           conn = connection do |stub|
             stub.get('http://localhost/redirect') do
-              [301, {'Location' => 'http://localhost2/found'}, '']
+              [301, { 'Location' => 'http://localhost2/found' }, '']
             end
             stub.get('https://localhost2/found') do |env|
               [200, {}, env.request_headers['Authorization']]
             end
           end
-          response = conn.get('http://localhost/redirect') { |req|
+          response = conn.get('http://localhost/redirect') do |req|
             req.headers['Authorization'] = 'failed'
-          }
+          end
 
           expect(response.body).to eq nil
         end
@@ -260,15 +262,15 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
         it 'redirects without original authorization headers' do
           conn = connection do |stub|
             stub.get('http://localhost:9090/redirect') do
-              [301, {'Location' => 'http://localhost:9091/found'}, '']
+              [301, { 'Location' => 'http://localhost:9091/found' }, '']
             end
             stub.get('http://localhost:9091/found') do |env|
               [200, {}, env.request_headers['Authorization']]
             end
           end
-          response = conn.get('http://localhost:9090/redirect') { |req|
+          response = conn.get('http://localhost:9090/redirect') do |req|
             req.headers['Authorization'] = 'failed'
-          }
+          end
 
           expect(response.body).to eq nil
         end
@@ -285,7 +287,7 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
       end
 
       context 'with standards compliancy enabled' do
-        let(:middleware_options) { { :standards_compliant => true } }
+        let(:middleware_options) { { standards_compliant: true } }
         it_behaves_like 'a replayed redirection', code
       end
     end
@@ -298,7 +300,7 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
     end
 
     context 'with standards compliancy enabled' do
-      let(:middleware_options) { { :standards_compliant => true } }
+      let(:middleware_options) { { standards_compliant: true } }
       it_behaves_like 'a successful redirection', 303
       it_behaves_like 'a forced GET redirection', 303
     end
@@ -311,7 +313,7 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
     end
 
     context 'with standards compliancy enabled' do
-      let(:middleware_options) { { :standards_compliant => true } }
+      let(:middleware_options) { { standards_compliant: true } }
       it_behaves_like 'a successful redirection', 307
       it_behaves_like 'a replayed redirection', 307
     end
@@ -324,7 +326,7 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
     end
 
     context 'with standards compliancy enabled' do
-      let(:middleware_options) { { :standards_compliant => true } }
+      let(:middleware_options) { { standards_compliant: true } }
       it_behaves_like 'a successful redirection', 308
       it_behaves_like 'a replayed redirection', 308
     end
@@ -332,12 +334,16 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
 
   context 'with a callback' do
     it 'calls the callback' do
-      from, to = nil, nil
-      callback = lambda { |old, new| from, to = old[:url].path, new[:url].path }
+      from = nil
+      to = nil
+      callback = lambda { |old, new|
+        from = old[:url].path
+        to = new[:url].path
+      }
 
-      conn = connection(:callback => callback) do |stub|
-        stub.get('/redirect') { [301, {'Location' => '/found'}, ''] }
-        stub.get('/found') { [200, {'Content-Type' => 'text/plain'}, 'fin'] }
+      conn = connection(callback: callback) do |stub|
+        stub.get('/redirect') { [301, { 'Location' => '/found' }, ''] }
+        stub.get('/found') { [200, { 'Content-Type' => 'text/plain' }, 'fin'] }
       end
       conn.get('/redirect')
 
@@ -348,7 +354,7 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
   # checks env hash in request phase for basic validity
   class Lint < Struct.new(:app)
     def call(env)
-      if env[:status] or env[:response] or env[:response_headers]
+      if env[:status] || env[:response] || env[:response_headers]
         raise "invalid request: #{env.inspect}"
       end
       if defined?(Faraday::Env) && !env.is_a?(Faraday::Env)

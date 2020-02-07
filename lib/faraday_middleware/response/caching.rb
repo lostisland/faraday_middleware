@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'faraday'
 require 'forwardable'
 require 'digest/sha1'
@@ -14,7 +16,7 @@ module FaradayMiddleware
     # * 302 - 'Found'
     # * 404 - 'Not Found'
     # * 410 - 'Gone'
-    CACHEABLE_STATUS_CODES = [200, 203, 300, 301, 302, 404, 410]
+    CACHEABLE_STATUS_CODES = [200, 203, 300, 301, 302, 404, 410].freeze
 
     extend Forwardable
     def_delegators :'Faraday::Utils', :parse_query, :build_query
@@ -34,20 +36,23 @@ module FaradayMiddleware
     # Yields if no cache is given. The block should return a cache object.
     def initialize(app, cache = nil, options = {})
       super(app)
-      options, cache = cache, nil if cache.is_a? Hash and block_given?
+      if cache.is_a?(Hash) && block_given?
+        options = cache
+        cache = nil
+      end
       @cache = cache || yield
       @options = options
     end
 
     def call(env)
-      if :get == env[:method]
+      if env[:method] == :get
         if env[:parallel_manager]
           # callback mode
           cache_on_complete(env)
         else
           # synchronous mode
           key = cache_key(env)
-          unless response = cache.read(key) and response
+          unless (response = cache.read(key)) && response
             response = @app.call(env)
             store_response_in_cache(key, response)
           end
@@ -70,7 +75,7 @@ module FaradayMiddleware
     end
 
     def params_to_ignore
-      @params_to_ignore ||= Array(@options[:ignore_params]).map { |p| p.to_s }
+      @params_to_ignore ||= Array(@options[:ignore_params]).map(&:to_s)
     end
 
     def full_key?

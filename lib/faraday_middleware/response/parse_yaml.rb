@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'faraday_middleware/response_middleware'
 
 module FaradayMiddleware

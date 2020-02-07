@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'faraday'
 
 module FaradayMiddleware
@@ -11,7 +13,7 @@ module FaradayMiddleware
   # Rack::MethodOverride module. See
   # http://rack.rubyforge.org/doc/classes/Rack/MethodOverride.html
   class MethodOverride < Faraday::Middleware
-    HEADER = 'X-Http-Method-Override'.freeze
+    HEADER = 'X-Http-Method-Override'
 
     # Public: Initialize the middleware.
     #
@@ -21,10 +23,10 @@ module FaradayMiddleware
     #                      (default: all but GET and POST)
     def initialize(app, options = nil)
       super(app)
-      @methods = options && options.fetch(:rewrite).map { |method|
+      @methods = options&.fetch(:rewrite)&.map do |method|
         method = method.downcase if method.respond_to? :downcase
         method.to_sym
-      }
+      end
     end
 
     def call(env)
@@ -34,8 +36,8 @@ module FaradayMiddleware
     end
 
     def rewrite_request?(method)
-      if @methods.nil? or @methods.empty?
-        method != :get and method != :post
+      if @methods.nil? || @methods.empty?
+        (method != :get) && (method != :post)
       else
         @methods.include? method
       end

@@ -1,18 +1,24 @@
+# frozen_string_literal: true
+
 require 'helper'
 require 'faraday_middleware/request/encode_json'
 
 RSpec.describe FaradayMiddleware::EncodeJson do
-  let(:middleware) { described_class.new(lambda{ |env| env }) }
+  let(:middleware) { described_class.new(->(env) { env }) }
 
   def process(body, content_type = nil)
-    env = {:body => body, :request_headers => Faraday::Utils::Headers.new}
+    env = { body: body, request_headers: Faraday::Utils::Headers.new }
     env[:request_headers]['content-type'] = content_type if content_type
     middleware.call(faraday_env(env))
   end
 
-  def result_body() result[:body] end
+  def result_body
+    result[:body]
+  end
 
-  def result_type() result[:request_headers]['content-type'] end
+  def result_type
+    result[:request_headers]['content-type']
+  end
 
   context 'no body' do
     let(:result) { process(nil) }
@@ -51,7 +57,7 @@ RSpec.describe FaradayMiddleware::EncodeJson do
   end
 
   context 'object body' do
-    let(:result) { process({:a => 1}) }
+    let(:result) { process(a: 1) }
 
     it 'encodes body' do
       expect(result_body).to eq('{"a":1}')
@@ -71,7 +77,7 @@ RSpec.describe FaradayMiddleware::EncodeJson do
   end
 
   context 'object body with json type' do
-    let(:result) { process({:a => 1}, 'application/json; charset=utf-8') }
+    let(:result) { process({ a: 1 }, 'application/json; charset=utf-8') }
 
     it 'encodes body' do
       expect(result_body).to eq('{"a":1}')
@@ -83,7 +89,7 @@ RSpec.describe FaradayMiddleware::EncodeJson do
   end
 
   context 'object body with vendor json type' do
-    let(:result) { process({:a => 1}, 'application/vnd.myapp.v1+json; charset=utf-8') }
+    let(:result) { process({ a: 1 }, 'application/vnd.myapp.v1+json; charset=utf-8') }
 
     it 'encodes body' do
       expect(result_body).to eq('{"a":1}')
@@ -95,10 +101,10 @@ RSpec.describe FaradayMiddleware::EncodeJson do
   end
 
   context 'object body with incompatible type' do
-    let(:result) { process({:a => 1}, 'application/xml; charset=utf-8') }
+    let(:result) { process({ a: 1 }, 'application/xml; charset=utf-8') }
 
     it "doesn't change body" do
-      expect(result_body).to eq({:a => 1})
+      expect(result_body).to eq(a: 1)
     end
 
     it "doesn't change content type" do

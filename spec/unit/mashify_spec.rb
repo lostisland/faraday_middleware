@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require 'helper'
 require 'faraday_middleware/response/mashify'
 
 RSpec.describe FaradayMiddleware::Mashify do
   MyMash = Struct.new(:body)
 
-  context 'when used', :type => :response do
+  context 'when used', type: :response do
     it 'creates a Hashie::Mash from the body' do
       body = { 'name' => 'Erik Michaels-Ober', 'username' => 'sferik' }
       me = process(body).body
@@ -59,12 +61,12 @@ RSpec.describe FaradayMiddleware::Mashify do
     end
   end
 
-  context 'custom mash subclass', :type => :response do
-    let(:options) { {:mash_class => MyMash} }
+  context 'custom mash subclass', type: :response do
+    let(:options) { { mash_class: MyMash } }
 
     it 'instance level' do
       me = process({}).body
-        expect(me).to be_instance_of(MyMash)
+      expect(me).to be_instance_of(MyMash)
     end
   end
 end

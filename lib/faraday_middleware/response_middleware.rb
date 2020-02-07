@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'faraday'
 
 module FaradayMiddleware
   # Internal: The base class for middleware that parses responses.
   class ResponseMiddleware < Faraday::Middleware
-    CONTENT_TYPE = 'Content-Type'.freeze
+    CONTENT_TYPE = 'Content-Type'
 
     class << self
       attr_accessor :parser
@@ -16,8 +18,8 @@ module FaradayMiddleware
 
     def self.inherited(subclass)
       super
-      subclass.load_error = self.load_error if subclass.respond_to? :load_error=
-      subclass.parser = self.parser
+      subclass.load_error = load_error if subclass.respond_to? :load_error=
+      subclass.parser = parser
     end
 
     def initialize(app = nil, options = {})
@@ -29,7 +31,7 @@ module FaradayMiddleware
 
     def call(environment)
       @app.call(environment).on_complete do |env|
-        if process_response_type?(response_type(env)) and parse_response?(env)
+        if process_response_type?(response_type(env)) && parse_response?(env)
           process_response(env)
         end
       end
@@ -50,7 +52,9 @@ module FaradayMiddleware
         begin
           self.class.parser.call(body, @parser_options)
         rescue StandardError, SyntaxError => e
-          raise e if e.is_a?(SyntaxError) && e.class.name != 'Psych::SyntaxError'
+          if e.is_a?(SyntaxError) && e.class.name != 'Psych::SyntaxError'
+            raise e
+          end
 
           raise Faraday::ParsingError, e
         end
@@ -66,9 +70,9 @@ module FaradayMiddleware
     end
 
     def process_response_type?(type)
-      @content_types.empty? or @content_types.any? { |pattern|
+      @content_types.empty? || @content_types.any? do |pattern|
         pattern.is_a?(Regexp) ? type =~ pattern : type == pattern
-      }
+      end
     end
 
     def parse_response?(env)
@@ -85,7 +89,7 @@ module FaradayMiddleware
     attr_accessor :preserve_raw
 
     def to_hash
-      super.update(:preserve_raw => preserve_raw)
+      super.update(preserve_raw: preserve_raw)
     end
 
     def each
@@ -96,7 +100,7 @@ module FaradayMiddleware
     end
 
     def fetch(key, *args)
-      if :preserve_raw == key
+      if key == :preserve_raw
         value = __send__(key)
         value.nil? ? args.fetch(0) : value
       else
@@ -107,9 +111,9 @@ module FaradayMiddleware
 
   if defined?(Faraday::RequestOptions)
     begin
-      Faraday::RequestOptions.from(:preserve_raw => true)
+      Faraday::RequestOptions.from(preserve_raw: true)
     rescue NoMethodError
-      Faraday::RequestOptions.send(:include, OptionsExtension)
+      Faraday::RequestOptions.include OptionsExtension
     end
   end
 end

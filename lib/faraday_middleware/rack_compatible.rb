@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'stringio'
 
 module FaradayMiddleware
@@ -22,7 +24,7 @@ module FaradayMiddleware
       finalize_response(env, rack_response)
     end
 
-    NonPrefixedHeaders = %w[CONTENT_LENGTH CONTENT_TYPE]
+    NonPrefixedHeaders = %w[CONTENT_LENGTH CONTENT_TYPE].freeze
 
     # faraday to rack-compatible
     def prepare_env(faraday_env)
@@ -60,7 +62,7 @@ module FaradayMiddleware
       rack_env.each do |name, value|
         next unless String === name && String === value
 
-        if NonPrefixedHeaders.include? name or name.index('HTTP_') == 0
+        if NonPrefixedHeaders.include?(name) || (name.index('HTTP_') == 0)
           name = name.sub(/^HTTP_/, '').downcase.tr('_', '-')
           headers[name] = value
         end
@@ -73,12 +75,14 @@ module FaradayMiddleware
 
     def finalize_response(env, rack_response)
       status, headers, body = rack_response
-      body = body.inject() { |str, part| str << part }
-      headers = Faraday::Utils::Headers.new(headers) unless Faraday::Utils::Headers === headers
+      body = body.inject { |str, part| str << part }
+      unless Faraday::Utils::Headers === headers
+        headers = Faraday::Utils::Headers.new(headers)
+      end
 
-      env.update :status => status.to_i,
-                 :body => body,
-                 :response_headers => headers
+      env.update status: status.to_i,
+                 body: body,
+                 response_headers: headers
 
       env[:response] ||= Faraday::Response.new(env)
       env[:response]
