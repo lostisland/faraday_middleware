@@ -75,7 +75,7 @@ RSpec.describe FaradayMiddleware::ParseJson, :type => :response do
 
   context 'with mime type fix' do
     let(:middleware) {
-      app = described_class::MimeTypeFix.new(lambda {|env|
+      app = described_class::MimeTypeFix.new(lambda { |env|
         Faraday::Response.new(env)
       }, :content_type => /^text\//)
       described_class.new(app, :content_type => 'application/json')

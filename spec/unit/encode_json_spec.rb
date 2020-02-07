@@ -2,7 +2,7 @@ require 'helper'
 require 'faraday_middleware/request/encode_json'
 
 RSpec.describe FaradayMiddleware::EncodeJson do
-  let(:middleware) { described_class.new(lambda{|env| env}) }
+  let(:middleware) { described_class.new(lambda{ |env| env }) }
 
   def process(body, content_type = nil)
     env = {:body => body, :request_headers => Faraday::Utils::Headers.new}

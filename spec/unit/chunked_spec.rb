@@ -17,7 +17,7 @@ RSpec.describe FaradayMiddleware::Chunked, :type => :response do
   end
 
   context 'transfer-encoding gzip' do
-    let(:headers) { {'transfer-encoding' => 'gzip'}}
+    let(:headers) { { 'transfer-encoding' => 'gzip' } }
 
     it "doesn't change nil body" do
       expect(process(nil).body).to be_nil
@@ -33,7 +33,7 @@ RSpec.describe FaradayMiddleware::Chunked, :type => :response do
   end
 
   context 'transfer-encoding chunked' do
-    let(:headers) { {'transfer-encoding' => 'chunked'}}
+    let(:headers) { { 'transfer-encoding' => 'chunked' } }
 
     it "doesn't change nil body" do
       expect(process(nil).body).to be_nil
@@ -69,7 +69,7 @@ RSpec.describe FaradayMiddleware::Chunked, :type => :response do
   end
 
   context 'transfer-encoding chunked,chunked' do
-    let(:headers) { {'transfer-encoding' => 'chunked,chunked'}}
+    let(:headers) { { 'transfer-encoding' => 'chunked,chunked' } }
 
     it 'parses a basic chunked body' do
       expect(process("10\r\nasdfghjklasdfghj\r\n0\r\n").body).to eq('asdfghjklasdfghj')
