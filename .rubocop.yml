@@ -22,6 +22,11 @@ Naming/PredicateName:
   Exclude:
     - 'lib/faraday_middleware/request/encode_json.rb'
 
+Security/MarshalLoad:
+  Exclude:
+    - 'lib/faraday_middleware/response/parse_marshal.rb'
+    - 'spec/unit/caching_spec.rb'
+
 Style/DoubleNegation:
   Enabled: false
 

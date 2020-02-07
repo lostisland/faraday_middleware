@@ -15,12 +15,6 @@ Metrics/AbcSize:
 Metrics/MethodLength:
   Max: 17
 
-# Offense count: 2
-Security/MarshalLoad:
-  Exclude:
-    - 'lib/faraday_middleware/response/parse_marshal.rb'
-    - 'spec/unit/caching_spec.rb'
-
 # Offense count: 1
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: inline, group
