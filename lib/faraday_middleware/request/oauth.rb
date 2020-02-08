@@ -31,7 +31,11 @@ module FaradayMiddleware
 
     extend Forwardable
     parser_method = :parse_nested_query
-    parser_module = ::Faraday::Utils.respond_to?(parser_method) ? 'Faraday::Utils' : 'Rack::Utils'
+    parser_module = if ::Faraday::Utils.respond_to?(parser_method)
+                      'Faraday::Utils'
+                    else
+                      'Rack::Utils'
+                    end
     def_delegator parser_module, parser_method
 
     def initialize(app, options)
@@ -81,7 +85,11 @@ module FaradayMiddleware
     end
 
     def signature_params(params)
-      params.empty? ? params : params.reject { |_k, v| v.respond_to?(:content_type) }
+      if params.empty?
+        params
+      else
+        params.reject { |_k, v| v.respond_to?(:content_type) }
+      end
     end
   end
 end

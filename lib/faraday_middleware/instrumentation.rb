@@ -9,11 +9,15 @@ module FaradayMiddleware
   #
   # Examples
   #
-  #   ActiveSupport::Notifications.subscribe('request.faraday') do |name, starts, ends, _, env|
+  #   ActiveSupport::Notifications.
+  #     subscribe('request.faraday') do |name, starts, ends, _, env|
   #     url = env[:url]
   #     http_method = env[:method].to_s.upcase
   #     duration = ends - starts
-  #     $stderr.puts '[%s] %s %s (%.3f s)' % [url.host, http_method, url.request_uri, duration]
+  #     $stderr.puts '[%s] %s %s (%.3f s)' % [url.host,
+  #                                           http_method,
+  #                                           url.request_uri,
+  #                                           duration]
   #   end
   class Instrumentation < Faraday::Middleware
     dependency 'active_support/notifications'

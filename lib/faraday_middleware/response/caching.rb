@@ -25,13 +25,15 @@ module FaradayMiddleware
     #
     # cache   - An object that responds to read and write (default: nil).
     # options - An options Hash (default: {}):
-    #           :ignore_params - String name or Array names of query params
-    #                            that should be ignored when forming the cache
-    #                            key (default: []).
-    #           :write_options - Hash of settings that should be passed as the third
-    #                            options parameter to the cache's #write method. If not
-    #                            specified, no options parameter will be passed.
-    #           :full_key      - Boolean - use full URL (url.host + url.request_uri) as cache key
+    #           :ignore_params - String name or Array names of query
+    #                            params that should be ignored when forming
+    #                            the cache key (default: []).
+    #           :write_options - Hash of settings that should be passed as the
+    #                            third options parameter to the cache's #write
+    #                            method. If not specified, no options parameter
+    #                            will be passed.
+    #           :full_key      - Boolean - use full URL as cache key:
+    #                            (url.host + url.request_uri)
     #
     # Yields if no cache is given. The block should return a cache object.
     def initialize(app, cache = nil, options = {})
@@ -71,7 +73,8 @@ module FaradayMiddleware
         url.query = params.any? ? build_query(params) : nil
       end
       url.normalize!
-      Digest::SHA1.hexdigest(full_key? ? url.host + url.request_uri : url.request_uri)
+      digest = full_key? ? url.host + url.request_uri : url.request_uri
+      Digest::SHA1.hexdigest(digest)
     end
 
     def params_to_ignore
@@ -87,7 +90,8 @@ module FaradayMiddleware
       if (cached_response = cache.read(key))
         finalize_response(cached_response, env)
       else
-        # response.status is nil at this point, any checks need to be done inside on_complete block
+        # response.status is nil at this point
+        # any checks need to be done inside on_complete block
         @app.call(env).on_complete do |response_env|
           store_response_in_cache(key, response_env.response)
           response_env

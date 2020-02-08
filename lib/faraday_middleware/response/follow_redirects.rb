@@ -56,7 +56,7 @@ module FaradayMiddleware
     #     :standards_compliant        - A Boolean indicating whether to respect
     #                                  the HTTP spec when following 301/302
     #                                  (default: false)
-    #     :callback                   - A callable that will be called on redirects
+    #     :callback                   - A callable used on redirects
     #                                  with the old and new envs
     #     :cookies                    - An Array of Strings (e.g.
     #                                  ['cookie1', 'cookie2']) to choose
@@ -160,7 +160,8 @@ module FaradayMiddleware
       from_uri = URI.parse(from_url)
       to_uri = URI.parse(to_url)
 
-      [from_uri.scheme, from_uri.host, from_uri.port] == [to_uri.scheme, to_uri.host, to_uri.port]
+      [from_uri.scheme, from_uri.host, from_uri.port] ==
+        [to_uri.scheme, to_uri.host, to_uri.port]
     end
   end
 end
