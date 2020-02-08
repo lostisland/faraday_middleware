@@ -36,7 +36,7 @@ RSpec.describe FaradayMiddleware::Gzip, type: :response do
       gz.write(uncompressed_body)
       gz.close
       res = io.string
-      res.force_encoding('BINARY') if res.respond_to?(:force_encoding)
+      res.force_encoding('BINARY')
       res
     end
     let(:deflated_body) do
