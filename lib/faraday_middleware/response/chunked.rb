@@ -26,7 +26,8 @@ module FaradayMiddleware
     end
 
     def chunked_encoding?(headers)
-      (encoding = headers[TRANSFER_ENCODING]) && encoding.split(',').include?('chunked')
+      (encoding = headers[TRANSFER_ENCODING]) &&
+        encoding.split(',').include?('chunked')
     end
   end
 end

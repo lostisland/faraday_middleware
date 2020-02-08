@@ -3,7 +3,7 @@
 require 'stringio'
 
 module FaradayMiddleware
-  # Wraps a handler originally written for Rack to make it compatible with Faraday.
+  # Wraps a handler originally written for Rack for Faraday compatibility.
   #
   # Experimental. Only handles changes in request headers.
   class RackCompatible
@@ -33,7 +33,11 @@ module FaradayMiddleware
       url = faraday_env[:url]
       env['rack.url_scheme'] = url.scheme
       env['PATH_INFO'] = url.path
-      env['SERVER_PORT'] = url.respond_to?(:inferred_port) ? url.inferred_port : url.port
+      env['SERVER_PORT'] = if url.respond_to?(:inferred_port)
+                             url.inferred_port
+                           else
+                             url.port
+                           end
       env['QUERY_STRING'] = url.query
       env['REQUEST_METHOD'] = faraday_env[:method].to_s.upcase
 

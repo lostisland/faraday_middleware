@@ -6,11 +6,12 @@ require 'forwardable'
 module FaradayMiddleware
   # Public: A simple middleware that adds an access token to each request.
   #
-  # By default, the token is added as both "access_token" query parameter and the
-  # "Authorization" HTTP request header. It can alternatively be added exclusively
-  # as a bearer token "Authorization" header by specifying a "token_type" option
-  # of "bearer". However, an explicit "access_token" parameter or "Authorization"
-  # header for the current request are not overriden.
+  # By default, the token is added as both "access_token" query parameter
+  # and the "Authorization" HTTP request header. It can alternatively be
+  # added exclusively as a bearer token "Authorization" header by specifying
+  # a "token_type" option of "bearer". However, an explicit "access_token"
+  # parameter or "Authorization" header for the current request are not
+  # overriden.
   #
   # Examples
   #
@@ -72,7 +73,7 @@ module FaradayMiddleware
         'token_type - token will be added as both a query string parameter '\
         'and an Authorization header. In the next major release, tokens will '\
         'be added exclusively as an Authorization header by default. Please '\
-        'visit https://github.com/lostisland/faraday_middleware/wiki for more information.'
+        'see https://github.com/lostisland/faraday_middleware/wiki.'
     end
 
     def query_params(url)
