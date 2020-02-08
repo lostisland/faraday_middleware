@@ -60,7 +60,7 @@ module FaradayMiddleware
       headers.clear
 
       rack_env.each do |name, value|
-        next unless String === name && String === value
+        next unless name.is_a?(String) && value.is_a?(String)
 
         if NON_PREFIXED_HEADERS.include?(name) || name.start_with?('HTTP_')
           name = name.sub(/^HTTP_/, '').downcase.tr('_', '-')
@@ -76,7 +76,7 @@ module FaradayMiddleware
     def finalize_response(env, rack_response)
       status, headers, body = rack_response
       body = body.inject { |str, part| str << part }
-      unless Faraday::Utils::Headers === headers
+      unless headers.is_a?(Faraday::Utils::Headers)
         headers = Faraday::Utils::Headers.new(headers)
       end
 

@@ -15,11 +15,6 @@ Metrics/AbcSize:
 Metrics/MethodLength:
   Max: 17
 
-# Offense count: 3
-Style/CaseEquality:
-  Exclude:
-    - 'lib/faraday_middleware/rack_compatible.rb'
-
 # Offense count: 6
 # Cop supports --auto-correct.
 Style/IfUnlessModifier:
