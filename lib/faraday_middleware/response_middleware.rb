@@ -55,9 +55,8 @@ module FaradayMiddleware
         begin
           self.class.parser.call(body, @parser_options)
         rescue StandardError, SyntaxError => e
-          if e.is_a?(SyntaxError) && e.class.name != 'Psych::SyntaxError'
-            raise e
-          end
+          raise e if e.is_a?(SyntaxError) &&
+                     e.class.name != 'Psych::SyntaxError'
 
           raise Faraday::ParsingError, e
         end

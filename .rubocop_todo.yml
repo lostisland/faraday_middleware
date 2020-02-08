@@ -14,13 +14,3 @@ Metrics/AbcSize:
 # Configuration parameters: CountComments, ExcludedMethods.
 Metrics/MethodLength:
   Max: 17
-
-# Offense count: 6
-# Cop supports --auto-correct.
-Style/IfUnlessModifier:
-  Exclude:
-    - 'lib/faraday_middleware/rack_compatible.rb'
-    - 'lib/faraday_middleware/request/oauth.rb'
-    - 'lib/faraday_middleware/request/oauth2.rb'
-    - 'lib/faraday_middleware/response_middleware.rb'
-    - 'spec/unit/oauth_spec.rb'
