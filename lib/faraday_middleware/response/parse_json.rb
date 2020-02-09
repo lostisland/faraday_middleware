@@ -41,7 +41,6 @@ module FaradayMiddleware
         char = body[idx += 1]
         while char && WHITESPACE.include?(char)
           char = body[idx += 1]
-          char = char.chr if char
         end
         char
       end
