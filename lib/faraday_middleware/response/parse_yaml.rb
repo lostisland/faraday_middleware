@@ -30,11 +30,7 @@ module FaradayMiddleware
     dependency 'safe_yaml/load'
 
     define_parser do |body, parser_options|
-      if SafeYAML::YAML_ENGINE == 'psych'
-        SafeYAML.load(body, nil, parser_options || {})
-      else
-        SafeYAML.load(body, parser_options || {})
-      end
+      SafeYAML.load(body, nil, parser_options || {})
     end
   end
 end
