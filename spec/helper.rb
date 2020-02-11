@@ -2,16 +2,6 @@
 
 if ENV['COVERAGE']
   require 'simplecov'
-
-  SimpleCov.formatter = Class.new do
-    def format(result)
-      SimpleCov::Formatter::HTMLFormatter.new.format(result) unless ENV['CI']
-      File.open('coverage/covered_percent', 'w') do |f|
-        f.printf('%<percentage>.2f', percentage: result.source_files.covered_percent)
-      end
-    end
-  end
-
   SimpleCov.start do
     # add_filter 'faraday_middleware.rb'
     add_filter 'backwards_compatibility.rb'
