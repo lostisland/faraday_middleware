@@ -30,13 +30,7 @@ module FaradayMiddleware
     TYPE_URLENCODED = 'application/x-www-form-urlencoded'
 
     extend Forwardable
-    parser_method = :parse_nested_query
-    parser_module = if ::Faraday::Utils.respond_to?(parser_method)
-                      'Faraday::Utils'
-                    else
-                      'Rack::Utils'
-                    end
-    def_delegator parser_module, parser_method
+    def_delegator :'Faraday::Utils', :parse_nested_query
 
     def initialize(app, options)
       super(app)
