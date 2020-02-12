@@ -118,9 +118,7 @@ RSpec.describe FaradayMiddleware::OAuth do
     let(:type_form) { { 'Content-Type' => 'application/x-www-form-urlencoded' } }
 
     extend Forwardable
-    query_method = :build_nested_query
-    query_module = ::Faraday::Utils.respond_to?(query_method) ? 'Faraday::Utils' : 'Rack::Utils'
-    def_delegator query_module, query_method
+    def_delegator :'Faraday::Utils', :build_nested_query
 
     it 'does not include the body for JSON' do
       auth_header_with    = auth_header(perform({}, type_json, '{"foo":"bar"}'))
