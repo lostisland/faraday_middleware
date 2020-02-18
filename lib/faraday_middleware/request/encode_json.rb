@@ -33,7 +33,7 @@ module FaradayMiddleware
     def match_content_type(env)
       return unless process_request?(env)
 
-      env[:request_headers][CONTENT_TYPE] ||= MIME_TYPE
+      env[:request_headers][CONTENT_TYPE] ||= self.class::MIME_TYPE
       yield env[:body] unless env[:body].respond_to?(:to_str)
     end
 
