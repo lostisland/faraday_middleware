@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'helper'
+require 'faraday_middleware'
 require 'faraday_middleware/response/follow_redirects'
 require 'faraday'
 

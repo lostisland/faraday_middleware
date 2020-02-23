@@ -18,6 +18,7 @@ module FaradayMiddleware
   autoload :Caching,         'faraday_middleware/response/caching'
   autoload :Chunked,         'faraday_middleware/response/chunked'
   autoload :RackCompatible,  'faraday_middleware/rack_compatible'
+  autoload :RedirectLimitReached, 'faraday_middleware/redirect_limit_reached'
   autoload :FollowRedirects, 'faraday_middleware/response/follow_redirects'
   autoload :Instrumentation, 'faraday_middleware/instrumentation'
   autoload :Gzip, 'faraday_middleware/gzip'
