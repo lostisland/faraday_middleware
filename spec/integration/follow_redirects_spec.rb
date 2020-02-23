@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'helper'
-require 'faraday_middleware/response/follow_redirects'
-
 RSpec.describe FaradayMiddleware::FollowRedirects do
   it 'redirects on 301' do
     stub_request(:get, 'http://www.site-a.com/').to_return(
