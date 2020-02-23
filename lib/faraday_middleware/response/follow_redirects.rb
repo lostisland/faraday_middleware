@@ -1,19 +1,10 @@
 # frozen_string_literal: true
 
 require 'faraday'
+require 'faraday_middleware/redirect_limit_reached'
 require 'set'
 
 module FaradayMiddleware
-  # Public: Exception thrown when the maximum amount of requests is exceeded.
-  class RedirectLimitReached < Faraday::ClientError
-    attr_reader :response
-
-    def initialize(response)
-      super "too many redirects; last one to: #{response['location']}"
-      @response = response
-    end
-  end
-
   # Public: Follow HTTP 301, 302, 303, 307, and 308 redirects.
   #
   # For HTTP 301, 302, and 303, the original GET, POST, PUT, DELETE, or PATCH
