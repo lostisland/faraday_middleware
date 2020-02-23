@@ -11,6 +11,7 @@ end
 require 'rspec'
 require 'webmock/rspec'
 require 'faraday'
+require 'faraday_middleware'
 
 module EnvCompatibility
   def faraday_env(env)

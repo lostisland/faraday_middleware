@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'helper'
-require 'faraday_middleware/response/parse_yaml'
-
 RSpec.describe FaradayMiddleware::ParseYaml, type: :response do
   context 'no type matching' do
     it "doesn't change nil body" do

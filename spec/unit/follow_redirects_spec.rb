@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-require 'helper'
-require 'faraday_middleware'
-require 'faraday_middleware/response/follow_redirects'
-require 'faraday'
-
 # expose a method in Test adapter that should have been public
 Faraday::Adapter::Test::Stubs.class_eval { public :new_stub }
 
