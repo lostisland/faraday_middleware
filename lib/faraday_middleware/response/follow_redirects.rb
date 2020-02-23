@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'faraday'
-require 'faraday_middleware/redirect_limit_reached'
 require 'set'
 
 module FaradayMiddleware
