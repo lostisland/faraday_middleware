@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require 'helper'
-require 'faraday_middleware/response/parse_dates'
-require 'json'
-
 RSpec.describe FaradayMiddleware::ParseDates, type: :response do
   let(:parsed) { '2012-02-01 13:14:15 UTC' }
 

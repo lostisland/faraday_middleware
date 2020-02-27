@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'helper'
-require 'faraday_middleware/request/encode_json'
-
 RSpec.describe FaradayMiddleware::EncodeJson do
   let(:middleware) { described_class.new(->(env) { env }) }
 

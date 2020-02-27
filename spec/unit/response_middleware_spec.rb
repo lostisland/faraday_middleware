@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'helper'
-require 'faraday_middleware/response_middleware'
-
 RSpec.describe FaradayMiddleware::ResponseMiddleware do
   describe '.define_parser' do
     it 'raises error when missing parser and block' do

@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'helper'
-require 'faraday_middleware/gzip'
-
 RSpec.describe FaradayMiddleware::Gzip, type: :response do
   require 'brotli'
 

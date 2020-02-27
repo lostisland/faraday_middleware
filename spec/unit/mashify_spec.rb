@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'helper'
-require 'faraday_middleware/response/mashify'
-
 RSpec.describe FaradayMiddleware::Mashify do
   MyMash = Struct.new(:body)
 

@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-require 'helper'
-require 'faraday_middleware/request/oauth'
-require 'uri'
-require 'forwardable'
-
 RSpec.describe FaradayMiddleware::OAuth do
   def auth_header(env)
     env[:request_headers]['Authorization']

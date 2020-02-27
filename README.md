@@ -32,28 +32,15 @@ Examples
 ``` rb
 require 'faraday_middleware'
 
-## in Faraday 0.8 or above:
 connection = Faraday.new 'http://example.com/api' do |conn|
   conn.request :oauth2, 'TOKEN'
   conn.request :json
 
-  conn.response :xml,  :content_type => /\bxml$/
-  conn.response :json, :content_type => /\bjson$/
+  conn.response :xml,  content_type: /\bxml$/
+  conn.response :json, content_type: /\bjson$/
 
   conn.use :instrumentation
   conn.adapter Faraday.default_adapter
-end
-
-## with Faraday 0.7:
-connection = Faraday.new 'http://example.com/api' do |builder|
-  builder.use FaradayMiddleware::OAuth2, 'TOKEN'
-  builder.use FaradayMiddleware::EncodeJson
-
-  builder.use FaradayMiddleware::ParseXml,  :content_type => /\bxml$/
-  builder.use FaradayMiddleware::ParseJson, :content_type => /\bjson$/
-
-  builder.use FaradayMiddleware::Instrumentation
-  builder.adapter Faraday.default_adapter
 end
 ```
 

@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'helper'
-require 'faraday_middleware/response/rashify'
-
 RSpec.describe FaradayMiddleware::Rashify do
   context 'when used', type: :response do
     it 'creates a Hashie::Rash from the body' do
