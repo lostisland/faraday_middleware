@@ -15,7 +15,6 @@ gem 'simple_oauth', '>= 0.1', '< 0.3'
 
 group :test do
   gem 'addressable', '< 2.4'
-  # gem 'parallel', '< 1.3.4', platforms: %i[mri_19 mri_20 mri_21]
   gem 'rspec', '>= 3'
   gem 'rubocop-performance', '~> 1.0'
   gem 'simplecov', '~> 0.12.0'
