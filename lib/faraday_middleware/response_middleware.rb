@@ -44,7 +44,7 @@ module FaradayMiddleware
       env[:raw_body] = env[:body] if preserve_raw?(env)
       env[:body] = parse(env[:body])
     rescue Faraday::ParsingError => e
-      raise Faraday::ParsingError.new(e, env[:response])
+      raise Faraday::ParsingError.new(e.wrapped_exception, env[:response])
     end
 
     # Parse the response body.
