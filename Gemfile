@@ -16,7 +16,7 @@ gem 'simple_oauth', '>= 0.1', '< 0.3'
 group :test do
   gem 'addressable', '< 2.4'
   gem 'rspec', '>= 3'
-  gem 'rubocop-performance', '~> 1.0'
+  gem 'rubocop-performance', '~> 1.5.2'
   gem 'simplecov', '~> 0.12.0'
   gem 'webmock', '~> 2.3'
 end
