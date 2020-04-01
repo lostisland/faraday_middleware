@@ -1,0 +1,7 @@
+plugins:
+  rubocop:
+    enabled: true
+    config:
+      file: .rubocop_codeclimate.yml
+    channel: rubocop-0-81
+
