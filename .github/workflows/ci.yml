@@ -26,8 +26,9 @@ jobs:
 
       - name: Rubocop
         run: |
+          gem install rubocop rubocop-packaging --no-document
           gem install rubocop rubocop-performance --no-document
-          rubocop --require rubocop-performance --format progress
+          rubocop --format progress
 
       - name: Yard-Junk
         run: |
