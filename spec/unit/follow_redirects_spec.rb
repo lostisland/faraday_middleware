@@ -9,12 +9,8 @@ RSpec.describe FaradayMiddleware::FollowRedirects do
     # checks env hash in request phase for basic validity
     Struct.new(:app) do
       def call(env)
-        if env[:status] || env[:response] || env[:response_headers]
-          raise "invalid request: #{env.inspect}"
-        end
-        if defined?(Faraday::Env) && !env.is_a?(Faraday::Env)
-          raise "expected Faraday::Env, got #{env.class}"
-        end
+        raise "invalid request: #{env.inspect}" if env[:status] || env[:response] || env[:response_headers]
+        raise "expected Faraday::Env, got #{env.class}" if defined?(Faraday::Env) && !env.is_a?(Faraday::Env)
 
         app.call(env)
       end

@@ -63,9 +63,7 @@ module FaradayMiddleware
       @param_name = options.fetch(:param_name, PARAM_NAME).to_s
       @token_type = options.fetch(:token_type, TOKEN_TYPE).to_s
 
-      if @token_type == 'param' && @param_name.empty?
-        raise ArgumentError, ":param_name can't be blank"
-      end
+      raise ArgumentError, ":param_name can't be blank" if @token_type == 'param' && @param_name.empty?
 
       return unless options[:token_type].nil?
 

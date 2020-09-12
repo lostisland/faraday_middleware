@@ -21,9 +21,7 @@ RSpec.describe FaradayMiddleware::OAuth do
       request: {},
       body: params
     }
-    unless oauth_options.is_a?(Hash) && oauth_options.empty?
-      env[:request][:oauth] = oauth_options
-    end
+    env[:request][:oauth] = oauth_options unless oauth_options.is_a?(Hash) && oauth_options.empty?
     app = make_app
     app.call(faraday_env(env))
   end
