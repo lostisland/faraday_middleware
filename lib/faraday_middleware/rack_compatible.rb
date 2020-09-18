@@ -80,9 +80,7 @@ module FaradayMiddleware
     def finalize_response(env, rack_response)
       status, headers, body = rack_response
       body = body.inject { |str, part| str << part }
-      unless headers.is_a?(Faraday::Utils::Headers)
-        headers = Faraday::Utils::Headers.new(headers)
-      end
+      headers = Faraday::Utils::Headers.new(headers) unless headers.is_a?(Faraday::Utils::Headers)
 
       env.update status: status.to_i,
                  body: body,

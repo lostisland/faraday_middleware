@@ -34,9 +34,7 @@ module FaradayMiddleware
 
     def call(environment)
       @app.call(environment).on_complete do |env|
-        if process_response_type?(response_type(env)) && parse_response?(env)
-          process_response(env)
-        end
+        process_response(env) if process_response_type?(response_type(env)) && parse_response?(env)
       end
     end
 

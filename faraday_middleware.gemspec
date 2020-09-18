@@ -18,5 +18,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'faraday', '~> 1.0'
 
-  spec.files = `git ls-files -z lib LICENSE.md README.md`.split("\0")
+  spec.files = Dir['lib/**/*', 'LICENSE.md', 'README.md']
 end

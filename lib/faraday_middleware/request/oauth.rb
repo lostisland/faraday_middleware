@@ -38,9 +38,7 @@ module FaradayMiddleware
     end
 
     def call(env)
-      if sign_request?(env)
-        env[:request_headers][AUTH_HEADER] ||= oauth_header(env).to_s
-      end
+      env[:request_headers][AUTH_HEADER] ||= oauth_header(env).to_s if sign_request?(env)
       @app.call(env)
     end
 
