@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe FaradayMiddleware::Mashify do
-  MyMash = Struct.new(:body)
+  let(:my_mash_class) { Struct.new(:body) }
 
   context 'when used', type: :response do
     it 'creates a Hashie::Mash from the body' do
@@ -47,11 +47,11 @@ RSpec.describe FaradayMiddleware::Mashify do
 
     it 'allows for use of custom Mash subclasses at the class level' do
       original_class = described_class.mash_class
-      described_class.mash_class = MyMash
+      described_class.mash_class = my_mash_class
 
       begin
         me = process({}).body
-        expect(me).to be_instance_of(MyMash)
+        expect(me).to be_instance_of(my_mash_class)
       ensure
         described_class.mash_class = original_class
       end
@@ -59,11 +59,11 @@ RSpec.describe FaradayMiddleware::Mashify do
   end
 
   context 'custom mash subclass', type: :response do
-    let(:options) { { mash_class: MyMash } }
+    let(:options) { { mash_class: my_mash_class } }
 
     it 'instance level' do
       me = process({}).body
-      expect(me).to be_instance_of(MyMash)
+      expect(me).to be_instance_of(my_mash_class)
     end
   end
 end
