@@ -36,7 +36,6 @@ jobs:
   build:
     needs: [linting]
     runs-on: ubuntu-latest
-    fail-fast: false
     strategy:
       matrix:
         ruby: ['2.4', '2.5', '2.6', '2.7', '3.0']
