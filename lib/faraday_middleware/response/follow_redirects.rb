@@ -133,7 +133,7 @@ module FaradayMiddleware
     def safe_escape(uri)
       uri = uri.split('#')[0] # we want to remove the fragment if present
       uri.to_s.gsub(URI_UNSAFE) do |match|
-        '%' + match.unpack('H2' * match.bytesize).join('%').upcase
+        "%#{match.unpack('H2' * match.bytesize).join('%').upcase}"
       end
     end
 

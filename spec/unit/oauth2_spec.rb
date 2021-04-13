@@ -11,7 +11,7 @@ RSpec.describe FaradayMiddleware::OAuth2 do
 
   def perform(params = {}, headers = {})
     env = {
-      url: URI('http://example.com/?' + Faraday::Utils.build_query(params)),
+      url: URI("http://example.com/?#{Faraday::Utils.build_query(params)}"),
       request_headers: Faraday::Utils::Headers.new.update(headers)
     }
     app = make_app
