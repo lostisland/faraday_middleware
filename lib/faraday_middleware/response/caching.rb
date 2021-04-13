@@ -8,6 +8,7 @@ module FaradayMiddleware
   # Public: Caches GET responses and pulls subsequent ones from the cache.
   class Caching < Faraday::Middleware
     attr_reader :cache
+
     # Internal: List of status codes that can be cached:
     # * 200 - 'OK'
     # * 203 - 'Non-Authoritative Information'
