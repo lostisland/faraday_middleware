@@ -27,7 +27,7 @@ module FaradayMiddleware
     end
 
     def encode(data)
-      ::JSON.dump data
+      ::JSON.generate data
     end
 
     def match_content_type(env)
