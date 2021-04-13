@@ -15,8 +15,27 @@ RSpec.describe FaradayMiddleware::Caching do
     end
   end
 
+  let(:test_cache_class) do
+    Class.new(Hash) do
+      def read(key)
+        cached = self[key]
+        return unless cached
+
+        Marshal.load(cached)
+      end
+
+      def write(key, data, _options = nil)
+        self[key] = Marshal.dump(data)
+      end
+
+      def fetch(key)
+        read(key) || yield.tap { |data| write(key, data) }
+      end
+    end
+  end
+
   before do
-    @cache = TestCache.new
+    @cache = test_cache_class.new
     request_count = 0
     response = lambda { |_env|
       [200, { 'Content-Type' => 'text/plain' }, "request:#{request_count += 1}"]
@@ -116,30 +135,13 @@ RSpec.describe FaradayMiddleware::Caching do
       end
     end
   end
-
-  class TestCache < Hash
-    def read(key)
-      cached = self[key]
-      return unless cached
-
-      Marshal.load(cached)
-    end
-
-    def write(key, data, _options = nil)
-      self[key] = Marshal.dump(data)
-    end
-
-    def fetch(key)
-      read(key) || yield.tap { |data| write(key, data) }
-    end
-  end
 end
 
 # RackCompatible + Rack::Cache
 RSpec.describe FaradayMiddleware::RackCompatible, 'caching' do
   include FileUtils
 
-  CACHE_DIR = File.expand_path('../tmp/cache', __dir__)
+  let(:cache_dir) { File.expand_path('../tmp/cache', __dir__) }
 
   let(:rack_errors_complainer_middleware) do
     # middleware to check whether "rack.errors" is free of error reports
@@ -157,7 +159,7 @@ RSpec.describe FaradayMiddleware::RackCompatible, 'caching' do
   end
 
   before do
-    rm_r CACHE_DIR if File.exist? CACHE_DIR
+    rm_r(cache_dir) if File.exist?(cache_dir)
     # force reinitializing cache dirs
     Rack::Cache::Storage.instance.clear
 
@@ -173,8 +175,8 @@ RSpec.describe FaradayMiddleware::RackCompatible, 'caching' do
       b.use rack_errors_complainer_middleware
 
       b.use FaradayMiddleware::RackCompatible, Rack::Cache::Context,
-            metastore: "file:#{CACHE_DIR}/rack/meta",
-            entitystore: "file:#{CACHE_DIR}/rack/body",
+            metastore: "file:#{cache_dir}/rack/meta",
+            entitystore: "file:#{cache_dir}/rack/body",
             verbose: true
 
       b.adapter :test do |stub|
@@ -198,7 +200,7 @@ RSpec.describe FaradayMiddleware::RackCompatible, 'caching' do
     expect(response['content-type']).to eq('text/plain')
     expect(response.env[:method]).to eq(:get)
     expect(response.env[:request].respond_to?(:fetch)).to be true
-    expect(response.status). to eq(200)
+    expect(response.status).to eq(200)
 
     expect(post('/').body).to eq('request:2')
   end
