@@ -5,7 +5,7 @@ on:
 
   push:
     branches:
-      - master
+      - main
 
 env:
   GIT_COMMIT_SHA: ${{ github.sha }}
