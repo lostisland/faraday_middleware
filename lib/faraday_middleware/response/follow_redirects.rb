@@ -1,18 +1,10 @@
+# frozen_string_literal: true
+
 require 'faraday'
 require 'set'
 
 module FaradayMiddleware
-  # Public: Exception thrown when the maximum amount of requests is exceeded.
-  class RedirectLimitReached < Faraday::Error::ClientError
-    attr_reader :response
-
-    def initialize(response)
-      super "too many redirects; last one to: #{response['location']}"
-      @response = response
-    end
-  end
-
-  # Public: Follow HTTP 301, 302, 303, and 307 redirects.
+  # Public: Follow HTTP 301, 302, 303, 307, and 308 redirects.
   #
   # For HTTP 301, 302, and 303, the original GET, POST, PUT, DELETE, or PATCH
   # request gets converted into a GET. With `:standards_compliant => true`,
@@ -32,26 +24,37 @@ module FaradayMiddleware
   #   end
   class FollowRedirects < Faraday::Middleware
     # HTTP methods for which 30x redirects can be followed
-    ALLOWED_METHODS = Set.new [:head, :options, :get, :post, :put, :patch, :delete]
+    ALLOWED_METHODS = Set.new %i[head options get post put patch delete]
     # HTTP redirect status codes that this middleware implements
-    REDIRECT_CODES  = Set.new [301, 302, 303, 307]
+    REDIRECT_CODES  = Set.new [301, 302, 303, 307, 308]
     # Keys in env hash which will get cleared between requests
-    ENV_TO_CLEAR    = Set.new [:status, :response, :response_headers]
+    ENV_TO_CLEAR    = Set.new %i[status response response_headers]
 
     # Default value for max redirects followed
     FOLLOW_LIMIT = 3
 
     # Regex that matches characters that need to be escaped in URLs, sans
     # the "%" character which we assume already represents an escaped sequence.
-    URI_UNSAFE = /[^\-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]%]/
+    URI_UNSAFE = %r{[^\-_.!~*'()a-zA-Z\d;/?:@&=+$,\[\]%]}.freeze
+
+    AUTH_HEADER = 'Authorization'
 
     # Public: Initialize the middleware.
     #
     # options - An options Hash (default: {}):
-    #           :limit               - A Numeric redirect limit (default: 3)
-    #           :standards_compliant - A Boolean indicating whether to respect
+    #     :limit                      - A Numeric redirect limit (default: 3)
+    #     :standards_compliant        - A Boolean indicating whether to respect
     #                                  the HTTP spec when following 301/302
     #                                  (default: false)
+    #     :callback                   - A callable used on redirects
+    #                                  with the old and new envs
+    #     :cookies                    - An Array of Strings (e.g.
+    #                                  ['cookie1', 'cookie2']) to choose
+    #                                  cookies to be kept, or :all to keep
+    #                                  all cookies (default: []).
+    #     :clear_authorization_header - A Boolean indicating whether the request
+    #                                  Authorization header should be cleared on
+    #                                  redirects (default: true)
     def initialize(app, options = {})
       super(app)
       @options = options
@@ -67,7 +70,7 @@ module FaradayMiddleware
     private
 
     def convert_to_get?(response)
-      ![:head, :options].include?(response.env[:method]) &&
+      !%i[head options].include?(response.env[:method]) &&
         @convert_to_get.include?(response.status)
     end
 
@@ -78,7 +81,9 @@ module FaradayMiddleware
       response.on_complete do |response_env|
         if follow_redirect?(response_env, response)
           raise RedirectLimitReached, response if follows.zero?
-          new_request_env = update_env(response_env, request_body, response)
+
+          new_request_env = update_env(response_env.dup, request_body, response)
+          callback&.call(response_env, new_request_env)
           response = perform_with_redirection(new_request_env, follows - 1)
         end
       end
@@ -86,7 +91,11 @@ module FaradayMiddleware
     end
 
     def update_env(env, request_body, response)
-      env[:url] += safe_escape(response['location'])
+      redirect_from_url = env[:url].to_s
+      redirect_to_url = safe_escape(response['location'] || '')
+      env[:url] += redirect_to_url
+
+      ENV_TO_CLEAR.each { |key| env.delete key }
 
       if convert_to_get?(response)
         env[:method] = :get
@@ -95,14 +104,14 @@ module FaradayMiddleware
         env[:body] = request_body
       end
 
-      ENV_TO_CLEAR.each {|key| env.delete key }
+      clear_authorization_header(env, redirect_from_url, redirect_to_url)
 
       env
     end
 
     def follow_redirect?(env, response)
-      ALLOWED_METHODS.include? env[:method] and
-        REDIRECT_CODES.include? response.status
+      ALLOWED_METHODS.include?(env[:method]) &&
+        REDIRECT_CODES.include?(response.status)
     end
 
     def follow_limit
@@ -113,14 +122,36 @@ module FaradayMiddleware
       @options.fetch(:standards_compliant, false)
     end
 
+    def callback
+      @options[:callback]
+    end
+
     # Internal: escapes unsafe characters from an URL which might be a path
     # component only or a fully qualified URI so that it can be joined onto an
     # URI:HTTP using the `+` operator. Doesn't escape "%" characters so to not
     # risk double-escaping.
     def safe_escape(uri)
-      uri.to_s.gsub(URI_UNSAFE) { |match|
-        '%' + match.unpack('H2' * match.bytesize).join('%').upcase
-      }
+      uri = uri.split('#')[0] # we want to remove the fragment if present
+      uri.to_s.gsub(URI_UNSAFE) do |match|
+        "%#{match.unpack('H2' * match.bytesize).join('%').upcase}"
+      end
+    end
+
+    def clear_authorization_header(env, from_url, to_url)
+      return env if redirect_to_same_host?(from_url, to_url)
+      return env unless @options.fetch(:clear_authorization_header, true)
+
+      env[:request_headers].delete(AUTH_HEADER)
+    end
+
+    def redirect_to_same_host?(from_url, to_url)
+      return true if to_url.start_with?('/')
+
+      from_uri = URI.parse(from_url)
+      to_uri = URI.parse(to_url)
+
+      [from_uri.scheme, from_uri.host, from_uri.port] ==
+        [to_uri.scheme, to_uri.host, to_uri.port]
     end
   end
 end

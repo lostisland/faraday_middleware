@@ -1,5 +1,8 @@
+# frozen_string_literal: true
+
 require 'faraday'
 
+# Main FaradayMiddleware module.
 module FaradayMiddleware
   autoload :OAuth,           'faraday_middleware/request/oauth'
   autoload :OAuth2,          'faraday_middleware/request/oauth2'
@@ -16,34 +19,35 @@ module FaradayMiddleware
   autoload :Caching,         'faraday_middleware/response/caching'
   autoload :Chunked,         'faraday_middleware/response/chunked'
   autoload :RackCompatible,  'faraday_middleware/rack_compatible'
+  autoload :RedirectLimitReached, 'faraday_middleware/redirect_limit_reached'
   autoload :FollowRedirects, 'faraday_middleware/response/follow_redirects'
   autoload :Instrumentation, 'faraday_middleware/instrumentation'
   autoload :Gzip, 'faraday_middleware/gzip'
 
   if Faraday::Middleware.respond_to? :register_middleware
     Faraday::Request.register_middleware \
-      :oauth    => lambda { OAuth },
-      :oauth2   => lambda { OAuth2 },
-      :json     => lambda { EncodeJson },
-      :xml      => lambda { EncodeXml },
-      :method_override => lambda { MethodOverride }
+      oauth: -> { OAuth },
+      oauth2: -> { OAuth2 },
+      json: -> { EncodeJson },
+      xml: -> { EncodeXml },
+      method_override: -> { MethodOverride }
 
     Faraday::Response.register_middleware \
-      :mashify  => lambda { Mashify },
-      :rashify  => lambda { Rashify },
-      :json     => lambda { ParseJson },
-      :json_fix => lambda { ParseJson::MimeTypeFix },
-      :xml      => lambda { ParseXml },
-      :marshal  => lambda { ParseMarshal },
-      :yaml     => lambda { ParseYaml },
-      :dates    => lambda { ParseDates },
-      :caching  => lambda { Caching },
-      :follow_redirects => lambda { FollowRedirects },
-      :chunked => lambda { Chunked }
+      mashify: -> { Mashify },
+      rashify: -> { Rashify },
+      json: -> { ParseJson },
+      json_fix: -> { ParseJson::MimeTypeFix },
+      xml: -> { ParseXml },
+      marshal: -> { ParseMarshal },
+      yaml: -> { ParseYaml },
+      dates: -> { ParseDates },
+      caching: -> { Caching },
+      follow_redirects: -> { FollowRedirects },
+      chunked: -> { Chunked }
 
     Faraday::Middleware.register_middleware \
-      :instrumentation  => lambda { Instrumentation },
-      :gzip => lambda { Gzip }
+      instrumentation: -> { Instrumentation },
+      gzip: -> { Gzip }
   end
 end
 

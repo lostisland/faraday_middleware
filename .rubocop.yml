@@ -1,0 +1,56 @@
+inherit_from: .rubocop_todo.yml
+
+require:
+  - rubocop-packaging
+  - rubocop-performance
+
+AllCops:
+  DisplayCopNames: true
+  DisplayStyleGuide: true
+  TargetRubyVersion: 2.4
+
+Metrics/BlockLength:
+  Exclude:
+    - spec/**/*.rb
+    - examples/**/*.rb
+
+Layout/LineLength:
+  Exclude:
+    - spec/**/*.rb
+    - examples/**/*.rb
+
+Naming/PredicateName:
+  Exclude:
+    - 'lib/faraday_middleware/request/encode_json.rb'
+
+Security/MarshalLoad:
+  Exclude:
+    - 'lib/faraday_middleware/response/parse_marshal.rb'
+    - 'spec/unit/caching_spec.rb'
+
+Style/AccessModifierDeclarations:
+  Exclude:
+    - 'spec/unit/follow_redirects_spec.rb'
+
+Style/DoubleNegation:
+  Enabled: false
+
+Style/Documentation:
+  Exclude:
+    - 'spec/**/*'
+    - 'examples/**/*'
+
+Lint/RaiseException: 
+  Enabled: true
+
+Lint/StructNewOverride: 
+  Enabled: true
+
+Style/HashEachMethods: 
+  Enabled: true
+
+Style/HashTransformKeys:
+  Enabled: true
+
+Style/HashTransformValues: 
+  Enabled: true

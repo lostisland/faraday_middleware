@@ -1,10 +1,13 @@
-require "time"
-require "faraday"
+# frozen_string_literal: true
+
+require 'time'
+require 'faraday'
 
 module FaradayMiddleware
   # Parse dates from response body
   class ParseDates < ::Faraday::Response::Middleware
-    ISO_DATE_FORMAT = /\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z\Z/m
+    ISO_DATE_FORMAT = /\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?
+    (Z|((\+|-)\d{2}:?\d{2}))\Z/xm.freeze
 
     def initialize(app, options = {})
       @regexp = options[:match] || ISO_DATE_FORMAT

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'faraday'
 
 module FaradayMiddleware
@@ -13,20 +15,40 @@ module FaradayMiddleware
   class Gzip < Faraday::Middleware
     dependency 'zlib'
 
-    ACCEPT_ENCODING = 'Accept-Encoding'.freeze
-    CONTENT_ENCODING = 'Content-Encoding'.freeze
-    CONTENT_LENGTH = 'Content-Length'.freeze
-    SUPPORTED_ENCODINGS = 'gzip,deflate'.freeze
-    RUBY_ENCODING = '1.9'.respond_to?(:force_encoding)
+    def self.optional_dependency(lib = nil)
+      lib ? require(lib) : yield
+      true
+    rescue LoadError, NameError
+      false
+    end
+
+    BROTLI_SUPPORTED = optional_dependency 'brotli'
+
+    def self.supported_encodings
+      encodings = %w[gzip deflate]
+      encodings << 'br' if BROTLI_SUPPORTED
+      encodings
+    end
+
+    ACCEPT_ENCODING = 'Accept-Encoding'
+    CONTENT_ENCODING = 'Content-Encoding'
+    CONTENT_LENGTH = 'Content-Length'
+    SUPPORTED_ENCODINGS = supported_encodings.join(',').freeze
 
     def call(env)
       env[:request_headers][ACCEPT_ENCODING] ||= SUPPORTED_ENCODINGS
       @app.call(env).on_complete do |response_env|
-        case response_env[:response_headers][CONTENT_ENCODING]
-        when 'gzip'
-          reset_body(response_env, &method(:uncompress_gzip))
-        when 'deflate'
-          reset_body(response_env, &method(:inflate))
+        if response_env[:body].empty?
+          reset_body(response_env, &method(:raw_body))
+        else
+          case response_env[:response_headers][CONTENT_ENCODING]
+          when 'gzip'
+            reset_body(response_env, &method(:uncompress_gzip))
+          when 'deflate'
+            reset_body(response_env, &method(:inflate))
+          when 'br'
+            reset_body(response_env, &method(:brotli_inflate))
+          end
         end
       end
     end
@@ -39,11 +61,7 @@ module FaradayMiddleware
 
     def uncompress_gzip(body)
       io = StringIO.new(body)
-      gzip_reader = if RUBY_ENCODING
-        Zlib::GzipReader.new(io, :encoding => 'ASCII-8BIT')
-      else
-        Zlib::GzipReader.new(io)
-      end
+      gzip_reader = Zlib::GzipReader.new(io, encoding: 'ASCII-8BIT')
       gzip_reader.read
     end
 
@@ -59,6 +77,14 @@ module FaradayMiddleware
       ensure
         inflate.close
       end
+    end
+
+    def brotli_inflate(body)
+      Brotli.inflate(body)
+    end
+
+    def raw_body(body)
+      body
     end
   end
 end

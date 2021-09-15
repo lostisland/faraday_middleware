@@ -1,7 +1,6 @@
-require 'helper'
-require 'faraday_middleware/request/encode_xml'
+# frozen_string_literal: true
 
-describe FaradayMiddleware::EncodeXml do
+RSpec.describe FaradayMiddleware::EncodeXml do
   let(:middleware) { described_class.new(lambda{ |env| env }) }
 
   def process(body, content_type = nil)

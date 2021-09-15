@@ -1,12 +1,12 @@
-ruby_19 = RUBY_VERSION > '1.9'
-ruby_mri = !defined?(RUBY_ENGINE) || 'ruby' == RUBY_ENGINE
+# frozen_string_literal: true
+
+ruby_mri = !defined?(RUBY_ENGINE) || RUBY_ENGINE == 'ruby'
 default_gemfile = ENV['BUNDLE_GEMFILE'] =~ /Gemfile$/
 
-if ruby_19 && ruby_mri && default_gemfile
-  task :default => [:enable_coverage, :spec]
-  task :default => :quality if RUBY_VERSION < '2.2'
+if ruby_mri && default_gemfile
+  task default: %i[enable_coverage spec]
 else
-  task :default => [:spec]
+  task default: [:spec]
 end
 
 require 'bundler'
@@ -17,13 +17,4 @@ RSpec::Core::RakeTask.new(:spec)
 
 task :enable_coverage do
   ENV['COVERAGE'] = 'yes'
-end
-
-desc %(Check code quality metrics with Cane)
-task :quality do
-  sh 'cane',
-    '--abc-max=15',
-    '--style-measure=110',
-    '--gte=coverage/covered_percent,98.5',
-    '--max-violations=0'
 end

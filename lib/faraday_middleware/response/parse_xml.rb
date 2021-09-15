@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'faraday_middleware/response_middleware'
 
 module FaradayMiddleware
@@ -5,8 +7,8 @@ module FaradayMiddleware
   class ParseXml < ResponseMiddleware
     dependency 'multi_xml'
 
-    define_parser do |body|
-      ::MultiXml.parse(body)
+    define_parser do |body, parser_options|
+      ::MultiXml.parse(body, parser_options || {})
     end
   end
 end

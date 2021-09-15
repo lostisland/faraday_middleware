@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  pull_request:
+
+  push:
+    branches:
+      - main
+
+env:
+  GIT_COMMIT_SHA: ${{ github.sha }}
+  GIT_BRANCH: ${{ github.ref }}
+
+jobs:
+  linting:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Ruby 2.6
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 2.6.x
+
+      - name: Rubocop
+        run: |
+          gem install bundler
+          bundle config set without 'development test'
+          bundle config set with 'lint'
+          bundle install
+          bundle exec rubocop --format progress
+
+      - name: Yard-Junk
+        run: |
+          gem install yard-junk --no-document
+          yard-junk --path lib
+
+  build:
+    needs: [linting]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby: ['2.4', '2.5', '2.6', '2.7', '3.0']
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+    - name: Install system dependencies
+      run: sudo apt install libcurl4-openssl-dev
+    - name: Install Ruby dependencies
+      run: bundle install --jobs 4 --retry 3
+    - name: Test
+      run: bundle exec rake

@@ -1,19 +1,16 @@
-require 'helper'
-require 'faraday_middleware/request/method_override'
+# frozen_string_literal: true
 
-describe FaradayMiddleware::MethodOverride do
-
-  let(:middleware) { described_class.new(lambda {|env| env }, *options) }
+RSpec.describe FaradayMiddleware::MethodOverride do
+  let(:middleware) { described_class.new(->(env) { env }, *options) }
   let(:env) { middleware.call faraday_env(request_env(request_method)) }
 
   def request_env(method)
-    { :method => method,
-      :request_headers => Faraday::Utils::Headers.new
-    }
+    { method: method,
+      request_headers: Faraday::Utils::Headers.new }
   end
 
-  shared_examples "overrides method" do |method|
-    it "sets physical method to POST" do
+  shared_examples 'overrides method' do |method|
+    it 'sets physical method to POST' do
       expect(env[:method]).to eq(:post)
     end
 
@@ -23,70 +20,68 @@ describe FaradayMiddleware::MethodOverride do
   end
 
   shared_examples "doesn't override method" do |method|
-    it "keeps original method" do
+    it 'keeps original method' do
       expect(env[:method]).to eq(method)
     end
 
     it "doesn't set header value" do
       expect(env[:request_headers]).not_to have_key('X-Http-Method-Override')
     end
-
   end
 
-  context "with default options" do
+  context 'with default options' do
     let(:options) { nil }
 
-    context "GET" do
+    context 'GET' do
       let(:request_method) { :get }
       include_examples "doesn't override method", :get
     end
 
-    context "POST" do
+    context 'POST' do
       let(:request_method) { :post }
       include_examples "doesn't override method", :post
     end
 
-    context "PUT" do
+    context 'PUT' do
       let(:request_method) { :put }
-      include_examples "overrides method", 'PUT'
+      include_examples 'overrides method', 'PUT'
     end
   end
 
-  context "configured to rewrite [:patch, :delete]" do
-    let(:options) { [{ :rewrite => [:patch, :delete] }] }
+  context 'configured to rewrite [:patch, :delete]' do
+    let(:options) { [{ rewrite: %i[patch delete] }] }
 
-    context "PUT" do
+    context 'PUT' do
       let(:request_method) { :put }
       include_examples "doesn't override method", :put
     end
 
-    context "PATCH" do
+    context 'PATCH' do
       let(:request_method) { :patch }
-      include_examples "overrides method", 'PATCH'
+      include_examples 'overrides method', 'PATCH'
     end
 
-    context "DELETE" do
+    context 'DELETE' do
       let(:request_method) { :delete }
-      include_examples "overrides method", 'DELETE'
+      include_examples 'overrides method', 'DELETE'
     end
   end
 
   context "configured to rewrite ['PATCH']" do
-    let(:options) { [{ :rewrite => %w[PATCH] }] }
+    let(:options) { [{ rewrite: %w[PATCH] }] }
 
-    context "PATCH" do
+    context 'PATCH' do
       let(:request_method) { :patch }
-      include_examples "overrides method", 'PATCH'
+      include_examples 'overrides method', 'PATCH'
     end
   end
 
-  context "with invalid option" do
-    let(:options) { [{ :hello => 'world' }] }
+  context 'with invalid option' do
+    let(:options) { [{ hello: 'world' }] }
     let(:request_method) { :get }
 
-    it "raises key error" do
-      expect{ env }.to raise_error(IndexError, /key [\s\w]*not found/)
+    it 'raises key error' do
+      expect { env }.to raise_error(IndexError, /key [\s\w]*not found/)
     end
   end
-
 end

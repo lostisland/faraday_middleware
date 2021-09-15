@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require 'stringio'
 
 module FaradayMiddleware
-  # Wraps a handler originally written for Rack to make it compatible with Faraday.
+  # Wraps a handler originally written for Rack for Faraday compatibility.
   #
   # Experimental. Only handles changes in request headers.
   class RackCompatible
@@ -22,7 +24,7 @@ module FaradayMiddleware
       finalize_response(env, rack_response)
     end
 
-    NonPrefixedHeaders = %w[CONTENT_LENGTH CONTENT_TYPE]
+    NON_PREFIXED_HEADERS = %w[CONTENT_LENGTH CONTENT_TYPE].freeze
 
     # faraday to rack-compatible
     def prepare_env(faraday_env)
@@ -31,7 +33,11 @@ module FaradayMiddleware
       url = faraday_env[:url]
       env['rack.url_scheme'] = url.scheme
       env['PATH_INFO'] = url.path
-      env['SERVER_PORT'] = url.respond_to?(:inferred_port) ? url.inferred_port : url.port
+      env['SERVER_PORT'] = if url.respond_to?(:inferred_port)
+                             url.inferred_port
+                           else
+                             url.port
+                           end
       env['QUERY_STRING'] = url.query
       env['REQUEST_METHOD'] = faraday_env[:method].to_s.upcase
 
@@ -45,7 +51,7 @@ module FaradayMiddleware
       rack_env = {}
       env[:request_headers].each do |name, value|
         name = name.upcase.tr('-', '_')
-        name = "HTTP_#{name}" unless NonPrefixedHeaders.include? name
+        name = "HTTP_#{name}" unless NON_PREFIXED_HEADERS.include? name
         rack_env[name] = value
       end
       rack_env
@@ -58,8 +64,9 @@ module FaradayMiddleware
       headers.clear
 
       rack_env.each do |name, value|
-        next unless String === name && String === value
-        if NonPrefixedHeaders.include? name or name.index('HTTP_') == 0
+        next unless name.is_a?(String) && value.is_a?(String)
+
+        if NON_PREFIXED_HEADERS.include?(name) || name.start_with?('HTTP_')
           name = name.sub(/^HTTP_/, '').downcase.tr('_', '-')
           headers[name] = value
         end
@@ -72,12 +79,12 @@ module FaradayMiddleware
 
     def finalize_response(env, rack_response)
       status, headers, body = rack_response
-      body = body.inject() { |str, part| str << part }
-      headers = Faraday::Utils::Headers.new(headers) unless Faraday::Utils::Headers === headers
+      body = body.inject { |str, part| str << part }
+      headers = Faraday::Utils::Headers.new(headers) unless headers.is_a?(Faraday::Utils::Headers)
 
-      env.update :status => status.to_i,
-                 :body => body,
-                 :response_headers => headers
+      env.update status: status.to_i,
+                 body: body,
+                 response_headers: headers
 
       env[:response] ||= Faraday::Response.new(env)
       env[:response]
