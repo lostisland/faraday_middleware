@@ -40,6 +40,9 @@ RSpec.describe FaradayMiddleware::Caching do
     response = lambda { |_env|
       [200, { 'Content-Type' => 'text/plain' }, "request:#{request_count += 1}"]
     }
+    not_found = lambda { |_env|
+      [404, { 'Content-Type' => 'text/plain' }, "request:#{request_count += 1}"]
+    }
     broken = lambda { |_env|
       [500, { 'Content-Type' => 'text/plain' }, "request:#{request_count += 1}"]
     }
@@ -54,6 +57,7 @@ RSpec.describe FaradayMiddleware::Caching do
         stub.get('/broken', &broken)
         stub.get('http://www.site-a.com/test', &response)
         stub.get('http://www.site-b.com/test', &response)
+        stub.get('/not_found', &not_found)
       end
     end
   end
@@ -93,6 +97,40 @@ RSpec.describe FaradayMiddleware::Caching do
   it 'does not cache responses with invalid status code' do
     expect(get('/broken').body).to eq('request:1')
     expect(get('/broken').body).to eq('request:2')
+  end
+
+  context ':cacheable_status_code' do
+    let(:options) { { cacheable_status_code: %w[404] } }
+
+    it 'caches requests based on defined cacheable_status_code' do
+      expect(get('/').body).to eq('request:1')
+      expect(get('/not_found').body).to eq('request:2')
+      expect(get('/').body).to eq('request:3')
+      expect(get('/not_found').body).to eq('request:2')
+    end
+
+    context 'with invalid :cacheable_status_code status' do
+      let(:options) { { cacheable_status_code: %w[404,500] } }
+
+      it 'caches requests based on valid defined cacheable_status_code' do
+        expect(get('/not_found').body).to eq('request:1')
+        expect(get('/broken').body).to eq('request:2')
+        expect(get('/not_found').body).to eq('request:1')
+        expect(get('/broken').body).to eq('request:3')
+      end
+    end
+
+    context 'with no valid :cacheable_status_code status' do
+      let(:options) { { cacheable_status_code: %w[500] } }
+      it 'caches requests based on default cacheable_status_code' do
+        expect(get('/').body).to eq('request:1')
+        expect(get('/broken').body).to eq('request:2')
+        expect(get('/').body).to eq('request:1')
+        expect(get('/not_found').body).to eq('request:3')
+        expect(get('/not_found').body).to eq('request:3')
+        expect(get('/broken').body).to eq('request:4')
+      end
+    end
   end
 
   context ':ignore_params' do
