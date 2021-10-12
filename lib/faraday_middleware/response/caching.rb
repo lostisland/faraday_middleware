@@ -86,10 +86,9 @@ module FaradayMiddleware
       @full_key ||= @options[:full_key]
     end
 
-    def custom_status_code
-      Array(@options[:cacheable_status_code]).map do |status_code|
-        CACHEABLE_STATUS_CODES.include?(status_code.to_i) ? status_code.to_i : nil
-      end.compact
+    def custom_status_codes
+      @custom_status_codes ||= CACHEABLE_STATUS_CODES & Array(@options[:cacheable_status_code]).map(&:to_i)
+      @custom_status_codes.any? ? @custom_status_codes : CACHEABLE_STATUS_CODES
     end
 
     def cache_on_complete(env)
@@ -107,8 +106,7 @@ module FaradayMiddleware
     end
 
     def store_response_in_cache(key, response)
-      @cacheable_status_code = custom_status_code.any? ? custom_status_code : CACHEABLE_STATUS_CODES
-      return unless @cacheable_status_code.include?(response.status)
+      return unless custom_status_codes.include?(response.status)
 
       if @options[:write_options]
         cache.write(key, response, @options[:write_options])
