@@ -89,8 +89,10 @@ module FaradayMiddleware
     end
 
     def custom_status_codes
-      @custom_status_codes ||= CACHEABLE_STATUS_CODES & Array(@options[:status_codes]).map(&:to_i)
-      @custom_status_codes.any? ? @custom_status_codes : CACHEABLE_STATUS_CODES
+      @custom_status_codes ||= begin
+                                 codes = CACHEABLE_STATUS_CODES & Array(@options[:status_codes]).map(&:to_i)
+                                 codes.any? ? codes : CACHEABLE_STATUS_CODES
+                               end
     end
 
     def cache_on_complete(env)

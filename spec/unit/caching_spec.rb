@@ -100,7 +100,7 @@ RSpec.describe FaradayMiddleware::Caching do
   end
 
   context ':cacheable_status_code' do
-    let(:options) { { cacheable_status_code: %w[404] } }
+    let(:options) { { status_codes: %w[404] } }
 
     it 'caches requests based on defined cacheable_status_code' do
       expect(get('/').body).to eq('request:1')
@@ -110,7 +110,7 @@ RSpec.describe FaradayMiddleware::Caching do
     end
 
     context 'with invalid :cacheable_status_code status' do
-      let(:options) { { cacheable_status_code: %w[404,500] } }
+      let(:options) { { status_codes: %w[404,500] } }
 
       it 'caches requests based on valid defined cacheable_status_code' do
         expect(get('/not_found').body).to eq('request:1')
@@ -121,7 +121,7 @@ RSpec.describe FaradayMiddleware::Caching do
     end
 
     context 'with no valid :cacheable_status_code status' do
-      let(:options) { { cacheable_status_code: %w[500] } }
+      let(:options) { { status_codes: %w[500] } }
       it 'caches requests based on default cacheable_status_code' do
         expect(get('/').body).to eq('request:1')
         expect(get('/broken').body).to eq('request:2')
