@@ -26,16 +26,16 @@ module FaradayMiddleware
     #
     # cache   - An object that responds to read and write (default: nil).
     # options - An options Hash (default: {}):
-    #           :ignore_params         - String name or Array names of query
+    #           :ignore_params - String name or Array names of query
     #                                    params that should be ignored when forming
     #                                    the cache key (default: []).
-    #           :write_options         - Hash of settings that should be passed as the
+    #           :write_options - Hash of settings that should be passed as the
     #                                    third options parameter to the cache's #write
     #                                    method. If not specified, no options parameter
     #                                    will be passed.
-    #           :full_key              - Boolean - use full URL as cache key:
+    #           :full_key      - Boolean - use full URL as cache key:
     #                                    (url.host + url.request_uri)
-    #           :cacheable_status_code - Array of http status code to be cache
+    #           :status_codes  - Array of http status code to be cache
     #                                    (default: CACHEABLE_STATUS_CODE)
     #
     # Yields if no cache is given. The block should return a cache object.
@@ -89,7 +89,7 @@ module FaradayMiddleware
     end
 
     def custom_status_codes
-      @custom_status_codes ||= CACHEABLE_STATUS_CODES & Array(@options[:cacheable_status_code]).map(&:to_i)
+      @custom_status_codes ||= CACHEABLE_STATUS_CODES & Array(@options[:status_codes]).map(&:to_i)
       @custom_status_codes.any? ? @custom_status_codes : CACHEABLE_STATUS_CODES
     end
 
