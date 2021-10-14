@@ -2,5 +2,5 @@
 
 # Main FaradayMiddleware module.
 module FaradayMiddleware
-  VERSION = '1.1.0' unless defined?(FaradayMiddleware::VERSION)
+  VERSION = '1.2.0' unless defined?(FaradayMiddleware::VERSION)
 end
