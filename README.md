@@ -7,6 +7,19 @@ A collection of useful [Faraday][] middleware. [See the documentation][docs].
 
     gem install faraday_middleware
 
+## ⚠️ DEPRECATION WARNING ⚠️
+
+As highlighted in Faraday's UPGRADING guide, `faraday_middleware` is DEPRECATED, and will not be updated to support Faraday 2.0.
+If you rely on `faraday_middleware` in your project and would like to support Faraday 2.0:
+* The `json` middleware (request and response) are now both bundled with Faraday 🙌
+* The `instrumentation` middleware is bundled with Faraday
+* All other middleware, they'll be re-released as independent gems compatible with both Faraday v1 and v2
+
+Most of the middleare are looking for adoption, contributors that would like to maintain them.
+If you'd like to maintain any middleware, have any question or need any help, we're here!
+Please reach out opening an issue or a discussion.
+
+
 Dependencies
 ------------
 
