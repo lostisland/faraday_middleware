@@ -9,7 +9,7 @@ A collection of useful [Faraday][] middleware. [See the documentation][docs].
 
 ## ⚠️ DEPRECATION WARNING ⚠️
 
-As highlighted in Faraday's UPGRADING guide, `faraday_middleware` is DEPRECATED, and will not be updated to support Faraday 2.0.
+As highlighted in Faraday's [UPGRADING](https://github.com/lostisland/faraday/blob/main/UPGRADING.md) guide, `faraday_middleware` is DEPRECATED, and will not be updated to support Faraday 2.0.
 If you rely on `faraday_middleware` in your project and would like to support Faraday 2.0:
 * The `json` middleware (request and response) are now both bundled with Faraday 🙌
 * The `instrumentation` middleware is bundled with Faraday
