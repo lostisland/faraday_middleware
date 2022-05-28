@@ -13,7 +13,7 @@ As highlighted in Faraday's [UPGRADING](https://github.com/lostisland/faraday/bl
 If you rely on `faraday_middleware` in your project and would like to support Faraday 2.0:
 * The `json` middleware (request and response) are now both bundled with Faraday 🙌
 * The `instrumentation` middleware is bundled with Faraday
-* All other middleware, they'll be re-released as independent gems compatible with both Faraday v1 and v2
+* All other middlewares, they'll be re-released as independent gems compatible with both Faraday v1 and v2, look for [`awesome-faraday`](https://github.com/lostisland/awesome-faraday)
 
 Most of the middleare are looking for adoption, contributors that would like to maintain them.
 If you'd like to maintain any middleware, have any question or need any help, we're here!
