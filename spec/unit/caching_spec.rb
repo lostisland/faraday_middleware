@@ -17,7 +17,7 @@ RSpec.describe FaradayMiddleware::Caching do
 
   let(:test_cache_class) do
     Class.new(Hash) do
-      def read(key)
+      def read(key, _options = nil)
         cached = self[key]
         return unless cached
 
@@ -169,6 +169,38 @@ RSpec.describe FaradayMiddleware::Caching do
 
       it "doesn't pass a third options parameter to the cache's #write" do
         expect(@cache).to receive(:write).with(Digest::SHA1.hexdigest('/'), instance_of(Faraday::Response))
+        get('/')
+      end
+    end
+  end
+
+  context ':namespace' do
+    let(:options) { { namespace: 'test_cache', write_options: { expires_in: 1 } } }
+
+    it 'passes on the options to the cache\'s #read' do
+      expect(@cache).to receive(:read).with(Digest::SHA1.hexdigest('/'), { namespace: 'test_cache' })
+      get('/')
+    end
+
+    it 'passes on the options to the cache\'s #write' do
+      expect(@cache).to receive(:write).with(Digest::SHA1.hexdigest('/'),
+                                             instance_of(Faraday::Response),
+                                             { expires_in: 1, namespace: 'test_cache' })
+      get('/')
+    end
+
+    context 'with no :namespace' do
+      let(:options) { { write_options: { expires_in: 1 } } }
+
+      it 'doesn\'t pass on the options to the cache\'s #read' do
+        expect(@cache).to receive(:read).with(Digest::SHA1.hexdigest('/'))
+        get('/')
+      end
+
+      it 'doesn\'t pass on the options to the cache\'s #write' do
+        expect(@cache).to receive(:write).with(Digest::SHA1.hexdigest('/'),
+                                               instance_of(Faraday::Response),
+                                               { expires_in: 1 })
         get('/')
       end
     end

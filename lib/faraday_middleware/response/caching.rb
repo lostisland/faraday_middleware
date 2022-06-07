@@ -37,6 +37,9 @@ module FaradayMiddleware
     #                                    (url.host + url.request_uri)
     #           :status_codes  - Array of http status code to be cache
     #                                    (default: CACHEABLE_STATUS_CODE)
+    #           :namespace     - String - can be used to create a namespace within the
+    #                                    cache store. It is especially useful if your
+    #                                    application shares a cache with other applications.
     #
     # Yields if no cache is given. The block should return a cache object.
     def initialize(app, cache = nil, options = {})
@@ -57,7 +60,7 @@ module FaradayMiddleware
         else
           # synchronous mode
           key = cache_key(env)
-          unless (response = cache.read(key)) && response
+          unless (response = read_response_from_cache(key)) && response
             response = @app.call(env)
             store_response_in_cache(key, response)
           end
@@ -97,7 +100,7 @@ module FaradayMiddleware
 
     def cache_on_complete(env)
       key = cache_key(env)
-      if (cached_response = cache.read(key))
+      if (cached_response = read_response_from_cache(key))
         finalize_response(cached_response, env)
       else
         # response.status is nil at this point
@@ -109,11 +112,19 @@ module FaradayMiddleware
       end
     end
 
+    def read_response_from_cache(key)
+      if @options[:namespace]
+        cache.read(key, @options.slice(:namespace))
+      else
+        cache.read(key)
+      end
+    end
+
     def store_response_in_cache(key, response)
       return unless custom_status_codes.include?(response.status)
 
       if @options[:write_options]
-        cache.write(key, response, @options[:write_options])
+        cache.write(key, response, @options[:write_options].merge(@options.slice(:namespace)))
       else
         cache.write(key, response)
       end
