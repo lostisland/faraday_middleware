@@ -49,7 +49,7 @@ module FaradayMiddleware
         cache = nil
       end
       @cache = cache || yield
-      @options = options
+      @options = prepare_options(options)
     end
 
     def call(env)
@@ -113,8 +113,8 @@ module FaradayMiddleware
     end
 
     def read_response_from_cache(key)
-      if @options[:namespace]
-        cache.read(key, @options.slice(:namespace))
+      if @options[:read_options]
+        cache.read(key, @options[:read_options])
       else
         cache.read(key)
       end
@@ -124,7 +124,7 @@ module FaradayMiddleware
       return unless custom_status_codes.include?(response.status)
 
       if @options[:write_options]
-        cache.write(key, response, @options[:write_options].merge(@options.slice(:namespace)))
+        cache.write(key, response, @options[:write_options])
       else
         cache.write(key, response)
       end
@@ -139,6 +139,19 @@ module FaradayMiddleware
         response.instance_variable_set('@env', env)
       end
       response
+    end
+
+    private
+
+    def prepare_options(options)
+      return options unless options.key?(:namespace)
+
+      namespace_options = { namespace: options[:namespace] }
+
+      options.tap do |opt|
+        opt[:write_options] = opt.fetch(:write_options, {}).merge(namespace_options)
+        opt[:read_options] = namespace_options
+      end
     end
   end
 end

@@ -175,7 +175,7 @@ RSpec.describe FaradayMiddleware::Caching do
   end
 
   context ':namespace' do
-    let(:options) { { namespace: 'test_cache', write_options: { expires_in: 1 } } }
+    let(:options) { { namespace: 'test_cache' } }
 
     it "passes on the options to the cache's #read" do
       expect(@cache).to receive(:read).with(Digest::SHA1.hexdigest('/'), { namespace: 'test_cache' })
@@ -185,12 +185,12 @@ RSpec.describe FaradayMiddleware::Caching do
     it "passes on the options to the cache's #write" do
       expect(@cache).to receive(:write).with(Digest::SHA1.hexdigest('/'),
                                              instance_of(Faraday::Response),
-                                             { expires_in: 1, namespace: 'test_cache' })
+                                             { namespace: 'test_cache' })
       get('/')
     end
 
     context 'with no :namespace' do
-      let(:options) { { write_options: { expires_in: 1 } } }
+      let(:options) { {} }
 
       it "doesn't pass on the options to the cache's #read" do
         expect(@cache).to receive(:read).with(Digest::SHA1.hexdigest('/'))
@@ -199,8 +199,18 @@ RSpec.describe FaradayMiddleware::Caching do
 
       it "doesn't pass on the options to the cache's #write" do
         expect(@cache).to receive(:write).with(Digest::SHA1.hexdigest('/'),
+                                               instance_of(Faraday::Response))
+        get('/')
+      end
+    end
+
+    context 'with :write_options' do
+      let(:options) { { namespace: 'test_cache', write_options: { expires_in: 1 } } }
+
+      it "passes on the options to the cache's #write" do
+        expect(@cache).to receive(:write).with(Digest::SHA1.hexdigest('/'),
                                                instance_of(Faraday::Response),
-                                               { expires_in: 1 })
+                                               { expires_in: 1, namespace: 'test_cache' })
         get('/')
       end
     end
