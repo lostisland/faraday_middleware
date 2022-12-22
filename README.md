@@ -15,7 +15,7 @@ If you rely on `faraday_middleware` in your project and would like to support Fa
 * The `instrumentation` middleware is bundled with Faraday
 * All other middlewares, they'll be re-released as independent gems compatible with both Faraday v1 and v2, look for [`awesome-faraday`](https://github.com/lostisland/awesome-faraday)
 
-Most of the middleare are looking for adoption, contributors that would like to maintain them.
+Most of the middlewares are up for adoption, contributors that would like to maintain them.
 If you'd like to maintain any middleware, have any question or need any help, we're here!
 Please reach out opening an issue or a discussion.
 
