@@ -10,7 +10,23 @@ module FaradayMiddleware
     end
 
     define_parser do |body, parser_options|
-      ::JSON.parse(body, parser_options || {}) unless body.strip.empty?
+      next if body.strip.empty?
+
+      parser_options ||= {}
+
+      decoder, method_name =
+        if parser_options[:decoder].is_a?(Array) && parser_options[:decoder].size >= 2
+          parser_options[:decoder].slice(0, 2)
+        elsif parser_options[:decoder].respond_to?(:decode)
+          [parser_options[:decoder], :decode]
+        else
+          [::JSON, :parse]
+        end
+
+      parser_options_without_decoder = parser_options.dup
+      parser_options_without_decoder.delete(:decoder)
+
+      decoder.public_send(method_name, body, parser_options_without_decoder)
     end
 
     # Public: Override the content-type of the response with "application/json"

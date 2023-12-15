@@ -158,7 +158,7 @@ RSpec.describe FaradayMiddleware::EncodeJson do
       let(:middleware) { described_class.new(->(env) { env }) }
 
       it 'calls JSON.generate' do
-        expect(JSON).to receive(:generate).with({ a: 1 }, a_kind_of(Hash))
+        expect(JSON).to receive(:generate).with({ a: 1 })
 
         result
       end
