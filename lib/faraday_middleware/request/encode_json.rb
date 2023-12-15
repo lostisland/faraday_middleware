@@ -27,7 +27,13 @@ module FaradayMiddleware
     end
 
     def encode(data)
-      ::JSON.generate data
+      if options[:encoder].is_a?(Array) && options[:encoder].size >= 2
+        options[:encoder][0].public_send(options[:encoder][1], data)
+      elsif options[:encoder].respond_to?(:encode)
+        options[:encoder].encode(data)
+      else
+        ::JSON.dump data
+      end
     end
 
     def match_content_type(env)
