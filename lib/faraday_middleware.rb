@@ -27,13 +27,11 @@ module FaradayMiddleware
     Faraday::Request.register_middleware \
       oauth: -> { OAuth },
       oauth2: -> { OAuth2 },
-      json: -> { EncodeJson },
       method_override: -> { MethodOverride }
 
     Faraday::Response.register_middleware \
       mashify: -> { Mashify },
       rashify: -> { Rashify },
-      json: -> { ParseJson },
       json_fix: -> { ParseJson::MimeTypeFix },
       xml: -> { ParseXml },
       marshal: -> { ParseMarshal },
@@ -46,6 +44,13 @@ module FaradayMiddleware
     Faraday::Middleware.register_middleware \
       instrumentation: -> { Instrumentation },
       gzip: -> { Gzip }
+
+    # The request/reponse JSON middleware is included in Faraday since
+    # version 1.10.0, so we only register the middleware if it's not already.
+    if Gem::Version.new(Faraday::VERSION) < Gem::Version.new('1.10.0')
+      Faraday::Request.register_middleware(json: -> { EncodeJson })
+      Faraday::Response.register_middleware(json: -> { ParseJson })
+    end
   end
 end
 
