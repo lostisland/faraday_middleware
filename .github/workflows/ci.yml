@@ -24,17 +24,8 @@ jobs:
         with:
           ruby-version: 2.6
           bundler-cache: true # 'bundle install' and cache gems
-
       - name: Rubocop
         run: bundle exec rubocop --format progress
-
-      # Deal with "yard-junk now requires Ruby version >= 2.7.0. The current ruby version is 2.6.10.210."
-      - name: Yard-Junk
-        run: |
-          gem install ostruct
-          gem install yard-junk -v 0.0.9 --no-document
-          RUBYOPT='-r ostruct' yard-junk --path lib
-
   build:
     needs: [linting]
     runs-on: ubuntu-latest
