@@ -31,6 +31,7 @@ jobs:
       # Deal with "yard-junk now requires Ruby version >= 2.7.0. The current ruby version is 2.6.10.210."
       - name: Yard-Junk
         run: |
+          gem install ostruct
           gem install yard-junk -v 0.0.9 --no-document
           yard-junk --path lib
 
