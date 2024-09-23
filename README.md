@@ -1,7 +1,7 @@
 Faraday Middleware
 ==================
 [![Gem Version](https://badge.fury.io/rb/faraday_middleware.svg)](https://rubygems.org/gems/faraday_middleware)
-![GitHub Actions CI](https://github.com/lostisland/faraday_middleware/workflows/CI/badge.svg)
+[![CI](https://github.com/lostisland/faraday_middleware/actions/workflows/ci.yml/badge.svg)](https://github.com/lostisland/faraday_middleware/actions/workflows/ci.yml)
 
 A collection of useful [Faraday][] middleware. [See the documentation][docs].
 
