@@ -44,7 +44,7 @@ jobs:
 
     steps:
     - name: Install system dependencies
-      run: sudo apt install libcurl4-openssl-dev
+      run: sudo apt-get update && sudo apt install libcurl4-openssl-dev
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
       with:
