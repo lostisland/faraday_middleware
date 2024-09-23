@@ -14,27 +14,26 @@ env:
 jobs:
   linting:
     runs-on: ubuntu-latest
-
+    env:
+      BUNDLE_WITHOUT: 'development test'
+      BUNDLE_WITH: 'lint'
     steps:
-      - uses: actions/checkout@v3
-
+      - uses: actions/checkout@v4
       - name: Set up Ruby 2.6
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.6
+          bundler-cache: true # 'bundle install' and cache gems
 
       - name: Rubocop
-        run: |
-          gem install bundler
-          bundle config set without 'development test'
-          bundle config set with 'lint'
-          bundle install
-          bundle exec rubocop --format progress
+        run: bundle exec rubocop --format progress
 
+      # Deal with "yard-junk now requires Ruby version >= 2.7.0. The current ruby version is 2.6.10.210."
       - name: Yard-Junk
         run: |
-          gem install yard-junk --no-document
-          yard-junk --path lib
+          gem install ostruct
+          gem install yard-junk -v 0.0.9 --no-document
+          RUBYOPT='-r ostruct' yard-junk --path lib
 
   build:
     needs: [linting]
@@ -44,13 +43,12 @@ jobs:
         ruby: ['2.4', '2.5', '2.6', '2.7', '3.0', '3.1', '3.2']
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Install system dependencies
+      run: sudo apt-get update && sudo apt install libcurl4-openssl-dev
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
-    - name: Install system dependencies
-      run: sudo apt install libcurl4-openssl-dev
-    - name: Install Ruby dependencies
-      run: bundle install --jobs 4 --retry 3
+        bundler-cache: true # 'bundle install' and then cache gems
     - name: Test
       run: bundle exec rake
