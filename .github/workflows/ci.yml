@@ -33,7 +33,7 @@ jobs:
         run: |
           gem install ostruct
           gem install yard-junk -v 0.0.9 --no-document
-          yard-junk --path lib
+          RUBYOPT='-r ostruct' yard-junk --path lib
 
   build:
     needs: [linting]
